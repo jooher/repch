@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>repch</title>
+	<link rel="stylesheet" href="style.css"/>
+	<script src="https://dap.js.org/0.4.js" _src="0.4.js"></script>
+	<script src="persist.js"></script>
+	
+	<style>
+.EMPTY{display:none}
+
+.ui{cursor:pointer;}
+.ui:hover{text-decoration:underline}
+
+
+/*[class]:before{content:attr(class);color:lightgray; display:block;}*/
+
+	</style>
+</head>
+
+<body>4627073803671
+<script>
+
+	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
+		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what})
+	;
+
+	'client'.d("$Entity= $entries=entries:db $aspects=aspects:db $entities=entities:db $opinions=opinions:db $lists=lists:db $listentities=listentities:db"
+	
+		,'ARTICLE.find'.d(""
+		
+			,'SECTION.entry'.d("$entry="
+				//,'INPUT.barcode'.d("hint dict.barcode").ui("$method=`barcode $key=#:value")
+				//,'SELECT.method'.d("Options(method@options)").ui("$method=#:value")
+				,'INPUT.key'.ui("log $entry=#:value,prefix")
+			).u("? $entry; ? .Entry=($entries $entry@find)db $entries=($entries .Entry=($entry .entity:uid)@add )db; ? $Entity=($entities .Entry.entity@find)db $entities=($entities $Entity=(.Entry.entity)@add )db")
+			
+/*			
+			,'myitems'.d("* $aspects.data"
+				,'aspect'.d("! .title")
+				,'credits'.d("* ($opinions (.aspect)@filter)db"
+					,'item'.d(""
+						,editable("title").ui("($entities (.entity .title)~@add)db")
+						,'opinion'.d(""
+							,editable("note")
+							,editable("credit")
+						).u("($opinions ((.entity .aspect)@about .credit .note)@add )db")
+					)
+				)
+			)
+*/			
+		)
+		
+		,'ARTICLE.entity'.d("? $Entity; * $Entity@"
+				
+			,'SECTION.editables'.d(""
+				,input("title")
+				,input("desc")
+			).u("($entities $@add)db")
+			
+			,'SECTION.tags'.d("*@ $lists.data"
+				,'tag'
+				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
+				.a("!? $?@tagged")
+				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
+			)
+			
+			//,'BUTTON.bindto'.d("! `Bind")
+		
+/*				,'SELECT.category'
+				.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
+				.ui(".aspects=#:value")
+			,'aspects'.d("Aspects($entity.aspects)")
+			
+*/
+			,'TABLE.aspects'.d(""
+				
+				,'TBODY.opinions'.d("* ($opinions (.entity)@filter)db"
+					,'TR.aspect'.d("$?="
+						,'TD.name'.d("! .aspect Stats")
+						,'TD.credit'.d("! Credit").u("$?=:!")
+						,'TD.note'.d("",'INPUT'.d("!! .note@value").ui("$?=.note=#:value"))
+						,'TD.submit'.d("",'BUTTON'.d("? $?; ! `submit").ui("$opinions=($opinions $@add)db $?="))
+					)
+				)
+					
+				,'add'.d("! `addaspect; $aspect="
+					,'SELECT.addaspect'
+						.d("hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")
+						.ui("$aspect=#:value")// $credit=(.aspects $aspect)findcredit
+					,'BUTTON'
+						.d("? $aspect; ! `submit")
+						.ui("$opinions=($opinions ( (.entity $aspect)~@about .entity $aspect)@add )db")
+				)
+			)
+			
+		)//.u("$entities=($entities $entity=(.entity .title .aspects)@add )db; ?")
+
+		,'ARTICLE.lists'.d("$list="
+			,'SELECT'.d("*@ $lists.data"
+				,'OPTION'.d("!! .title@ .list@value")
+			).ui("$list=#:value")
+			
+			,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=($lists ($list=:uid .title)@add )db")
+			
+/*			,'addlist'.d("$?="
+				,'BUTTON'.d("? $?:!").ui("$?=:!")
+				,'INPUT'.d("? $?").ui(" $?=")
+			)
+*/
+			,'UL.entities'.d("? $list; * ($listentities ($list)@filter )db"
+				,'LI'
+				.d("? .pos; * ($entities .entity@find)db; ! .title")//;  Stats Credits
+				.ui("$Entity=($entities .entity@find)db")
+			)
+		)
+		
+		,'ARTICLE.categories'.d(
+		)
+			
+		,'ARTICLE.service'.d(""
+			,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+		)
+	
+
+
+		
+	)
+
+	.DICT({
+		Credit	:'INPUT type=number'.d("!! .credit@value").ui(".credit=#:value"),
+	
+		Aspects	: 'aspects'.d("*@ .aspects"
+				,'title'.d("! ((dict.aspects .title)pull .title)?")
+				,'mark'.d("! .mark")
+				,'subaspects'.d("! (.aspects Aspects)!")
+			),
+		
+		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
+		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
+		
+		
+		entries	:{pkey:"entry"},	// entry(method,word):entity
+		aspects	:{pkey:"aspect"},	// aspect: title
+		entities:{pkey:"entity"},	// entity: title,aspects
+		opinions:{pkey:"about"},	// about(entity,aspect): entity, aspect, credit, note
+		lists	:{pkey:"list"},		// list: title
+		listentities:{pkey:"listentity"}, // listentity: pos
+		
+		method	:['barcode','uri'],
+		
+		dict	:{
+			barcode	:"barcode",
+			editable:{
+				title	:"Entity title",
+				credit	:"Credit",
+				note	:"Note",
+				aspects	:"Applicable aspects"
+			},
+			prompt	:{
+				addlist	:"New list title"
+			}
+		},
+		
+
+		mock	:{
+			aspect:['general','taste','nutrition','ethic']
+		}
+
+	})
+	
+	.FUNC({
+		operate	:{
+			hint	:(value,alias,node)=>{node.setAttribute("placeholder",value)},
+			storage	:{
+				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
+			}
+		},
+		flatten	:{
+			"~"	:values=>values.join(":"),
+			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
+		},
+		convert	:{
+			uid	:(function(){
+					let seed=parseInt(localStorage.getItem("next")||"1");
+					return present=>{
+						if(present)return present;
+						localStorage.setItem("next",++seed);
+						return seed;
+					}
+				})(),
+				
+			prefix	:key=>
+				key.match(/^https?\:/)?key:
+				key.match(/^\d{13}$/)?"ean:"+key:
+				alert("Can't recognize key format")
+		}
+	})
+	
+	.FUNC(Persist)
+	
+	.RENDER()
+
+	</script>
+
+</body>
+</html>
+<script>
+/*
+server	History{
+
+	table	Stakes{
+		>Forum,Author,Item
+		Credit : -1.0 .. +1.0
+		Stake : 0.0 .. 1.0
+		Time
+	}
+	
+	table	Forums{
+		>Forum
+		Trust = 0.0 .. +1.0
+	}
+}
+
+const
+
+local=(()=>{
+	
+	const
+	Aspects = table("aspect: title"),
+	Entities= table("entity: title"),
+	Opinions= table("entity, aspect: credit, note");
+	
+	return	{
+		
+		get	:{
+			aspects :$=>Aspects.order({pref:'-'}),
+			credits	:$=>Credits.where({$.aspect}).join(Entities),
+		},
+		
+		put	:{
+			entity	:$=>Entities.update($),	//entity,title
+			credit	:$=>Credits.update($),	//entity,aspect,credit,note
+		}
+	}
+	
+})();
+
+
+const
+
+Forum=(()=>{
+	
+	function
+	δ( Bets|Credit b, Item|Credit i ) = ( i - b)²,
+	
+	const
+	Authors	= table("author: oauth: title"),
+	Entries	= table("method,key: entity"),
+	Entities= table("entity: title"),
+	Aspects	= table("aspect: title"),
+	Items	= table("item: aspect,entity: credit,weight"),
+	Bets	= table("bet: author,aspect,entity: credit,stake,bonus,reward,date"),
+	Trusts	= table("trust: author,aspect: weight");
+	
+	return	{
+		
+		Bet	:(author,aspect,entity,credit,stake)=>{
+			
+			let	weight	= Trusts{author,aspect}.weight,
+				bonus	= D(credit, Items{aspect,entity}.credit);
+			
+			if(weight>0)
+				Items{aspect,entity} .credit+=credit*weight, .weight+=weight;
+			
+			Bets{author,aspect,entity} credit,stake,bonus;
+		},
+		
+		Trust	:(author,aspect)=>{
+			
+			Bets{author,aspect}
+				reward	= Sum .reward = .bonus - tau*D(credit,Items{aspect,.entity}.credit) / .stake; // ???
+				
+			Trusts{author,aspect} weight+=reward;
+		},
+		
+	}
+})
+*/
+</script>
+

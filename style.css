@@ -1,0 +1,109 @@
+.title{font: bold 1.5em sans-serif;}
+
+body {
+    width: 40em;
+    margin: 0 auto;
+    text-align: center;
+}
+
+input.barcode {
+    display: block;
+    text-align: center;
+    margin: 2em auto;
+}
+
+.editables {
+    /* margin: 2em auto; */
+    /* font-size: 1.5em; */
+}
+
+td>input{
+	border:none;
+}
+
+td.credit {
+    width: 4em;
+}
+
+td>input {
+    width: 100%;
+}
+
+table.aspects {
+    margin: auto;
+}
+
+td.stats {
+    text-align: right;
+}
+
+input[type=number] {
+    text-align: right;
+}
+
+td.submit>button {
+    position: absolute;
+}
+
+td.name {
+    text-align: right;
+}
+
+article {
+    border: 1px solid gray;
+    padding: 1em;
+    margin: 1em;
+    position: relative;
+}
+
+.addlist>button:before {
+    content: "Add list";
+}
+
+section {
+    margin: 1em;
+}
+
+article:before {
+    top: 0;
+    position: absolute;
+    left: 0;
+    background: black;
+    color: lime;
+    padding: .5em;
+    content: attr(class);
+}
+
+.tagged {
+    background: orange;
+}
+
+.tag {
+    display: inline;
+    margin: .2em;
+    padding: .2em .5em;
+}
+
+[contenteditable], .editables>input {
+    border: none;
+    /* display: block; */
+    width: 80%;
+    border-bottom: 1px dotted goldenrod;
+    background: cornsilk;
+    margin: .5em 0;
+    cursor: text !important;
+    /* text-align: center; */
+}
+
+input::placeholder {
+    font: italic 1em sans-serif;
+    color: lightgray;
+}
+
+input {
+    text-align: inherit;
+}
+
+button.addlist:before {
+    content: "Add list";
+}

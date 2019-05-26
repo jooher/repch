@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>repch</title>
+	
+	<style>
+	video,canvas,img{width:320px; height:240px; border:2px solid; margin:1em}
+	
+	</style>
+	
+</head>	
+
+
+<body>
+    <video id="video" autoplay>Video stream not available.</video>
+    <button onclick="start()">Start</button>
+    <button onclick="capture()">Capture</button> 
+    <canvas id="canvas"></canvas>
+    <img id="photo"> 
+  </div>
+
+</body>
+
+<script>
+const	e	= id=>document.getElementById(id),
+	video	= e("video"),
+	canvas	= e("canvas"),
+	
+	start	=()=>	navigator.mediaDevices.getUserMedia({video: true, audio: false})
+			.catch(e=>console.log("An error occurred: " + err))
+			.then(stream=>video.srcObject = stream),
+			
+	capture	=()=>	{
+		const	context = canvas.getContext('2d'),
+			w=canvas.width,
+			h=canvas.height;
+			
+		context.drawImage(video, 0, 0, w, h);//
+		
+		const	pixels=context.getImageData(0, h/2, w, 1);
+
+		//var data = canvas.toDataURL('image/png');
+		//photo.setAttribute('src', data);
+	},
+
+	scan	=pixels=>{
+	}
+	
+</script>
+
+</html>
