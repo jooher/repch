@@ -13,7 +13,7 @@ input.barcode {
 }
 
 .editables {
-    margin: 4em 0;
+    /* margin: 4em 1em; */
     /* font-size: 1.5em; */
 }
 
@@ -54,6 +54,7 @@ article {
     /* padding: 1em; */
     /* margin: 1em; */
     position: relative;
+    margin: 1em 0;
 }
 
 .addlist>button:before {
@@ -89,10 +90,12 @@ article:before {
     display: block;
     width: 100%;
     border-bottom: 1px dotted goldenrod;
-    background: cornsilk;
-    margin: .5em 0;
+    /* background: cornsilk; */
+    /* margin: 1em 0; */
     cursor: text !important;
     /* text-align: center; */
+    padding: .5em;
+    box-sizing: border-box;
 }
 
 input::placeholder {
@@ -126,6 +129,7 @@ html,body {
 .tabs {
     text-align: left;
     padding: .25em;
+    border-bottom: 2px solid orange;
 }
 
 header {
@@ -143,7 +147,6 @@ header>select {
 .client {
     height: 100%;
     margin: 0;
-    /* padding: 1em; */
     box-sizing: border-box;
     background: whitesmoke;
     position: relative;
@@ -152,6 +155,7 @@ header>select {
 ul.entities {
     background: white;
     border: 4px solid orange;
+    border-top: none;
     padding: 1em;
     margin: 0;
     list-style: none;
@@ -162,7 +166,100 @@ article.find {
     position: absolute;
     bottom: 0;
     width: 100%;
-    padding: 1em;
+    padding: .5em;
     background: burlywood;
     box-sizing: border-box;
+    display: flex;
+    font-size: 1.5em;
+}
+
+section.entry {
+    display: flex;
+    width: 100%;
+}
+
+button.scan:before {
+    content: "Scan";
+}
+
+input.key {
+    flex: 1;
+    margin-right: .5em;
+}
+
+.tabs:before {
+    content: "►◄ REPCH";
+    margin-right: 1em;
+    font: bold 1em sans-serif;
+    color: orange;
+}
+
+input,button {
+    font-size: inherit;
+}
+
+.aspect {
+    display: flex;
+    flex: 1;
+}
+
+img.stats {
+    width: 1em;
+    height: 1em;
+    margin: .2em;
+    vertical-align: bottom;
+}
+
+section.opinions {
+    padding: 1em;
+    /* margin: 1em 0; */
+    background: white;
+}
+
+input.credit {
+    width: 3em;
+}
+
+.opinion>.name {
+    display: inline-block;
+    width: 20%;
+    text-align: left;
+}
+
+.opinion>.stats {
+    display: flex;
+    flex: 1;
+    text-align: left;
+}
+
+.opinion {
+    display: flex;
+    margin: .5em;
+}
+
+.present>.opinion{
+    border-bottom: 1px solid lightgray;    
+}
+
+.aspect>.note {
+    flex: 1;
+}
+
+.aspect>input {
+    border: none;
+    background: cornsilk;
+    margin-left: .5em;
+}
+
+button.addaspect:before {
+    content: "Добавить аспект";
+}
+
+article.entity {
+    background: beige;
+    padding: 1em;
+}
+
+section.tags {
+    margin: 1em 0;
 }

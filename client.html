@@ -62,9 +62,24 @@
 			,'aspects'.d("Aspects($entity.aspects)")
 			
 */
+			,'SECTION.opinions'.d(
+				'present'.d("* ($opinions (.entity)@filter)db"
+					,'opinion'.d(""
+						,'name'.d("! .aspect")
+						,'stats'.d("! Aspect")
+					)
+				)
+				,'opinion'.d("$?="
+					,'SELECT.name'.d("hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")
+						.ui("$?=.aspect=#:value .about=(.entity .aspect)~")//.entity=$entity
+					,'BUTTON.addaspect'.ui("$opinions=($opinions $@add)db")
+					//,'stats'.d("? $?; ! Aspect")
+				)
+			)
+/*
 			,'TABLE.aspects'.d(""
 				
-				,'TBODY.opinions'.d("* ($opinions (.entity)@filter)db"
+				,'TBODY.opinions'.d(""
 					,'TR.aspect'.d("$?="
 						,'TD.name'.d("! .aspect Stats")
 						,'TD.credit'.d("! Credit").u("$?=:!")
@@ -72,17 +87,14 @@
 						,'TD.submit'.d("",'BUTTON'.d("? $?; ! `submit").ui("$opinions=($opinions $@add)db $?="))
 					)
 				)
-					
+				
 				,'add'.d("! `addaspect; $aspect="
-					,'SELECT.addaspect'
-						.d("hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")
-						.ui("$aspect=#:value")// $credit=(.aspects $aspect)findcredit
 					,'BUTTON'
 						.d("? $aspect; ! `submit")
 						.ui("$opinions=($opinions ( (.entity $aspect)~@about .entity $aspect)@add )db")
 				)
 			)
-			
+*/			
 		)//.u("$entities=($entities $entity=(.entity .title .aspects)@add )db; ?")
 		
 /*			
@@ -100,29 +112,32 @@
 		)
 */			
 
-		,'ARTICLE.find'.d(""
-			,'4627073803671'	
+		,'ARTICLE.find'.d("" //,'4627073803671'	
 			,'SECTION.entry'.d("$entry="
-				//,'INPUT.barcode'.d("hint dict.barcode").ui("$method=`barcode $key=#:value")
-				//,'SELECT.method'.d("Options(method@options)").ui("$method=#:value")
 				,'INPUT.key'.ui("log $entry=#:value,prefix")
+				,'BUTTON.scan'.ui("(`scan)alert")
 			).u("? $entry; ? .Entry=($entries $entry@find)db $entries=($entries .Entry=($entry .entity:uid)@add )db; ? $Entity=($entities .Entry.entity@find)db $entities=($entities $Entity=(.Entry.entity)@add )db")
 			
 		)
 		
-
-		
 	)
 
 	.DICT({
-		Credit	:'INPUT type=number'.d("!! .credit@value").ui(".credit=#:value"),
 	
+		Aspect	: 'aspect'.d(""
+				,'IMG.stats'.d()
+				,'INPUT.credit type=number'.d("!! .credit@value").ui(".credit=#:value")
+				,'INPUT.note'.d("!! .note@value").ui(".note=#:value")
+			).u("$opinions=($opinions $@add)db"),				
+		
+	
+/*	
 		Aspects	: 'aspects'.d("*@ .aspects"
 				,'title'.d("! ((dict.aspects .title)pull .title)?")
 				,'mark'.d("! .mark")
 				,'subaspects'.d("! (.aspects Aspects)!")
 			),
-		
+*/		
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
 		
