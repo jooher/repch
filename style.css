@@ -1,7 +1,7 @@
 .title{font: bold 1.5em sans-serif;}
 
 body {
-    width: 40em;
+    max-width: 40em;
     margin: 0 auto;
     text-align: center;
 }
@@ -13,7 +13,7 @@ input.barcode {
 }
 
 .editables {
-    /* margin: 2em auto; */
+    margin: 4em 0;
     /* font-size: 1.5em; */
 }
 
@@ -50,9 +50,9 @@ td.name {
 }
 
 article {
-    border: 1px solid gray;
-    padding: 1em;
-    margin: 1em;
+    /* border: 1px solid gray; */
+    /* padding: 1em; */
+    /* margin: 1em; */
     position: relative;
 }
 
@@ -61,16 +61,16 @@ article {
 }
 
 section {
-    margin: 1em;
+    /* margin: 1em; */
 }
 
 article:before {
     top: 0;
     position: absolute;
-    left: 0;
-    background: black;
-    color: lime;
-    padding: .5em;
+    right: 0;
+    /* background: black; */
+    color: lightblue;
+    padding: 0 .2em;
     content: attr(class);
 }
 
@@ -86,8 +86,8 @@ article:before {
 
 [contenteditable], .editables>input {
     border: none;
-    /* display: block; */
-    width: 80%;
+    display: block;
+    width: 100%;
     border-bottom: 1px dotted goldenrod;
     background: cornsilk;
     margin: .5em 0;
@@ -106,4 +106,63 @@ input {
 
 button.addlist:before {
     content: "Add list";
+}
+
+.tab {
+    display: inline;
+    padding: .5em;
+}
+
+.tab.selected {
+    background: orange;
+}
+
+html,body {
+    padding: 0;
+    height: 100%;
+    margin: 0 auto;
+}
+
+.tabs {
+    text-align: left;
+    padding: .25em;
+}
+
+header {
+    display: flex;
+    background: orange;
+    padding: .5em;
+    margin: 0;
+}
+
+header>select {
+    flex: 1;
+    margin-right: .5em;
+}
+
+.client {
+    height: 100%;
+    margin: 0;
+    /* padding: 1em; */
+    box-sizing: border-box;
+    background: whitesmoke;
+    position: relative;
+}
+
+ul.entities {
+    background: white;
+    border: 4px solid orange;
+    padding: 1em;
+    margin: 0;
+    list-style: none;
+    text-align: left;
+}
+
+article.find {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 1em;
+    background: burlywood;
+    box-sizing: border-box;
 }
