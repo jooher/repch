@@ -1,78 +1,89 @@
 .title{font: bold 1.5em sans-serif;}
 
+button.addlist:before {
+    content: "Создать новый список";
+}
+
+button.addcat:before {
+    content: "Создать новую категорию";
+}
+
+button.addaspect:before {
+    content: "Добавить аспект";
+}
+
+html,body {
+    padding: 0;
+    height: 100%;
+    margin: 0 auto;
+}
+
 body {
     max-width: 40em;
     margin: 0 auto;
     text-align: center;
 }
 
-input.barcode {
-    display: block;
-    text-align: center;
-    margin: 2em auto;
+.client {
+    height: 100%;
+    margin: 0;
+    padding: 1px 0;
+    box-sizing: border-box;
+    background: whitesmoke;
+    position: relative;
 }
 
-.editables {
-    /* margin: 4em 1em; */
-    /* font-size: 1.5em; */
-}
-
-td>input{
-	border:none;
-}
-
-td.credit {
-    width: 4em;
-}
-
-td>input {
-    width: 100%;
-}
-
-table.aspects {
-    margin: auto;
-}
-
-td.stats {
-    text-align: right;
+input {
+    text-align: inherit;
 }
 
 input[type=number] {
     text-align: right;
 }
 
-td.submit>button {
-    position: absolute;
+input::placeholder {
+    font: italic 1em sans-serif;
+    color: lightgray;
 }
 
-td.name {
-    text-align: right;
+[contenteditable], .editables>input {
+    border: none;
+    display: block;
+    width: 100%;
+    border-bottom: 1px dotted goldenrod;
+    cursor: text !important;
+    padding: .5em;
+    box-sizing: border-box;
+}
+
+input.credit {
+    width: 3em;
 }
 
 article {
-    /* border: 1px solid gray; */
-    /* padding: 1em; */
-    /* margin: 1em; */
     position: relative;
     margin: 1em 0;
-}
-
-.addlist>button:before {
-    content: "Add list";
-}
-
-section {
-    /* margin: 1em; */
 }
 
 article:before {
     top: 0;
     position: absolute;
     right: 0;
-    /* background: black; */
     color: lightblue;
     padding: 0 .2em;
-    content: attr(class);
+    /* content: attr(class); */
+}
+
+article.find {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: .5em;
+    background: burlywood;
+    box-sizing: border-box;
+    display: flex;
+    font-size: 1.5em;
+    margin: 0;
 }
 
 .tagged {
@@ -85,30 +96,18 @@ article:before {
     padding: .2em .5em;
 }
 
-[contenteditable], .editables>input {
-    border: none;
-    display: block;
-    width: 100%;
-    border-bottom: 1px dotted goldenrod;
-    /* background: cornsilk; */
-    /* margin: 1em 0; */
-    cursor: text !important;
-    /* text-align: center; */
-    padding: .5em;
-    box-sizing: border-box;
+
+.tabs {
+    text-align: left;
+    padding: .25em;
+    border-bottom: 2px solid orange;
 }
 
-input::placeholder {
-    font: italic 1em sans-serif;
-    color: lightgray;
-}
-
-input {
-    text-align: inherit;
-}
-
-button.addlist:before {
-    content: "Add list";
+.tabs:before {
+    content: "►◄ REPCH";
+    margin-right: 1em;
+    font: bold 1em sans-serif;
+    color: orange;
 }
 
 .tab {
@@ -118,18 +117,6 @@ button.addlist:before {
 
 .tab.selected {
     background: orange;
-}
-
-html,body {
-    padding: 0;
-    height: 100%;
-    margin: 0 auto;
-}
-
-.tabs {
-    text-align: left;
-    padding: .25em;
-    border-bottom: 2px solid orange;
 }
 
 header {
@@ -144,13 +131,6 @@ header>select {
     margin-right: .5em;
 }
 
-.client {
-    height: 100%;
-    margin: 0;
-    box-sizing: border-box;
-    background: whitesmoke;
-    position: relative;
-}
 
 ul.entities {
     background: white;
@@ -162,16 +142,6 @@ ul.entities {
     text-align: left;
 }
 
-article.find {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: .5em;
-    background: burlywood;
-    box-sizing: border-box;
-    display: flex;
-    font-size: 1.5em;
-}
 
 section.entry {
     display: flex;
@@ -185,13 +155,6 @@ button.scan:before {
 input.key {
     flex: 1;
     margin-right: .5em;
-}
-
-.tabs:before {
-    content: "►◄ REPCH";
-    margin-right: 1em;
-    font: bold 1em sans-serif;
-    color: orange;
 }
 
 input,button {
@@ -212,13 +175,9 @@ img.stats {
 
 section.opinions {
     padding: 1em;
-    /* margin: 1em 0; */
     background: white;
 }
 
-input.credit {
-    width: 3em;
-}
 
 .opinion>.name {
     display: inline-block;
@@ -251,10 +210,6 @@ input.credit {
     margin-left: .5em;
 }
 
-button.addaspect:before {
-    content: "Добавить аспект";
-}
-
 article.entity {
     background: beige;
     padding: 1em;
@@ -263,3 +218,32 @@ article.entity {
 section.tags {
     margin: 1em 0;
 }
+
+
+
+stars {
+    display: inline-block;
+    position: relative;
+    color: lightgray;
+}
+
+stars:before {
+    content: "★★★★★";
+}
+
+stars>stars {
+    color: orange;
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+
+
+.general>stars {
+    font-size: 3em;
+    margin: .25em auto;
+}
+

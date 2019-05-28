@@ -19,7 +19,47 @@
 </head>
 
 <body>
+
+
 <script>
+
+const	Starbar=function(proto,bars){
+
+	proto.appendChild(proto.cloneNode(false));
+	
+	const	setvalue= (n,value)=>{
+			const	v = value*n.clientWidth,
+				w = Math.floor( bars ? v/bars : v );
+			n.firstChild.style.width = w+"px";
+			n.value=value;
+		},
+		
+		onclick	= e=>{	const	ex	=e.offsetX,
+					n	=e.target,
+					nw	=n.clientWidth,
+					r	=ex/nw,
+					bars	=n.bars,
+					value	=bars ? Math.ceil(r*bars) : r;
+					
+				setvalue(n,value);
+				//e.stopPropagation();
+				//n.dispatchEvent(new Event("change"))
+			},
+
+		starbar	= (value,enabled)=>{
+			const	n=proto.cloneNode(true);
+			setvalue(n,value);
+			if(enabled)n.addEventListener("onclick",onclick);
+			return n;
+		}
+		
+	return	{
+		disabled: value=>starbar(value),
+		enabled	: value=>starbar(value,true)
+	}
+};
+
+
 
 	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
 		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
@@ -47,21 +87,16 @@
 				,input("desc")
 			).u("($entities $@add)db")
 			
-			,'SECTION.tags'.d("*@ $lists.data"
-				,'tag'
-				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
-				.a("!? $?@tagged")
-				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
-			)
-			
 			//,'BUTTON.bindto'.d("! `Bind")
 		
 /*				,'SELECT.category'
 				.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
 				.ui(".aspects=#:value")
 			,'aspects'.d("Aspects($entity.aspects)")
-			
-*/
+*/			
+
+			,'SECTION.general'.d("! $!=.general:starbar.enabled").u("($!.value)alert")
+
 			,'SECTION.opinions'.d(
 				'present'.d("* ($opinions (.entity)@filter)db"
 					,'opinion'.d(""
@@ -73,30 +108,18 @@
 					,'SELECT.name'.d("hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")
 						.ui("$?=.aspect=#:value .about=(.entity .aspect)~")//.entity=$entity
 					,'BUTTON.addaspect'.ui("$opinions=($opinions $@add)db")
-					//,'stats'.d("? $?; ! Aspect")
 				)
 			)
-/*
-			,'TABLE.aspects'.d(""
-				
-				,'TBODY.opinions'.d(""
-					,'TR.aspect'.d("$?="
-						,'TD.name'.d("! .aspect Stats")
-						,'TD.credit'.d("! Credit").u("$?=:!")
-						,'TD.note'.d("",'INPUT'.d("!! .note@value").ui("$?=.note=#:value"))
-						,'TD.submit'.d("",'BUTTON'.d("? $?; ! `submit").ui("$opinions=($opinions $@add)db $?="))
-					)
-				)
-				
-				,'add'.d("! `addaspect; $aspect="
-					,'BUTTON'
-						.d("? $aspect; ! `submit")
-						.ui("$opinions=($opinions ( (.entity $aspect)~@about .entity $aspect)@add )db")
-				)
-			)
-*/			
-		)//.u("$entities=($entities $entity=(.entity .title .aspects)@add )db; ?")
-		
+			
+			,'SECTION.tags'.d("*@ $lists.data"
+				,'tag'
+				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
+				.a("!? $?@tagged")
+				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
+			)			
+			
+		)
+			
 /*			
 		,'ARTICLE.myitems'.d("* $aspects.data"
 			,'aspect'.d("! .title")
@@ -128,16 +151,8 @@
 				,'IMG.stats'.d()
 				,'INPUT.credit type=number'.d("!! .credit@value").ui(".credit=#:value")
 				,'INPUT.note'.d("!! .note@value").ui(".note=#:value")
-			).u("$opinions=($opinions $@add)db"),				
-		
-	
-/*	
-		Aspects	: 'aspects'.d("*@ .aspects"
-				,'title'.d("! ((dict.aspects .title)pull .title)?")
-				,'mark'.d("! .mark")
-				,'subaspects'.d("! (.aspects Aspects)!")
-			),
-*/		
+			).u("$opinions=($opinions $@add)db"),					
+
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
 		
@@ -162,7 +177,7 @@
 						,'SELECT'.d("*@ $cats.data"
 							,'OPTION'.d("!! .title@ .cat@value")
 						).ui("$cat=#:value")
-						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $cats=($cats ($cat=:uid .title)@add )db")
+						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=($cats ($cat=:uid .title)@add )db")
 					)
 					,'UL.entities'.d("? $cat; * ($entities ($cat)@filter )db"
 						,'LI'
@@ -226,6 +241,7 @@
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
 		},
 		convert	:{
+			starbar	: Starbar(document.createElement("stars"),10),
 			uid	:(function(){
 					let seed=parseInt(localStorage.getItem("next")||"1");
 					return present=>{
