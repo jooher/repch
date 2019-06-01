@@ -12,6 +12,15 @@ button.addaspect:before {
     content: "Добавить аспект";
 }
 
+button.addnote:before {
+    content: "!";
+    font-family: wingdings;
+}
+
+button.scan:before {
+    content: "Scan";
+}
+
 html,body {
     padding: 0;
     height: 100%;
@@ -19,20 +28,31 @@ html,body {
 }
 
 body {
-    max-width: 40em;
+    font: normal 18pt sans-serif;
+    max-width: 30em;
     margin: 0 auto;
-    text-align: center;
+    /* text-align: center; */
 }
 
 .client {
     height: 100%;
+    display: flex;
+    flex-direction: column;
     margin: 0;
-    padding: 1px 0;
+    /* padding: 1px 0; */
     box-sizing: border-box;
     background: whitesmoke;
     position: relative;
 }
 
+input.key {
+    flex: 1;
+    margin-right: .5em;
+}
+
+input,button,select {
+    font-size: inherit;
+}
 input {
     text-align: inherit;
 }
@@ -52,7 +72,7 @@ input::placeholder {
     width: 100%;
     border-bottom: 1px dotted goldenrod;
     cursor: text !important;
-    padding: .5em;
+    padding: .1em;
     box-sizing: border-box;
 }
 
@@ -61,8 +81,8 @@ input.credit {
 }
 
 article {
-    position: relative;
-    margin: 1em 0;
+    /* position: relative; */
+    /* margin: 1em 0; */
 }
 
 article:before {
@@ -75,9 +95,9 @@ article:before {
 }
 
 article.find {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
+    /* position: absolute; */
+    /* bottom: 0; */
+    /* width: 100%; */
     padding: .5em;
     background: burlywood;
     box-sizing: border-box;
@@ -144,79 +164,68 @@ ul.entities {
 
 
 section.entry {
-    display: flex;
     width: 100%;
+    display: flex;
 }
 
-button.scan:before {
-    content: "Scan";
+.aspect{
+    border-bottom: 1px solid lightgray;
+    margin: 2em 0;
+}
+.aspect>.summary {
+    display: flex;
+    /* margin: .5em; */
 }
 
-input.key {
-    flex: 1;
-    margin-right: .5em;
+
+.aspect>.note {
+    /* display: block; */
+    border: none;
+    width:100%;
+    box-sizing:border-box;
+    /* padding: .2em; */
+    color: gray;
+    font-style: italic;
 }
 
-input,button {
-    font-size: inherit;
-}
 
-.aspect {
+.aspect>.summary {
     display: flex;
     flex: 1;
+    vertical-align: baseline;
+}
+
+.summary>.name {
+    flex: 1;
+    font: bold 1.1em sans-serif
 }
 
 img.stats {
-    width: 1em;
+    width: 2em;
     height: 1em;
-    margin: .2em;
+    /* margin: 0 1em; */
     vertical-align: bottom;
 }
 
-section.opinions {
-    padding: 1em;
-    background: white;
-}
 
 
-.opinion>.name {
-    display: inline-block;
-    width: 20%;
-    text-align: left;
-}
-
-.opinion>.stats {
-    display: flex;
-    flex: 1;
-    text-align: left;
-}
-
-.opinion {
-    display: flex;
-    margin: .5em;
-}
-
-.present>.opinion{
-    border-bottom: 1px solid lightgray;    
-}
-
-.aspect>.note {
-    flex: 1;
-}
-
-.aspect>input {
-    border: none;
-    background: cornsilk;
-    margin-left: .5em;
-}
 
 article.entity {
-    background: beige;
     padding: 1em;
+    overflow-y: scroll;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    /* font-size: 1.4em; */
 }
 
-section.tags {
+section.tags{
+    font-size:.75em
+}
+
+section.tags, section.editables {
     margin: 1em 0;
+    text-align: center;
 }
 
 
@@ -225,6 +234,7 @@ stars {
     display: inline-block;
     position: relative;
     color: lightgray;
+    /* vertical-align: baseline; */
 }
 
 stars:before {
@@ -247,3 +257,32 @@ stars>stars {
     margin: .25em auto;
 }
 
+
+
+.credit>stars {
+    font: normal 1.5em/1em sans-serif;
+}
+
+section.editables {
+    font-size: 1.5em;
+}
+
+.credit {
+    margin: -.3em 1em 0 1em;
+}
+
+.moreinfo:before {
+    content: "Больше подробностей";
+}
+
+.lessinfo:before {
+    content: "Скрыть подробности";
+}
+
+section.details {
+    /* text-align: left; */
+}
+
+.general>.aspect>.summary>.name {
+    /* display: none; */
+}

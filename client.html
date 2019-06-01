@@ -7,7 +7,7 @@
 	<script src="persist.js"></script>
 	
 	<style>
-.EMPTY{display:none}
+.EMPTY{display:none !important}
 
 .ui{cursor:pointer;}
 .ui:hover{text-decoration:underline}
@@ -38,18 +38,15 @@ const	Starbar=function(proto,bars){
 					n	=e.target,
 					nw	=n.clientWidth,
 					r	=ex/nw,
-					bars	=n.bars,
 					value	=bars ? Math.ceil(r*bars) : r;
 					
 				setvalue(n,value);
-				//e.stopPropagation();
-				//n.dispatchEvent(new Event("change"))
 			},
 
 		starbar	= (value,enabled)=>{
 			const	n=proto.cloneNode(true);
-			setvalue(n,value);
-			if(enabled)n.addEventListener("onclick",onclick);
+			if(enabled)n.addEventListener("click",onclick);
+			setTimeout(()=>{setvalue(n,value);},10);
 			return n;
 		}
 		
@@ -63,6 +60,7 @@ const	Starbar=function(proto,bars){
 
 	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
 		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
+		credit	= 'credit'.d("! $!=.credit:starbar.enabled").ui(".credit=$!.value")
 		
 		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
 	;
@@ -80,11 +78,19 @@ const	Starbar=function(proto,bars){
 		
 		)
 
-		,'ARTICLE.entity'.d("? $Entity; * $Entity@"
+		,'ARTICLE.entity'.d("? $Entity; * $Entity@; $?="
 				
+			,'SECTION.tags'.d("*@ $lists.data"
+				,'tag'
+				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
+				.a("!? $?@tagged")
+				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
+			)			
+			
 			,'SECTION.editables'.d(""
 				,input("title")
 				,input("desc")
+				,'general'.d("! Aspect")
 			).u("($entities $@add)db")
 			
 			//,'BUTTON.bindto'.d("! `Bind")
@@ -95,29 +101,21 @@ const	Starbar=function(proto,bars){
 			,'aspects'.d("Aspects($entity.aspects)")
 */			
 
-			,'SECTION.general'.d("! $!=.general:starbar.enabled").u("($!.value)alert")
-
-			,'SECTION.opinions'.d(
-				'present'.d("* ($opinions (.entity)@filter)db"
-					,'opinion'.d(""
-						,'name'.d("! .aspect")
-						,'stats'.d("! Aspect")
-					)
+			,'SECTION.details'.d("? $?"
+				,'aspects'.d("* ($opinions (.entity)@filter)db"
+					,'opinion'.d("! Aspect").u("$opinions=($opinions $@add)db")
 				)
 				,'opinion'.d("$?="
-					,'SELECT.name'.d("hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")
-						.ui("$?=.aspect=#:value .about=(.entity .aspect)~")//.entity=$entity
-					,'BUTTON.addaspect'.ui("$opinions=($opinions $@add)db")
+					,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
+					,'SELECT.name'
+					.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
+					.ui("$opinions=($opinions (.aspect=#:value .entity .about=(.entity .aspect)~ )@add)db $?=")
 				)
 			)
 			
-			,'SECTION.tags'.d("*@ $lists.data"
-				,'tag'
-				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
-				.a("!? $?@tagged")
-				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
-			)			
-			
+			,'BUTTON.moreinfo'.d("? $?:!").ui("$?=:!")
+			,'BUTTON.lessinfo'.d("? $?").ui("$?=")
+
 		)
 			
 /*			
@@ -147,11 +145,17 @@ const	Starbar=function(proto,bars){
 
 	.DICT({
 	
-		Aspect	: 'aspect'.d(""
-				,'IMG.stats'.d()
-				,'INPUT.credit type=number'.d("!! .credit@value").ui(".credit=#:value")
-				,'INPUT.note'.d("!! .note@value").ui(".note=#:value")
-			).u("$opinions=($opinions $@add)db"),					
+		Aspect	: 'aspect'.d("$?="
+				,'summary'.d(""
+					,'name'.d("! .aspect").ui("$?=$?:!; ?")
+					,'IMG.stats'.d()
+					,credit
+				)
+				,'INPUT.note'.d("? (.note $?)?; !! .note@value").ui(".note=#:value")//? (.note .publicnote:!)?; 
+				,'publicnotes'.d("?" //* (`publicnotes .entity .aspect)query"
+					,'publicnote'.d("! .note").ui("..note=.note ..public=.")
+				)
+			),					
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
