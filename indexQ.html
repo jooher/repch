@@ -103,7 +103,7 @@ const	Starbar=function(proto,bars){
 
 			,'SECTION.details'.d("? $?"
 				,'aspects'.d("* ($opinions (.entity)@filter)db"
-					,'opinion'.d("! Aspect").u("($opinions $@add)db")//$opinions=
+					,'opinion'.d("! Aspect").u("$opinions=($opinions $@add)db")
 				)
 				,'opinion'.d("$?="
 					,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")

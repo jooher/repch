@@ -1,4 +1,4 @@
-.title{font: bold 1.5em sans-serif;}
+.title{font: bold 1.75em sans-serif;}
 
 button.addlist:before {
     content: "Создать новый список";
@@ -220,7 +220,7 @@ article.entity {
 }
 
 section.tags{
-    font-size:.75em
+    /* font-size:.75em */
 }
 
 section.tags, section.editables {
@@ -252,31 +252,24 @@ stars>stars {
 
 
 
-.general>stars {
-    font-size: 3em;
-    margin: .25em auto;
-}
-
-
-
 .credit>stars {
-    font: normal 1.5em/1em sans-serif;
+    font: normal 2.5em/1em sans-serif;
+    margin: -.4em 0 0 .2em;
 }
 
 section.editables {
-    font-size: 1.5em;
+    /* font-size: 1.5em; */
 }
 
 .credit {
-    margin: -.3em 1em 0 1em;
 }
 
 .moreinfo:before {
-    content: "Больше подробностей";
+    content: "Больше подробностей ▼";
 }
 
 .lessinfo:before {
-    content: "Скрыть подробности";
+    content: "Скрыть подробности ▲";
 }
 
 section.details {
@@ -285,4 +278,10 @@ section.details {
 
 .general>.aspect>.summary>.name {
     /* display: none; */
+}
+
+button.moreinfo, button.lessinfo {
+    border:none;
+    background:none;
+    margin:1em
 }
