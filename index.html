@@ -2,7 +2,10 @@
 <html>
 <head>
 	<title>repch</title>
+	
+	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
 	<link rel="stylesheet" href="style.css"/>
+	
 	<script src="https://dap.js.org/0.4.js" _src="0.4.js"></script>
 	<script src="persist.js"></script>
 	
@@ -73,7 +76,7 @@ const	Starbar=function(proto,bars){
 				,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 			)
 			
-			,'SECTION'.d("? $tab; ! (tabs $tab)pull")
+			,'SECTION.top'.d("? $tab; ! (tabs $tab)pull")
 		
 		
 		)
@@ -101,6 +104,9 @@ const	Starbar=function(proto,bars){
 			,'aspects'.d("Aspects($entity.aspects)")
 */			
 
+			,'BUTTON.moreinfo'.d("? $?:!").ui("$?=:!")
+			,'BUTTON.lessinfo'.d("? $?").ui("$?=")
+			
 			,'SECTION.details'.d("? $?"
 				,'aspects'.d("* ($opinions (.entity)@filter)db"
 					,'opinion'.d("! Aspect").u("($opinions $@add)db")//$opinions=
@@ -113,8 +119,6 @@ const	Starbar=function(proto,bars){
 				)
 			)
 			
-			,'BUTTON.moreinfo'.d("? $?:!").ui("$?=:!")
-			,'BUTTON.lessinfo'.d("? $?").ui("$?=")
 
 		)
 			
@@ -151,10 +155,12 @@ const	Starbar=function(proto,bars){
 					,'IMG.stats'.d()
 					,credit
 				)
-				,'INPUT.note'.d("? (.note $?)?; !! .note@value").ui(".note=#:value")//? (.note .publicnote:!)?; 
-				,'publicnotes'.d("?" //* (`publicnotes .entity .aspect)query"
-					,'publicnote'.d("! .note").ui("..note=.note ..public=.")
-				)
+				,'notes'.d(""
+					,'public'.d("? $?; ? .ref; * (`ls:notes .ref)uri:query"
+						,'note'.d("! .note").ui("..note=. ..publicnote=.")
+					)
+					,'note contenteditable'.d("? (.note $?)?; ! .note").ui(".note=#:text")//? (.note .publicnote:!)?;
+				).u("$?=")
 			),					
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
