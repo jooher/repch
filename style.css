@@ -6,7 +6,7 @@ html,body {
 
 body{
 		font: normal 14px sans-serif;
-		/* max-width: 48em; */
+		max-width: 48em;
 }
 
 
@@ -236,7 +236,6 @@ stars {
     display: inline-block;
     position: relative;
     color: lightgray;
-    /* vertical-align: baseline; */
 }
 
 stars:before {

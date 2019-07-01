@@ -19,46 +19,91 @@
 /*[class]:before{content:attr(class);color:lightgray; display:block;}*/
 
 	</style>
+	
+	<script>
+	"use strict";
+
+	const
+
+	Starbar	= function(proto,bars){
+
+		proto.appendChild(proto.cloneNode(false));
+		
+		const	setvalue= (n,value)=>{
+				const	v = value*n.clientWidth,
+					w = Math.floor( bars ? v/bars : v );
+				n.firstChild.style.width = w+"px";
+				n.value=value;
+			},
+			
+			onclick	= e=>{	const	ex	=e.offsetX,
+						n	=e.target,
+						nw	=n.clientWidth,
+						r	=ex/nw,
+						value	=bars ? Math.ceil(r*bars) : r;
+						
+					setvalue(n,value);
+				},
+
+			starbar	= (value,enabled)=>{
+				const	n=proto.cloneNode(true);
+				if(enabled)n.addEventListener("click",onclick);
+				setTimeout(()=>{setvalue(n,value);},10);
+				return n;
+			}
+			
+		return	{
+			disabled: value=>starbar(value),
+			enabled	: value=>starbar(value,true)
+		}
+	},
+		
+	Persist	=(storage,box,unbox)=> // keeps the data coherent among several tabs
+		key	=>{
+			let	order=[],
+				index={},
+				stamp=-1,
+				stampname=key+"_stamp";
+				
+			const	ixrow	= r=>(index[r[key]]=r)&&false||ix,
+				ixset	= s=>s.length&&s.reduce&&s.reduce(ixrow),
+				anew	= s=>(index={})&&ixset(order=s&&s.reduce?s:[]),
+				update	= _=>++stamp&&!delay&&sync(),
+				sync	= i=>{
+					const saved=parseInt(storage.getItem(stampname))||0;
+					if(saved<stamp){ //save
+						order=order.filter(r=>index[r[key]]==r);
+						storage.setItem(key,box(order));
+						storage.setItem(stampname,stamp);
+					}
+					if(saved>stamp){ //load
+						anew(unbox(storage.getItem(key)));
+						stamp=saved;
+					}
+				};
+				
+			return	{
+				data	: _=>order,
+				take	: m=>index[m],
+				save	: r=>order.push(r)&&ixrow(r),
+				
+				filter	: h=>{
+						let rows=order;
+						for(let f in h)if(f)rows=rows.filter(r=>r[f]==h[f]);
+						return rows;
+					}
+			}
+		};
+
+	</script>
+	
+	
 </head>
 
 <body>
 
 
-<script>
-
-const	Starbar=function(proto,bars){
-
-	proto.appendChild(proto.cloneNode(false));
-	
-	const	setvalue= (n,value)=>{
-			const	v = value*n.clientWidth,
-				w = Math.floor( bars ? v/bars : v );
-			n.firstChild.style.width = w+"px";
-			n.value=value;
-		},
-		
-		onclick	= e=>{	const	ex	=e.offsetX,
-					n	=e.target,
-					nw	=n.clientWidth,
-					r	=ex/nw,
-					value	=bars ? Math.ceil(r*bars) : r;
-					
-				setvalue(n,value);
-			},
-
-		starbar	= (value,enabled)=>{
-			const	n=proto.cloneNode(true);
-			if(enabled)n.addEventListener("click",onclick);
-			setTimeout(()=>{setvalue(n,value);},10);
-			return n;
-		}
-		
-	return	{
-		disabled: value=>starbar(value),
-		enabled	: value=>starbar(value,true)
-	}
-};
-
+<script>"use strict";
 
 
 	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
@@ -77,17 +122,15 @@ const	Starbar=function(proto,bars){
 			)
 			
 			,'SECTION.top'.d("? $tab; ! (tabs $tab)pull")
-		
-		
 		)
 
 		,'ARTICLE.entity'.d("? $Entity; * $Entity@; $?="
 				
 			,'SECTION.tags'.d("*@ $lists.data"
 				,'tag'
-				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
+				.d("! .title; $tagged=(`take .listentity=(.list .entity=$Entity.entity)~)db $?=$tagged.pos; a!")
 				.a("!? $?@tagged")
-				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
+				.ui("$tagged=(.listentity .list .entity $tagged.pos=$?=($?:# @+ :uid@-)case); $listentities=($listentities $tagged@add)db")
 			)			
 			
 			,'SECTION.editables'.d(""
@@ -234,6 +277,26 @@ const	Starbar=function(proto,bars){
 		flatten	:{
 			"~"	:values=>values.join(":"),
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
+			db	:(function(){ // wrapper for Persist object
+				
+					const	P	=Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode),
+						T	=(tables=> key=>tables[key]||(tables[key]=P(key)) )({});
+						
+					return	(values,tags)=>{
+						const	key=values.pop()||tags[values.length-1],
+							action=tags[tags.length-1]||"save",
+							
+							row=dap.Util.hash(values,tags);
+						return	T(key)[action](row);
+			/*	
+						( @action`key $details $x )db	=> T("key").action({details,x})
+						( @action $key $details )db	=> T("key").action({key,details})
+						( `key $details $x )db		=> T("key").save({details,x})
+						( $key $details )db		=> T("key").save({key,details})
+						( $key )db			=> T("key").take({key})
+			*/	
+					}
+				})()
 		},
 		convert	:{
 			starbar	: Starbar(document.createElement("stars"),10),
