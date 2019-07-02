@@ -1,12 +1,19 @@
+.EMPTY	{display:none !important}
+
+.ui	{cursor:pointer;}
+.ui:hover{text-decoration:underline}
+
+
+
 html,body {
-    padding: 0;
-    height: 100%;
-    margin: 0;
+padding: 0;
+height: 100%;
+margin: 0;
 }
 
 body{
-		font: normal 14px sans-serif;
-		max-width: 48em;
+font: normal 14px sans-serif;
+max-width: 48em;
 }
 
 

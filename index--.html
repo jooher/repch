@@ -6,20 +6,6 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
 	<link rel="stylesheet" href="style.css"/>
 	
-	<script src="https://dap.js.org/0.4.js" _src="0.4.js"></script>
-	<script src="persist.js"></script>
-	
-	<style>
-.EMPTY{display:none !important}
-
-.ui{cursor:pointer;}
-.ui:hover{text-decoration:underline}
-
-
-/*[class]:before{content:attr(class);color:lightgray; display:block;}*/
-
-	</style>
-	
 	<script>
 	"use strict";
 
@@ -83,11 +69,10 @@
 				};
 				
 			return	{
-				data	: _=>order,
-				take	: m=>index[m],
-				save	: r=>order.push(r)&&ixrow(r),
+				take	: m => index[m],
+				save	: r => order.push(r)&&ixrow(r),
 				
-				filter	: h=>{
+				filter	: h => {
 						let rows=order;
 						for(let f in h)if(f)rows=rows.filter(r=>r[f]==h[f]);
 						return rows;
@@ -103,8 +88,9 @@
 <body>
 
 
-<script>"use strict";
+<script>// src="0.4.js"
 
+	"use strict";
 
 	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
 		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
@@ -113,31 +99,74 @@
 		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
 	;
 
-	'client'.d("$tab= $Entity= $entries=entries:db $aspects=aspects:db $entities=entities:db $opinions=opinions:db $lists=lists:db $listentities=listentities:db $cats=cats:db"
-	
+	'client'.d("	$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
+/*
+			$entries=(`entry)db
+			$aspects=(`aspect)db
+			$entities=(`entity)db
+			$opinions=(`opinion)db
+			$cats=(`cat)db
+			$lists=(`list)db
+			$listentities=(`listentity)db
+*/	
 		,'ARTICLE.misc'.d(""
 		
 			,'tabs'.d("* dict.tabs@"
 				,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 			)
 			
-			,'SECTION.top'.d("? $tab; ! (tabs $tab)pull")
+			,'SECTION.top'.d("? $tab"
+			
+				,'lists'.d("?? $tab@lists; $list="
+					,'HEADER'.d(""
+						,'SELECT'.d("*@ (`list)db"
+							,'OPTION'.d("!! .title@ .list@value")
+						).ui("$list=#:value")
+						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=($list=()uid .title)db")
+					)
+					,'UL.entities'.d("? $list; * (`listentity $list)db"
+						,'LI'.d("? .pos; * (.entity)db; ! .title").ui("$Entity=$")
+					)
+				),
+				
+				,'cats'.d("?? $tab@cats; $cat="
+					,'HEADER'.d(""
+						,'SELECT'.d("*@ (`cat)db"
+							,'OPTION'.d("!! .title@ .cat@value")
+						).ui("$cat=#:value")
+						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=($cat=()uid .title)db")
+					)
+					,'UL.entities'.d("? $cat; * (`entity $cat)db"
+						,'LI'.d("? .pos; ! .title").ui("$Entity=$")
+					)
+				),
+				
+				,'settings'.d("?? $tab@settings"
+					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+				)
+			
+			)
 		)
 
 		,'ARTICLE.entity'.d("? $Entity; * $Entity@; $?="
 				
-			,'SECTION.tags'.d("*@ $lists.data"
+			,'SECTION.tags'.d("$lists; * (`list)db"
 				,'tag'
-				.d("! .title; $tagged=(`take .listentity=(.list .entity=$Entity.entity)~)db $?=$tagged.pos; a!")
+				.d("! .title; $tagged=(.listentity=(.list .entity=$Entity.entity)~)db $?=$tagged.pos; a!")
 				.a("!? $?@tagged")
-				.ui("$tagged=(.listentity .list .entity $tagged.pos=$?=($?:# @+ :uid@-)case); $listentities=($listentities $tagged@add)db")
+				.ui("
+					$?=$?:! .pos=; {? $? .pos=()uid};
+					$tagged=(.listentity .list .entity .pos)db;
+					$listentities=()
+				")
+
 			)			
 			
 			,'SECTION.editables'.d(""
 				,input("title")
 				,input("desc")
 				,'general'.d("! Aspect")
-			).u("($entities $@add)db")
+			).u("(`entity $)db")
 			
 			//,'BUTTON.bindto'.d("! `Bind")
 		
@@ -151,14 +180,14 @@
 			,'BUTTON.lessinfo'.d("? $?").ui("$?=")
 			
 			,'SECTION.details'.d("? $?"
-				,'aspects'.d("* ($opinions (.entity)@filter)db"
-					,'opinion'.d("! Aspect").u("($opinions $@add)db")//$opinions=
+				,'aspects'.d("* (`opinion .entity)db"
+					,'opinion'.d("! Aspect").u("(@opinion $)db")//$opinions=
 				)
 				,'opinion'.d("$?="
 					,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
 					,'SELECT.name'
 					.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
-					.ui("$opinions=($opinions (.aspect=#:value .entity .about=(.entity .aspect)~ )@add)db $?=")
+					.ui(".aspect=#:value (.opinion=(.entity .aspect)~ .entity .aspect)db $?=")//$opinions=()
 				)
 			)
 			
@@ -169,7 +198,11 @@
 			,'SECTION.entry'.d("$entry="
 				,'INPUT.key'.ui("log $entry=#:value,prefix")
 				,'BUTTON.scan'.ui("(`scan)alert")
-			).u("? $entry; ? .Entry=($entries $entry@find)db $entries=($entries .Entry=($entry .entity:uid)@add )db; ? $Entity=($entities .Entry.entity@find)db $entities=($entities $Entity=(.Entry.entity)@add )db")
+			).u("
+			? $entry;
+			? .Entry=($entry)db .Entry=($entry .entity=()uid)db;
+			? $Entity=(.Entry.entity)db $Entity=(.Entry.entity)db"
+			)
 			
 		)
 		
@@ -196,37 +229,6 @@
 		
 		tabs	:{
 		
-			lists	: 'lists'.d("$list="
-					,'HEADER'.d(""
-						,'SELECT'.d("*@ $lists.data"
-							,'OPTION'.d("!! .title@ .list@value")
-						).ui("$list=#:value")
-						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=($lists ($list=:uid .title)@add )db")
-					)
-					,'UL.entities'.d("? $list; * ($listentities ($list)@filter )db"
-						,'LI'
-						.d("? .pos; * ($entities .entity@find)db; ! .title")//;  Stats Credits
-						.ui("$Entity=($entities .entity@find)db")
-					)
-				),
-				
-			cats	: 'cats'.d("$cat="
-					,'HEADER'.d(""
-						,'SELECT'.d("*@ $cats.data"
-							,'OPTION'.d("!! .title@ .cat@value")
-						).ui("$cat=#:value")
-						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=($cats ($cat=:uid .title)@add )db")
-					)
-					,'UL.entities'.d("? $cat; * ($entities ($cat)@filter )db"
-						,'LI'
-						.d("? .pos; * ($entities .entity@find)db; ! .title")//;  Stats Credits
-						.ui("$Entity=($entities .entity@find)db")
-					)
-				),
-				
-			settings: 'settings'.d(""
-					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
-				)
 	
 			
 		},
@@ -277,29 +279,50 @@
 		flatten	:{
 			"~"	:values=>values.join(":"),
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
-			db	:(function(){ // wrapper for Persist object
+			db	:(function(){ // dap wrapper for Persist object
 				
 					const	P	=Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode),
 						T	=(tables=> key=>tables[key]||(tables[key]=P(key)) )({});
 						
+						filter	=(rows,values,tags)=>{
+							let rows=table.data(),i=values.length
+							while(i--){
+								const f=tags[i],m=values[i];
+								rows=rows.filter(r=>r[f]==m);
+							}
+							return rows;
+						},
+						save	=(table,values)=>{
+							values.forEach(r=>tables.save(r));
+							return table.data();
+						},
+						join	=()
+					
+						
+						
 					return	(values,tags)=>{
-						const	key=values.pop()||tags[values.length-1],
-							action=tags[tags.length-1]||"save",
+						/*	
+						( `key )db		=> T("key")				// !a v	=>T(v)
+						( `key $details $x )db	=> T("key").filter({details,x})		// !a v	=>T.filter
+
+						( @key $ )		=> T("key").save($)			// a !v	=>T(a).save
+						
+						( $key `join )db	=> T("key").take(key)			// a v	=>T(a).take(v)
+						( $key $details )db	=> T("key").save({key,details}) 	// a v	=>T.save
+						*/	
+						const	v=values.pop(),
+							c=values.length,
+							t=tags[c-1],
+							a=tags[c];
+						
+						if(!a)return filter(T(v),values,tags);
+						if(!v)return save(T(a),values);
+						if(!t)return join(T(a).take(v),values,tags);
 							
-							row=dap.Util.hash(values,tags);
-						return	T(key)[action](row);
-			/*	
-						( @action`key $details $x )db	=> T("key").action({details,x})
-						( @action $key $details )db	=> T("key").action({key,details})
-						( `key $details $x )db		=> T("key").save({details,x})
-						( $key $details )db		=> T("key").save({key,details})
-						( $key )db			=> T("key").take({key})
-			*/	
+						T(a).save(dap.Util.hash(values,tags),v)
 					}
-				})()
-		},
-		convert	:{
-			starbar	: Starbar(document.createElement("stars"),10),
+				})(),
+				
 			uid	:(function(){
 					let seed=parseInt(localStorage.getItem("next")||"1");
 					return present=>{
@@ -307,7 +330,11 @@
 						localStorage.setItem("next",++seed);
 						return seed;
 					}
-				})(),
+				})()
+
+		},
+		convert	:{
+			starbar	: Starbar(document.createElement("stars"),10),
 				
 			prefix	:key=>
 				key.match(/^https?\:/)?key:
