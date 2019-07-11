@@ -43,42 +43,50 @@
 			enabled	: value=>starbar(value,true)
 		}
 	},
+	
+	uid	= ((storage,uidkey)=>{
+			let last=parseInt(storage.getItem(uidkey)||"1");
+			return n=>n||storage.setItem(uidkey,++last)||last;
+		})(localStorage,"uid"),
 		
-	Persist	=(storage,box,unbox)=> // keeps the data coherent among several tabs
+	Persist	=(storage,box,unbox,single)=> // keeps the data coherent among several tabs
 		key	=>{
 			let	order=[],
 				index={},
 				stamp=-1,
 				stampname=key+"_stamp";
 				
-			const	ixrow	= r=>(index[r[key]]=r)&&false||ix,
-				ixset	= s=>s.length&&s.reduce&&s.reduce(ixrow),
-				anew	= s=>(index={})&&ixset(order=s&&s.reduce?s:[]),
-				update	= _=>++stamp&&!delay&&sync(),
-				sync	= i=>{
-					const saved=parseInt(storage.getItem(stampname))||0;
-					if(saved<stamp){ //save
-						order=order.filter(r=>index[r[key]]==r);
-						storage.setItem(key,box(order));
-						storage.setItem(stampname,stamp);
-					}
-					if(saved>stamp){ //load
-						anew(unbox(storage.getItem(key)));
-						stamp=saved;
-					}
-				};
+			const
+			ixrow	= r=>index[r[key]||(r[key]=uid())]=r,
+			ixset	= s=>s.forEach&&s.length&&s.forEach(ixrow),
+			anew	= s=>(index={})&&ixset(order=s&&s.reduce?s:[]),
+			update	= x=>++stamp&&!delay&&sync(),
+			sync	= r=>{
+				if(stamp>0&&single&&!r)return;
+				const saved=parseInt(storage.getItem(stampname))||0;
+				if(stamp<saved){ //load
+					anew(unbox(storage.getItem(key)));
+					stamp=saved;
+				}
+				if(r){
+					order.push(r);
+					ixrow(r);
+					stamp++;
+				}
+				if(stamp>saved){ //save
+					order=order.filter(r=>index[r[key]]==r);
+					storage.setItem(key,box(order));
+					storage.setItem(stampname,stamp);
+				}
+			};
 				
 			return	{
-				take	: m => index[m],
-				save	: r => order.push(r)&&ixrow(r),
-				
-				filter	: h => {
-						let rows=order;
-						for(let f in h)if(f)rows=rows.filter(r=>r[f]==h[f]);
-						return rows;
-					}
+				data	: _ => sync()	||order,
+				take	: m => sync()	||index[m],
+				save	: r => sync(r)	||r
 			}
-		};
+		}
+		
 
 	</script>
 	
@@ -87,19 +95,12 @@
 
 <body>
 
+<script src="0.4.js"></script>
 
-<script>// src="0.4.js"
+<script>
 
 	"use strict";
 
-	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
-		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
-		credit	= 'credit'.d("! $!=.credit:starbar.enabled").ui(".credit=$!.value")
-		
-		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
-	;
-
-	'client'.d("	$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
 /*
 			$entries=(`entry)db
 			$aspects=(`aspect)db
@@ -107,8 +108,39 @@
 			$opinions=(`opinion)db
 			$cats=(`cat)db
 			$lists=(`list)db
-			$listentities=(`listentity)db
+			$listentities=(`listentity)db"
 */	
+
+	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
+		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
+		credit	= 'credit'.d("! $!=.credit:starbar.enabled").ui(".credit=$!.value"),
+		
+		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} ),
+		
+		db	=(function(){ // dap wrapper for Persist object
+					
+				const	P	=Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
+					T	=(tables=> key=>tables[key]||(tables[key]=P(key)) )({}),
+					detach	=r=>{r=Object.assign({},r);if(r[""])delete r[""];return r},
+					filter	=(data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
+					join	=(row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
+					save	=(table,values)		=> values.forEach(r=>table.save(detach(r)))||table.data();
+					
+				return	(values,tags)=>{
+					const	v=values.pop(),
+						c=values.length,
+						t=tags[c-1],
+						a=tags[c];
+						
+					return	!a ? filter(T(v).data(),values,tags) :			// ( `key $x $y ... )
+						!v ? save(T(a),values) :					// ( @key $row1 $row2 ... )
+						!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :	// ( $key `t1 `t2 ... )
+						values.push(v) && T(a).save(dap.Util.hash(values,tags));// ( $key $x $y ... )
+				} //( @ ... ) reserved
+			})()
+	;
+
+	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
 		,'ARTICLE.misc'.d(""
 		
 			,'tabs'.d("* dict.tabs@"
@@ -119,27 +151,27 @@
 			
 				,'lists'.d("?? $tab@lists; $list="
 					,'HEADER'.d(""
-						,'SELECT'.d("*@ (`list)db"
+						,'SELECT'.d("$lists; *@ (`list)db"
 							,'OPTION'.d("!! .title@ .list@value")
 						).ui("$list=#:value")
-						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=($list=()uid .title)db")
+						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
 					)
 					,'UL.entities'.d("? $list; * (`listentity $list)db"
-						,'LI'.d("? .pos; * (.entity)db; ! .title").ui("$Entity=$")
+						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
 					)
-				),
+				)
 				
 				,'cats'.d("?? $tab@cats; $cat="
 					,'HEADER'.d(""
-						,'SELECT'.d("*@ (`cat)db"
+						,'SELECT'.d("$cats; *@ (`cat)db"
 							,'OPTION'.d("!! .title@ .cat@value")
 						).ui("$cat=#:value")
-						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=($cat=()uid .title)db")
+						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
 					)
 					,'UL.entities'.d("? $cat; * (`entity $cat)db"
-						,'LI'.d("? .pos; ! .title").ui("$Entity=$")
+						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
 					)
-				),
+				)
 				
 				,'settings'.d("?? $tab@settings"
 					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
@@ -152,21 +184,16 @@
 				
 			,'SECTION.tags'.d("$lists; * (`list)db"
 				,'tag'
-				.d("! .title; $tagged=(.listentity=(.list .entity=$Entity.entity)~)db $?=$tagged.pos; a!")
-				.a("!? $?@tagged")
-				.ui("
-					$?=$?:! .pos=; {? $? .pos=()uid};
-					$tagged=(.listentity .list .entity .pos)db;
-					$listentities=()
-				")
-
+				.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
+				.a("!? $tagged")
+				.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
 			)			
 			
 			,'SECTION.editables'.d(""
 				,input("title")
 				,input("desc")
 				,'general'.d("! Aspect")
-			).u("(`entity $)db")
+			).u("(@entity $)db")
 			
 			//,'BUTTON.bindto'.d("! `Bind")
 		
@@ -181,7 +208,7 @@
 			
 			,'SECTION.details'.d("? $?"
 				,'aspects'.d("* (`opinion .entity)db"
-					,'opinion'.d("! Aspect").u("(@opinion $)db")//$opinions=
+					,'opinion'.d("! Aspect").u("(@opinion $)db")
 				)
 				,'opinion'.d("$?="
 					,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
@@ -190,20 +217,13 @@
 					.ui(".aspect=#:value (.opinion=(.entity .aspect)~ .entity .aspect)db $?=")//$opinions=()
 				)
 			)
-			
-
 		)
 
 		,'ARTICLE.find'.d("" //,'4627073803671'	
 			,'SECTION.entry'.d("$entry="
 				,'INPUT.key'.ui("log $entry=#:value,prefix")
 				,'BUTTON.scan'.ui("(`scan)alert")
-			).u("
-			? $entry;
-			? .Entry=($entry)db .Entry=($entry .entity=()uid)db;
-			? $Entity=(.Entry.entity)db $Entity=(.Entry.entity)db"
-			)
-			
+			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 		)
 		
 	)
@@ -276,67 +296,14 @@
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			}
 		},
-		flatten	:{
+		flatten	:{ db,
 			"~"	:values=>values.join(":"),
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
-			db	:(function(){ // dap wrapper for Persist object
-				
-					const	P	=Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode),
-						T	=(tables=> key=>tables[key]||(tables[key]=P(key)) )({});
-						
-						filter	=(rows,values,tags)=>{
-							let rows=table.data(),i=values.length
-							while(i--){
-								const f=tags[i],m=values[i];
-								rows=rows.filter(r=>r[f]==m);
-							}
-							return rows;
-						},
-						save	=(table,values)=>{
-							values.forEach(r=>tables.save(r));
-							return table.data();
-						},
-						join	=()
-					
-						
-						
-					return	(values,tags)=>{
-						/*	
-						( `key )db		=> T("key")				// !a v	=>T(v)
-						( `key $details $x )db	=> T("key").filter({details,x})		// !a v	=>T.filter
-
-						( @key $ )		=> T("key").save($)			// a !v	=>T(a).save
-						
-						( $key `join )db	=> T("key").take(key)			// a v	=>T(a).take(v)
-						( $key $details )db	=> T("key").save({key,details}) 	// a v	=>T.save
-						*/	
-						const	v=values.pop(),
-							c=values.length,
-							t=tags[c-1],
-							a=tags[c];
-						
-						if(!a)return filter(T(v),values,tags);
-						if(!v)return save(T(a),values);
-						if(!t)return join(T(a).take(v),values,tags);
-							
-						T(a).save(dap.Util.hash(values,tags),v)
-					}
-				})(),
-				
-			uid	:(function(){
-					let seed=parseInt(localStorage.getItem("next")||"1");
-					return present=>{
-						if(present)return present;
-						localStorage.setItem("next",++seed);
-						return seed;
-					}
-				})()
-
 		},
 		convert	:{
+			"?uid"	: bool => bool&&uid(),
 			starbar	: Starbar(document.createElement("stars"),10),
-				
-			prefix	:key=>
+			prefix	: key=>
 				key.match(/^https?\:/)?key:
 				key.match(/^\d{13}$/)?"ean:"+key:
 				alert("Can't recognize key format")

@@ -268,11 +268,11 @@ stars>stars {
 
 
 .moreinfo:before {
-    content: "Больше подробностей ▼";
+    content: "Показать аспекты ▼";
 }
 
 .lessinfo:before {
-    content: "Скрыть подробности ▲";
+    content: "Скрыть аспекты ▲";
 }
 
 button.moreinfo, button.lessinfo {
