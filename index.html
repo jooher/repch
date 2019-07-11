@@ -6,95 +6,193 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
 	<link rel="stylesheet" href="style.css"/>
 	
-	<script src="https://dap.js.org/0.4.js" _src="0.4.js"></script>
-	<script src="persist.js"></script>
+	<script>
+	"use strict";
+
+	const
+
+	Starbar	= function(proto,bars){
+
+		proto.appendChild(proto.cloneNode(false));
+		
+		const	setvalue= (n,value)=>{
+				const	v = value*n.clientWidth,
+					w = Math.floor( bars ? v/bars : v );
+				n.firstChild.style.width = w+"px";
+				n.value=value;
+			},
+			
+			onclick	= e=>{	const	ex	=e.offsetX,
+						n	=e.target,
+						nw	=n.clientWidth,
+						r	=ex/nw,
+						value	=bars ? Math.ceil(r*bars) : r;
+						
+					setvalue(n,value);
+				},
+
+			starbar	= (value,enabled)=>{
+				const	n=proto.cloneNode(true);
+				if(enabled)n.addEventListener("click",onclick);
+				setTimeout(()=>{setvalue(n,value);},10);
+				return n;
+			}
+			
+		return	{
+			disabled: value=>starbar(value),
+			enabled	: value=>starbar(value,true)
+		}
+	},
 	
-	<style>
-.EMPTY{display:none !important}
+	uid	= ((storage,uidkey)=>{
+			let last=parseInt(storage.getItem(uidkey)||"1");
+			return n=>n||storage.setItem(uidkey,++last)||last;
+		})(localStorage,"uid"),
+		
+	Persist	=(storage,box,unbox,single)=> // keeps the data coherent among several tabs
+		key	=>{
+			let	order=[],
+				index={},
+				stamp=-1,
+				stampname=key+"_stamp";
+				
+			const
+			ixrow	= r=>index[r[key]||(r[key]=uid())]=r,
+			ixset	= s=>s.forEach&&s.length&&s.forEach(ixrow),
+			anew	= s=>(index={})&&ixset(order=s&&s.reduce?s:[]),
+			update	= x=>++stamp&&!delay&&sync(),
+			sync	= r=>{
+				if(stamp>0&&single&&!r)return;
+				const saved=parseInt(storage.getItem(stampname))||0;
+				if(stamp<saved){ //load
+					anew(unbox(storage.getItem(key)));
+					stamp=saved;
+				}
+				if(r){
+					order.push(r);
+					ixrow(r);
+					stamp++;
+				}
+				if(stamp>saved){ //save
+					order=order.filter(r=>index[r[key]]==r);
+					storage.setItem(key,box(order));
+					storage.setItem(stampname,stamp);
+				}
+			};
+				
+			return	{
+				data	: _ => sync()	||order,
+				take	: m => sync()	||index[m],
+				save	: r => sync(r)	||r
+			}
+		}
+		
 
-.ui{cursor:pointer;}
-.ui:hover{text-decoration:underline}
-
-
-/*[class]:before{content:attr(class);color:lightgray; display:block;}*/
-
-	</style>
+	</script>
+	
+	
 </head>
 
 <body>
 
+<script src="0.4.js"></script>
 
 <script>
 
-const	Starbar=function(proto,bars){
+	"use strict";
 
-	proto.appendChild(proto.cloneNode(false));
-	
-	const	setvalue= (n,value)=>{
-			const	v = value*n.clientWidth,
-				w = Math.floor( bars ? v/bars : v );
-			n.firstChild.style.width = w+"px";
-			n.value=value;
-		},
-		
-		onclick	= e=>{	const	ex	=e.offsetX,
-					n	=e.target,
-					nw	=n.clientWidth,
-					r	=ex/nw,
-					value	=bars ? Math.ceil(r*bars) : r;
-					
-				setvalue(n,value);
-			},
-
-		starbar	= (value,enabled)=>{
-			const	n=proto.cloneNode(true);
-			if(enabled)n.addEventListener("click",onclick);
-			setTimeout(()=>{setvalue(n,value);},10);
-			return n;
-		}
-		
-	return	{
-		disabled: value=>starbar(value),
-		enabled	: value=>starbar(value,true)
-	}
-};
-
-
+/*
+			$entries=(`entry)db
+			$aspects=(`aspect)db
+			$entities=(`entity)db
+			$opinions=(`opinion)db
+			$cats=(`cat)db
+			$lists=(`list)db
+			$listentities=(`listentity)db"
+*/	
 
 	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
 		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
-		credit	= 'credit'.d("! $!=.credit:starbar.enabled").ui(".credit=$!.value")
 		
-		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
+		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} ),
+		
+		db	=(function(){ // dap wrapper for Persist object
+					
+				const	P	=Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
+					T	=(tables=> key=>tables[key]||(tables[key]=P(key)) )({}),
+					detach	=r=>{r=Object.assign({},r);if(r[""])delete r[""];return r},
+					filter	=(data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
+					join	=(row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
+					save	=(table,values)		=> values.forEach(r=>table.save(detach(r)))||table.data();
+					
+				return	(values,tags)=>{
+					const	v=values.pop(),
+						c=values.length,
+						t=tags[c-1],
+						a=tags[c];
+						
+					return	!a ? filter(T(v).data(),values,tags) :			// ( `key $x $y ... )
+						!v ? save(T(a),values) :					// ( @key $row1 $row2 ... )
+						!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :	// ( $key `t1 `t2 ... )
+						values.push(v) && T(a).save(dap.Util.hash(values,tags));// ( $key $x $y ... )
+				} //( @ ... ) reserved
+			})()
 	;
 
-	'client'.d("$tab= $Entity= $entries=entries:db $aspects=aspects:db $entities=entities:db $opinions=opinions:db $lists=lists:db $listentities=listentities:db $cats=cats:db"
-	
+	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
 		,'ARTICLE.misc'.d(""
 		
 			,'tabs'.d("* dict.tabs@"
 				,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 			)
 			
-			,'SECTION.top'.d("? $tab; ! (tabs $tab)pull")
-		
-		
+			,'SECTION.top'.d("? $tab"
+			
+				,'lists'.d("?? $tab@lists; $list="
+					,'HEADER'.d(""
+						,'SELECT'.d("$lists; *@ (`list)db"
+							,'OPTION'.d("!! .title@ .list@value")
+						).ui("$list=#:value")
+						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
+					)
+					,'UL.entities'.d("? $list; * (`listentity $list)db"
+						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
+					)
+				)
+				
+				,'cats'.d("?? $tab@cats; $cat="
+					,'HEADER'.d(""
+						,'SELECT'.d("$cats; *@ (`cat)db"
+							,'OPTION'.d("!! .title@ .cat@value")
+						).ui("$cat=#:value")
+						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
+					)
+					,'UL.entities'.d("? $cat; * (`entity $cat)db"
+						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
+					)
+				)
+				
+				,'settings'.d("?? $tab@settings"
+					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+				)
+			
+			)
 		)
 
 		,'ARTICLE.entity'.d("? $Entity; * $Entity@; $?="
 				
-			,'SECTION.tags'.d("*@ $lists.data"
+			,'SECTION.tags'.d("$lists; * (`list)db"
 				,'tag'
-				.d(".listentity=(.list .entity=$Entity.entity)~ $tagged=($listentities .listentity@find)db $?=$tagged.pos; ! .title@; a!")
-				.a("!? $?@tagged")
-				.ui("$tagged=(.listentity .list .entity $?=$tagged.pos=($?:# @+ :uid@-)case@pos); $listentities=($listentities $tagged@add)db")
+				.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
+				.a("!? $tagged")
+				.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
 			)			
 			
 			,'SECTION.editables'.d(""
 				,input("title")
 				,input("desc")
 				,'general'.d("! Aspect")
-			).u("($entities $@add)db")
+			).u("(@entity $)db")
 			
 			//,'BUTTON.bindto'.d("! `Bind")
 		
@@ -108,26 +206,23 @@ const	Starbar=function(proto,bars){
 			,'BUTTON.lessinfo'.d("? $?").ui("$?=")
 			
 			,'SECTION.details'.d("? $?"
-				,'aspects'.d("* ($opinions (.entity)@filter)db"
-					,'opinion'.d("! Aspect").u("($opinions $@add)db")//$opinions=
+				,'aspects'.d("$opinions; * (`opinion .entity)db"
+					,'opinion'.d("! Aspect").u("(@opinion $)db")
 				)
 				,'opinion'.d("$?="
 					,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
 					,'SELECT.name'
 					.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
-					.ui("$opinions=($opinions (.aspect=#:value .entity .about=(.entity .aspect)~ )@add)db $?=")
+					.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
 				)
 			)
-			
-
 		)
 
 		,'ARTICLE.find'.d("" //,'4627073803671'	
 			,'SECTION.entry'.d("$entry="
 				,'INPUT.key'.ui("log $entry=#:value,prefix")
 				,'BUTTON.scan'.ui("(`scan)alert")
-			).u("? $entry; ? .Entry=($entries $entry@find)db $entries=($entries .Entry=($entry .entity:uid)@add )db; ? $Entity=($entities .Entry.entity@find)db $entities=($entities $Entity=(.Entry.entity)@add )db")
-			
+			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 		)
 		
 	)
@@ -138,7 +233,7 @@ const	Starbar=function(proto,bars){
 				,'summary'.d(""
 					,'name'.d("! .aspect").ui("$?=$?:!; ?")
 					,'IMG.stats'.d()
-					,credit
+					,'credit'.d("! $!=.credit:starbar.enabled").ui("$?=.credit=$!.value")
 				)
 				,'notes'.d(""
 					,'public'.d("? $?; ? .ref; * (`ls:notes .ref)uri:query"
@@ -153,37 +248,6 @@ const	Starbar=function(proto,bars){
 		
 		tabs	:{
 		
-			lists	: 'lists'.d("$list="
-					,'HEADER'.d(""
-						,'SELECT'.d("*@ $lists.data"
-							,'OPTION'.d("!! .title@ .list@value")
-						).ui("$list=#:value")
-						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=($lists ($list=:uid .title)@add )db")
-					)
-					,'UL.entities'.d("? $list; * ($listentities ($list)@filter )db"
-						,'LI'
-						.d("? .pos; * ($entities .entity@find)db; ! .title")//;  Stats Credits
-						.ui("$Entity=($entities .entity@find)db")
-					)
-				),
-				
-			cats	: 'cats'.d("$cat="
-					,'HEADER'.d(""
-						,'SELECT'.d("*@ $cats.data"
-							,'OPTION'.d("!! .title@ .cat@value")
-						).ui("$cat=#:value")
-						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=($cats ($cat=:uid .title)@add )db")
-					)
-					,'UL.entities'.d("? $cat; * ($entities ($cat)@filter )db"
-						,'LI'
-						.d("? .pos; * ($entities .entity@find)db; ! .title")//;  Stats Credits
-						.ui("$Entity=($entities .entity@find)db")
-					)
-				),
-				
-			settings: 'settings'.d(""
-					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
-				)
 	
 			
 		},
@@ -231,22 +295,14 @@ const	Starbar=function(proto,bars){
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			}
 		},
-		flatten	:{
+		flatten	:{ db,
 			"~"	:values=>values.join(":"),
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
 		},
 		convert	:{
+			"?uid"	: bool => bool&&uid(),
 			starbar	: Starbar(document.createElement("stars"),10),
-			uid	:(function(){
-					let seed=parseInt(localStorage.getItem("next")||"1");
-					return present=>{
-						if(present)return present;
-						localStorage.setItem("next",++seed);
-						return seed;
-					}
-				})(),
-				
-			prefix	:key=>
+			prefix	: key=>
 				key.match(/^https?\:/)?key:
 				key.match(/^\d{13}$/)?"ean:"+key:
 				alert("Can't recognize key format")
