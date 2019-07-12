@@ -5,140 +5,39 @@
 	
 	<style>
 	video,canvas,img{width:320px; height:240px; border:2px solid; margin:1em}
+	canvas{display:none}
 	</style>
 	
-	<script src="EAN13.js"></script>
+	<script src="scan.js"></script>
 	
 </head>	
 
 
 <body>
-    <video id="video" autoplay>Video stream not available.</video>
-    <button onclick="start()">Start</button>
-    <button onclick="capture()">Capture</button> 
-    <canvas id="canvas"></canvas>
-  
-    
-  <div id="numbers">
-  </div>
+
+<!--
+	<video id="video" autoplay>Video stream not available.</video>
+	<canvas id="canvas"></canvas><br/>
+	<button onclick="Scan.stop(video)">Stop</button>
+-->	
+	<button onclick="scan()">Scan</button>
 
 </body>
 
 <script>
+
+
+
 const	e	= id=>document.getElementById(id),
-	video	= e("video"),
-	canvas	= e("canvas"), context = canvas.getContext('2d'),
-	numbers	= e("numbers"),
-	
-	start	=()=>	navigator.mediaDevices.getUserMedia({video: true, audio: false})
-			.catch(e=>console.log("An error occurred: " + err))
-			.then(stream=>video.srcObject = stream),
-			
-	capture	=()=>	{
-		const	w=canvas.width,
-			h=canvas.height;
-			
-		//context.drawImage(video, 0, 0, w, h);//
-		
-		const	pixels=context.getImageData(0, h/2, w, 1).data;
-		numbers.textContent=Barcode(luma(pixels));
+//	video	= e("video"),
+	scan	= ()=>Scan.execute().catch(alert).then(alert);
 
-		//<img id="photo"> 
-		//var data = canvas.toDataURL('image/png');
-		//photo.setAttribute('src', data);
-		
-	},
-	
-luma	= d=>{
-	const	c=d.length>>2,
-		l=new Array(c);
-	for(let i=0; i<c; i++){
-		const j=i*4;
-		l[i]=d[j]+d[j+1]+d[j+2]
-	};
-	return l;
-}
-	
-	
-Barcode	=(function(){
 
-	const
-		drift=.05,
-		noise=.1,
-		gain=1/(drift*noise), 
-	
-	lowpass	= pixels=>{
-	
-		const	bars=[],
-			len=pixels.length;
-	
-		let	y=pixels[0],
-			l=y;
-		
-		// forward pass
-		for(let i=0; i<len; i++ ){
-			y -= l;
-			l += noise * (pixels[i] - l);
-			y = drift * ( y + l );
-			bars[i]=y*gain;
-		}
-		
-		// backward pass
-		for(let i=len; i-- >0; ){
-			y -= l;
-			l += noise * (pixels[i] - l);
-			y = drift * ( y + l );
-			bars[i]+=y*gain;
-		}
-		
-		return bars;
-	},
-	
-	extractSpans	= luma=>{
-		
-		const	spans	= luma, //recycle luma on the go
-			samples	= luma.length,
-			flat	= samples*5/(14*7),
-			least	= 40;
-	
-		let	zone=luma[0],
-			i=0, run=0, len=0;
-			
-		while( ++i < samples ){			
-			if(zone*luma[i]<0){ //cross the 0
-				zone=-zone;
-				if( run > flat ){
-					if( len < least ){
-						spans[len=0]=i;
-						zone=-1; //restart
-					}
-					else i=samples; //done
-				}
-				else spans[len]=run;
-				len++;
-				run=0;
-			}
-			run++;
-		}
-		
-		return spans.slice(0,len);
-	};
+/*const img = new Image;
+img.onload = function() {canvas.getContext('2d').drawImage(img, 20,20)};
+img.src="barcode.gif";
+*/
 
-	var img = new Image;
-	img.onload = function() {context.drawImage(img, 20,20)}
-	//img.crossOrigin = "Anonymous";
-	img.src = "barcode.gif";
-		
-		
-	return	luma=>{
-		const	spans=extractSpans(lowpass(luma));
-		return	EAN13(spans)||EAN13(spans.reverse());
-	}
-})();	
-	
-
-	
-	
 </script>
 
 </html>

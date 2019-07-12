@@ -264,9 +264,6 @@ stars>stars {
 }
 
 
-
-
-
 .moreinfo:before {
     content: "Показать аспекты ▼";
 }
@@ -278,7 +275,6 @@ stars>stars {
 button.moreinfo, button.lessinfo {
     border:none;
     background:none;
-    /* margin:1em; */
     text-align: right;
 }
 
