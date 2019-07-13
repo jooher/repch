@@ -88,30 +88,19 @@
 				save	: r => sync(r)	||r
 			}
 		}
-		
-
 	</script>
 	
 	
 </head>
 
 <body>
+<script src="scan.js"></script>
 
 <script src="0.4.js"></script>
 
 <script>
 
 	"use strict";
-
-/*
-			$entries=(`entry)db
-			$aspects=(`aspect)db
-			$entities=(`entity)db
-			$opinions=(`opinion)db
-			$cats=(`cat)db
-			$lists=(`list)db
-			$listentities=(`listentity)db"
-*/	
 
 	const	edit	= what	=>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
 		input	= what	=>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
@@ -221,9 +210,10 @@
 		)
 
 		,'ARTICLE.find'.d("" //,'4627073803671'	
-			,'SECTION.entry'.d("$entry="
+			,'SECTION.entry'.d("$?= $entry="
 				,'INPUT.key'.ui("log $entry=#:value,prefix")
-				,'BUTTON.scan'.ui("(`scan)alert")
+				,'BUTTON.scan'.ui("$entry=#:scan,prefix")
+		
 			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 		)
 		
@@ -247,22 +237,7 @@
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
-		
-		tabs	:{
-		
-	
 			
-		},
-		
-		
-		entries	:{pkey:"entry"},	// entry(method,word):entity
-		aspects	:{pkey:"aspect"},	// aspect: title
-		entities:{pkey:"entity"},	// entity: title,aspects
-		opinions:{pkey:"about"},	// about(entity,aspect): entity, aspect, credit, note
-		lists	:{pkey:"list"},		// list: title
-		cats	:{pkey:"cat"},		// cat: title
-		listentities:{pkey:"listentity"}, // listentity: pos
-		
 		method	:['barcode','uri'],
 
 		mock	:{
@@ -304,10 +279,22 @@
 		convert	:{
 			"?uid"	: bool => bool&&uid(),
 			starbar	: Starbar(document.createElement("stars"),10),
-			prefix	: key=>
-				key.match(/^https?\:/)?key:
-				key.match(/^\d{13}$/)?"ean:"+key:
-				alert("Can't recognize key format")
+			prefix	: entry => {
+				const	format	={
+					"EAN13"	:/^\d{13}$/,
+					"http"	:/.+/,
+					"https"	:/.+/
+					},
+					parts	= entry.split(":"),
+					key	= parts.pop(),
+					f	= parts.length&&parts.pop();
+					
+				if(f)return key.match(format[f])?entry:console.log("format mismatch:"+entry);
+				else for(let f in format)if(key.match(format[f]))return f+":"+key;
+				console.log("Can't recognize key format");
+			},			
+				
+			scan	: _ =>dap.Async(Scan.execute(),"scan")
 		}
 	})
 	
@@ -320,86 +307,4 @@
 </body>
 </html>
 <script>
-/*
-server	History{
-
-	table	Stakes{
-		>Forum,Author,Item
-		Credit : -1.0 .. +1.0
-		Stake : 0.0 .. 1.0
-		Time
-	}
-	
-	table	Forums{
-		>Forum
-		Trust = 0.0 .. +1.0
-	}
-}
-
-const
-
-local=(()=>{
-	
-	const
-	Aspects = table("aspect: title"),
-	Entities= table("entity: title"),
-	Opinions= table("entity, aspect: credit, note");
-	
-	return	{
-		
-		get	:{
-			aspects :$=>Aspects.order({pref:'-'}),
-			credits	:$=>Credits.where({$.aspect}).join(Entities),
-		},
-		
-		put	:{
-			entity	:$=>Entities.update($),	//entity,title
-			credit	:$=>Credits.update($),	//entity,aspect,credit,note
-		}
-	}
-	
-})();
-
-
-const
-
-Forum=(()=>{
-	
-	function
-	δ( Bets|Credit b, Item|Credit i ) = ( i - b)²,
-	
-	const
-	Authors	= table("author: oauth: title"),
-	Entries	= table("method,key: entity"),
-	Entities= table("entity: title"),
-	Aspects	= table("aspect: title"),
-	Items	= table("item: aspect,entity: credit,weight"),
-	Bets	= table("bet: author,aspect,entity: credit,stake,bonus,reward,date"),
-	Trusts	= table("trust: author,aspect: weight");
-	
-	return	{
-		
-		Bet	:(author,aspect,entity,credit,stake)=>{
-			
-			let	weight	= Trusts{author,aspect}.weight,
-				bonus	= D(credit, Items{aspect,entity}.credit);
-			
-			if(weight>0)
-				Items{aspect,entity} .credit+=credit*weight, .weight+=weight;
-			
-			Bets{author,aspect,entity} credit,stake,bonus;
-		},
-		
-		Trust	:(author,aspect)=>{
-			
-			Bets{author,aspect}
-				reward	= Sum .reward = .bonus - tau*D(credit,Items{aspect,.entity}.credit) / .stake; // ???
-				
-			Trusts{author,aspect} weight+=reward;
-		},
-		
-	}
-})
-*/
 </script>
-
