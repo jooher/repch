@@ -23,6 +23,12 @@ max-width: 48em;
 .scanner>button::before{
 	content:"Cancel";
 }
+.scanner>video{
+	display:none;
+}
+.scanner>canvas{
+	width:80%;
+}
 
 .title{font: bold 1.75em sans-serif;}
 

@@ -159,42 +159,50 @@ Scan	= (function(){
 	  
 	scan	= (context,w,h,lines)=>{
 		const step = h/lines;
-		for(let l=0,decoded;l<lines;l++)
-			if(decoded=Barcode(lowpass(luma(context.getImageData(0, l*step, w, 1).data))))
-				return decoded;
+		for(let l=0,decoded;l<lines;l++){
+			const	y	= l*step
+				pxluma	= luma(context.getImageData(0, y, w, 1).data),
+				pxlow	= lowpass(pxluma),
+				decoded	= Barcode(pxlow);
+			
+			context.beginPath();
+			context.moveTo(0,y);
+			context.lineTo(w,y);
+			
+			context.strokeStyle = 'red';			
+			context.lineWidth=decoded?8:1;
+			context.stroke();
+
+			//if(decoded) return decoded;
+		}
 	},
 	
 	timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
-
+	
 	return	{
 		
-		start	: video => new Promise(async function(resolve,reject){
+		start	: (video,canvas) => new Promise(async function(resolve,reject){
 		
+			await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).catch(reject)
+			.then(stream=>video.srcObject=stream);
+
 			const	lines	= 12,
-				w	= video.clientWidth,
-				h	= video.clientHeight,
-				canvas	= document.createElement("canvas"), //
-				context = canvas.getContext('2d');
+				track	= video.srcObject.getVideoTracks()[0];
 			
-			canvas.width=w;
-			canvas.height=h;
-				
-			let	decoded=null,
-				track;
+			let	w=0,h=0,context,decoded=null;
 			
-			await navigator.mediaDevices.getUserMedia(
-				{video:{facingMode:{ exact: "environment" }}}
-			).catch(reject)
-			.then(stream=>{
-				video.srcObject=stream;
-				track=stream.getVideoTracks()[0];
-			});
-			
-			while (!decoded&&track.readyState==="live") {//(video.paused||)
-				context.drawImage(video,0,0,w,h);
-				if(decoded=scan(context,w,h,lines))
-					resolve(decoded);
-				else await timeout(20);
+			while (track.readyState==="live") {//!decoded&&
+				if(video.videoWidth!=w){
+					canvas.width	= w = video.videoWidth;
+					canvas.height	= h = video.videoHeight;
+					context = canvas.getContext('2d');
+				}
+				if(w){
+					context.drawImage(video,0,0,w,h);
+					decoded=scan(context,w,h,lines);
+				}
+					if(decoded)resolve(decoded); 
+					else await timeout(100);
 			};
 			
 			//reject("video terminated");
@@ -210,6 +218,7 @@ Scan	= (function(){
 			const	el	= t=>document.createElement(t),
 				scanner	= el("div"),
 				video	= scanner.appendChild(el("video")),
+				canvas	= scanner.appendChild(el("canvas")),
 				cancel	= scanner.appendChild(el("button")),
 				stop	=  e=>{Scan.stop(video); scanner.parentNode.removeChild(scanner);}
 				
@@ -218,9 +227,8 @@ Scan	= (function(){
 			cancel.onclick = stop;
 			(where||document.body).appendChild(scanner);
 			
-			await Scan.start(video)
-			.then(n=>{stop();resolve(n)})
-			.catch(e=>{stop();reject(e)});
+			await Scan.start(video,canvas).then(resolve).catch(reject);
+			//stop();
 		})
 		
 	};
