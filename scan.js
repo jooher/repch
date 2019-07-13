@@ -112,8 +112,8 @@ Scan	= (function(){
 			return spans.slice(0,len);
 		};
 
-		return	luma=>{
-			const	spans=extractSpans(lowpass(luma));
+		return	filtered=>{
+			const	spans=extractSpans(filtered);
 			return	EAN13(spans)||EAN13(spans.reverse());
 		}
 	})(),
@@ -125,8 +125,29 @@ Scan	= (function(){
 			l[i]=rgba[j]+rgba[j+1]+rgba[j+2];
 		return l;
 	},
+	
+	symm	= 
+	
+	unpass	= (Y,l,h)=>{
+		
+		// low pass		
+		for(let x=Y.length, a=Y[x-1], a1=a, b1=a; x-->0; ){
+			a	= Y[x];
+			b1	= Y[x] = b1 + l * (a - b1);// + a - Y[x-1]
+			a1	= a;
+		}
+/*		
+*/		
+		//high pass
+		for(let x=Y.length, a=Y[x-1], a1=a, b1=a; x-->0; ){
+			a	= Y[x];
+			b1	= Y[x] = h * (a + (b1 - a1) );// + (a + Y[x-1])
+			a1	= a;
+		}
+		return Y;
+	},
 
-	lowpass	= pixels=>{
+/*	hlpass	= pixels=>{
 	
 		const	bars=[],
 			len=pixels.length,
@@ -137,7 +158,9 @@ Scan	= (function(){
 		
 		let	y=pixels[0],
 			l=y;
-		
+			
+
+
 		// forward pass
 		for(let i=0; i<len; i++ ){
 			y -= l;
@@ -156,21 +179,27 @@ Scan	= (function(){
 		
 		return bars;
 	},
-	  
+*/	  
 	scan	= (context,w,h,lines)=>{
 		const step = h/lines;
 		for(let l=0,decoded;l<lines;l++){
 			const	y	= l*step
 				pxluma	= luma(context.getImageData(0, y, w, 1).data),
-				pxlow	= lowpass(pxluma),
+				dec0	= Barcode(pxluma);
+				pxlow	= unpass(pxluma,.5,.92),
 				dec1	= Barcode(pxlow),
-				dec2	= Barcode(pxluma);
+				
+			context.strokeStyle = 'rgba(0,255,255,.5)';			
+			context.beginPath();
+			context.moveTo(w,y);
+			for(let x=w;x-->0;)
+				context.lineTo(x,y+pxlow[x]*.2);
+			context.stroke();
 			
 			context.beginPath();
 			context.moveTo(0,y);
 			context.lineTo(w,y);
-			
-			context.strokeStyle = dec1&&dec2?'yellow':dec1?'red':dec2?'lime':'gray';			
+			context.strokeStyle = dec1&&dec0?'yellow':dec0?'lime':dec1?'red':'gray';			
 			context.lineWidth = 2;// decoded?8:1;
 			context.stroke();
 
@@ -187,7 +216,7 @@ Scan	= (function(){
 			await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).catch(reject)
 			.then(stream=>video.srcObject=stream);
 
-			const	lines	= 20,
+			const	lines	= 10,
 				track	= video.srcObject.getVideoTracks()[0];
 			
 			let	w=0,h=0,context,decoded=null;
