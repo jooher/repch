@@ -215,6 +215,7 @@ Scan	= (function(){
 		stop	: video=>video.srcObject.getVideoTracks()[0].stop(),
 		
 		execute	: where => new Promise(async function(resolve,reject){
+			alert("version 2");
 			const	el	= t=>document.createElement(t),
 				scanner	= el("div"),
 				video	= scanner.appendChild(el("video")),
