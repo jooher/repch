@@ -182,7 +182,7 @@ Scan	= (function(){
 			let	decoded=null,
 				track;
 			
-			await navigator.mediaDevices.getUserMedia({video: true}).catch(reject)
+			await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).catch(reject)
 			.then(stream=>{
 				video.srcObject=stream;
 				track=stream.getVideoTracks()[0];
