@@ -163,14 +163,15 @@ Scan	= (function(){
 			const	y	= l*step
 				pxluma	= luma(context.getImageData(0, y, w, 1).data),
 				pxlow	= lowpass(pxluma),
-				decoded	= Barcode(pxlow);
+				dec1	= Barcode(pxlow),
+				dec2	= Barcode(pxluma);
 			
 			context.beginPath();
 			context.moveTo(0,y);
 			context.lineTo(w,y);
 			
-			context.strokeStyle = 'red';			
-			context.lineWidth=decoded?8:1;
+			context.strokeStyle = dec1&&dec2?'yellow':dec1?'red':dec2?'lime':'gray';			
+			context.lineWidth = 2;// decoded?8:1;
 			context.stroke();
 
 			//if(decoded) return decoded;
@@ -186,7 +187,7 @@ Scan	= (function(){
 			await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).catch(reject)
 			.then(stream=>video.srcObject=stream);
 
-			const	lines	= 12,
+			const	lines	= 20,
 				track	= video.srcObject.getVideoTracks()[0];
 			
 			let	w=0,h=0,context,decoded=null;
@@ -215,7 +216,7 @@ Scan	= (function(){
 		stop	: video=>video.srcObject.getVideoTracks()[0].stop(),
 		
 		execute	: where => new Promise(async function(resolve,reject){
-			alert("version 2");
+			alert("version 3");
 			const	el	= t=>document.createElement(t),
 				scanner	= el("div"),
 				video	= scanner.appendChild(el("video")),

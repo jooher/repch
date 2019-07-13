@@ -18,16 +18,25 @@ max-width: 48em;
 
 .scanner{
 	position:absolute;
-	top:0; bottom:0;
-}
-.scanner>button::before{
-	content:"Cancel";
+	top: 0;
+	width: 100%;
+	margin:auto;
+	text-align:center;
 }
 .scanner>video{
 	display:none;
 }
 .scanner>canvas{
-	width:80%;
+	display:block;
+	width:100%;
+}
+.scanner>button{
+	display:block;
+	width:100%;
+	padding:.5em;
+}
+.scanner>button::before{
+	content:"Cancel";
 }
 
 .title{font: bold 1.75em sans-serif;}
