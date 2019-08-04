@@ -1,6 +1,9 @@
 const
 Scan	= (function(){
 
+	let	w=0,h=0,context,
+		paused = false;
+	
 	const
 
 	Barcode	=(function(){
@@ -54,13 +57,15 @@ Scan	= (function(){
 				if(left)
 					digits.unshift(HED[parity]||"*");
 						
-				return digits;
+				return	digits;
 			},
 			
-			verify	= digits=>{
-				const decoded = digits.join("");
+			verify	= digits=>{				
+				const	decoded = digits.join(""),
+					unclear	= decoded.match(/\*/g);
+					
 				//console.log("decoded: "+decoded);
-				if(decoded.indexOf("*")>=0)return;
+				if(unclear)return digits.length-unclear.length;
 				
 				let	check	= 10-digits.pop(),//[12],//
 					sum	= digits.reduce((s,n,i)=>s+(i%2?3*n:1*n),0);
@@ -126,41 +131,46 @@ Scan	= (function(){
 		return l;
 	},
 	
-	symm	= 
-	
-	unpass	= (Y,l,h)=>{
+	filter	={
+		symm	: (Y,l,h)=>{
+			
+			const	r = unpass(Y.slice(0).reverse(),h,l).reverse(),
+				s = unpass(Y,h,l);
+				
+			for(let x=Y.length; x-->0; ){
+				r[x]+=s[x];
+			}
+			
+			return r;
+		},
 		
-		// low pass		
-		for(let x=Y.length, a=Y[x-1], a1=a, b1=a; x-->0; ){
-			a	= Y[x];
-			b1	= Y[x] = b1 + l * (a - b1);// + a - Y[x-1]
-			a1	= a;
+		lopass	: (Y,k)=>{
+			for(let x=Y.length, a0=Y[x-1], a=a0, b=a0; x-->0; ){
+				a0	= Y[x];
+				b	= Y[x] = b + k * (a0 - b);
+				a	= a0;
+			}
+		},
+		
+		hipass	: (Y,k)=>{
+			for(let x=Y.length, a0=Y[x-1], a=a0, b=a0; x-->0; ){
+				a0	= Y[x];
+				b	= Y[x] = k * (a0 + (b - a) );
+				a	= a0;
+			}
 		}
-/*		
-*/		
-		//high pass
-		for(let x=Y.length, a=Y[x-1], a1=a, b1=a; x-->0; ){
-			a	= Y[x];
-			b1	= Y[x] = h * (a + (b1 - a1) );// + (a + Y[x-1])
-			a1	= a;
-		}
-		return Y;
 	},
 
-/*	hlpass	= pixels=>{
+	hlpass	= (pixels,noise,drift)=>{
 	
 		const	bars=[],
 			len=pixels.length,
 	
-			drift=.05,
-			noise=.1,
 			gain=1/(drift*noise);
 		
 		let	y=pixels[0],
 			l=y;
 			
-
-
 		// forward pass
 		for(let i=0; i<len; i++ ){
 			y -= l;
@@ -179,36 +189,40 @@ Scan	= (function(){
 		
 		return bars;
 	},
-*/	  
-	scan	= (context,w,h,lines)=>{
+	
+	osci	= (y,Y,a,style)=>{
+		context.strokeStyle = style;			
+		context.beginPath();
+		context.moveTo(w,y);
+		for(let x=w;x-->0;)
+			context.lineTo(x,y+Y[x]*a);
+		context.lineWidth=1;
+		context.stroke();
+	},
+/**/	  
+	scan	= lines=>{
 		const step = h/lines;
 		for(let l=0,decoded;l<lines;l++){
 			const	y	= l*step
 				pxluma	= luma(context.getImageData(0, y, w, 1).data),
-				dec0	= Barcode(pxluma);
-				pxlow	= unpass(pxluma,.5,.92),
-				dec1	= Barcode(pxlow),
+				pxlow	= hlpass(pxluma,.05,.05),
+				dec	= Barcode(pxlow);
 				
-			context.strokeStyle = 'rgba(0,255,255,.5)';			
-			context.beginPath();
-			context.moveTo(w,y);
-			for(let x=w;x-->0;)
-				context.lineTo(x,y+pxlow[x]*.2);
-			context.stroke();
+			osci(y,pxlow,.05,'rgba(0,255,255,1)');
 			
 			context.beginPath();
 			context.moveTo(0,y);
 			context.lineTo(w,y);
-			context.strokeStyle = dec1&&dec0?'yellow':dec0?'lime':dec1?'red':'gray';			
-			context.lineWidth = 2;// decoded?8:1;
+			context.strokeStyle = dec>100?'green':dec>6?'red':'gray';			
+			context.lineWidth = dec>100?10:dec||1;// decoded?8:1;
 			context.stroke();
 
-			//if(decoded) return decoded;
+			if(decoded) return decoded;
 		}
 	},
 	
 	timeout = ms => new Promise(resolve => setTimeout(resolve, ms));
-	
+
 	return	{
 		
 		start	: (video,canvas) => new Promise(async function(resolve,reject){
@@ -219,9 +233,9 @@ Scan	= (function(){
 			const	lines	= 10,
 				track	= video.srcObject.getVideoTracks()[0];
 			
-			let	w=0,h=0,context,decoded=null;
+			let	decoded=null;
 			
-			while (track.readyState==="live") {//!decoded&&
+			while (track.readyState==="live" && !paused) {//!decoded&&
 				if(video.videoWidth!=w){
 					canvas.width	= w = video.videoWidth;
 					canvas.height	= h = video.videoHeight;
@@ -229,20 +243,16 @@ Scan	= (function(){
 				}
 				if(w){
 					context.drawImage(video,0,0,w,h);
-					decoded=scan(context,w,h,lines);
+					decoded=scan(lines);
 				}
-					if(decoded)resolve(decoded); 
-					else await timeout(100);
+				if(decoded)resolve(decoded); 
+				else await timeout(paused?1e3:1e2);
 			};
-			
-			//reject("video terminated");
-			/*
-			video.width=video.videoWidth;
-			video.height=video.videoHeight;
-			*/
 		}),
 		
-		stop	: video=>video.srcObject.getVideoTracks()[0].stop(),
+		stop	: video => video.srcObject.getVideoTracks()[0].stop(),
+		
+		pause	: () => (paused=!paused),
 		
 		execute	: where => new Promise(async function(resolve,reject){
 			alert("version 3");
@@ -251,11 +261,13 @@ Scan	= (function(){
 				video	= scanner.appendChild(el("video")),
 				canvas	= scanner.appendChild(el("canvas")),
 				cancel	= scanner.appendChild(el("button")),
-				stop	=  e=>{Scan.stop(video); scanner.parentNode.removeChild(scanner);}
+				pause	= scanner.appendChild(el("button")),
+				stop	=  
 				
 			scanner.className = "scanner";
-			video.autoplay=true;
-			cancel.onclick = stop;
+			video.autoplay	= true;
+			cancel.onclick	= e => {Scan.stop(video); scanner.parentNode.removeChild(scanner)};
+			pause.onclick	= e => {Scan.pause()};
 			(where||document.body).appendChild(scanner);
 			
 			await Scan.start(video,canvas).then(resolve).catch(reject);
