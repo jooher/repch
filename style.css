@@ -241,7 +241,7 @@ img.stats {
 
 
 
-article.entity {
+article.entity, article.welcome {
     padding: 1em;
     overflow-y: scroll;
     flex: 1;
