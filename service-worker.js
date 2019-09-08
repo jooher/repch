@@ -3,7 +3,7 @@ const
 CACHE_NAME = 'v1',
 
 urlsToCache = [
-  '/',
+  '/index.html',
   '/style.css',
   '/scan.js',
   '/0.4.js'

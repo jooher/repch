@@ -76,6 +76,7 @@ button.scan:before {
 input.key {
     flex: 1;
     margin-right: .5em;
+    /* font-size: 1.5em; */
     text-align: center;
 }
 
@@ -128,8 +129,8 @@ article.find {
     background: burlywood;
     box-sizing: border-box;
     display: flex;
-    font-size: 2.5em;
     margin: 0;
+    font-size: 1.5em;
 }
 
 .tagged {
