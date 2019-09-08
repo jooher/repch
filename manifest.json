@@ -1,8 +1,8 @@
 {
   "name": "Repch.io",
   "short_name": "Repch",
-  "start_url": "/",
-  "scope":"/",
+  "start_url": "/repch",
+  "scope":"/repch",
   "display": "standalone",
 
   "background_color": "#3E4EB8",
