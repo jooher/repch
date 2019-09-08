@@ -4,14 +4,19 @@ CACHE_NAME = 'v1',
 
 urlsToCache = [
   '/',
-  '/styles/main.css',
-  '/scripts/main.js',
-  '/images/smiley.svg'
+  '/style.css',
+  '/scan.js',
+  '/0.4.js'
 ],
 
 events={
 
-	install: event=> event.waitUntil( caches.open(CACHE_NAME).then( cache => cache.addAll(urlsToCache) ) ),
+	install:
+		event=>
+			event.waitUntil(
+				caches.open(CACHE_NAME)
+				.then( cache => cache.addAll(urlsToCache) )
+			),
 
 	activate:
 		event=>{

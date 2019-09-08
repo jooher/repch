@@ -37,7 +37,7 @@
 			starbar	= (value,enabled)=>{
 				const	n=proto.cloneNode(true);
 				if(enabled)n.addEventListener("click",onclick);
-				setTimeout(()=>{setvalue(n,value);},10);
+				setTimeout( _=>setvalue(n,value),10);
 				return n;
 			}
 			
@@ -92,7 +92,6 @@
 	</script>
 	
 	<script>
-
 	if(navigator.serviceWorker)
 		window.addEventListener('load', e=>
 			navigator.serviceWorker.register('service-worker.js')
@@ -101,7 +100,8 @@
 		)
 	else
 		console.log('service worker is not supported');
-</script>
+	</script>
+
 </head>
 
 <body>
