@@ -5,8 +5,8 @@
 
 	<title>repch</title>
 	
-	<meta name="viewport" content="width=device-width, initial-scale=1" /> 
-	<link rel="stylesheet" href="style.css"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" /> 
+	<link rel="stylesheet" href="style.css"/> 
 	<link rel="manifest" href="manifest.json"/>
 	
 	<script>
@@ -152,94 +152,95 @@
 	;
 
 	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
-		,'ARTICLE.misc'.d(""
-		
-			,'tabs'.d("* dict.tabs@"
-				,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
-			)
-			
-			,'SECTION.top'.d("? $tab"
-			
-				,'lists'.d("?? $tab@lists; $list="
-					,'HEADER'.d(""
-						,'SELECT'.d("$lists; *@ (`list)db"
-							,'OPTION'.d("!! .title@ .list@value")
-						).ui("$list=#:value")
-						,'BUTTON.addlist'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-					)
-					,'UL.entities'.d("? $list; * (`listentity $list)db"
-						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
-					)
-				)
+	
+			,'page.nav'.d(""
+				,'ARTICLE.misc'.d(""
 				
-				,'cats'.d("?? $tab@cats; $cat="
-					,'HEADER'.d(""
-						,'SELECT'.d("$cats; *@ (`cat)db"
-							,'OPTION'.d("!! .title@ .cat@value")
-						).ui("$cat=#:value")
-						,'BUTTON.addcat'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
+					,'tabs'.d("* dict.tabs@"
+						,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 					)
-					,'UL.entities'.d("? $cat; * (`entity $cat)db"
-						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
+					
+					,'SECTION.top'.d("? $tab"
+					
+						,'lists'.d("?? $tab@lists; $list="
+							,'select'.d("$lists; *@ (`list)db"
+								,'option'.d("! .title").a("!? (.list $list)eq@selected").ui("$list=.")
+							)
+							,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
+							,'UL.entities'.d("? $list; * (`listentity $list)db"
+								,'LI'	.d("? .tagged; .Entity=(.entity)db; ! .Entity.title")
+									.a("!? (.Entity $Entity)eq@selected")
+									.ui("$Entity=.")
+							)
+						)
+						
+						,'cats'.d("?? $tab@cats; $cat="
+							,'select'.d("$cats; *@ (`cat)db"
+								,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
+							)
+							,'add'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
+							,'UL.entities'.d("? $cat; * (`entity $cat)db"
+								,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
+							)
+						)
+						
+						,'settings'.d("?? $tab@settings"
+							,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+						)
+					
 					)
 				)
+				,'ARTICLE.welcome'.d("?:! $Entity; ! html.welcome")
+				,'ARTICLE.find'.d("" //,'4627073803671'	
+					,'SECTION.entry'.d("$?= $entry="
+						,'INPUT.key'.ui("log $entry=#:value,prefix")
+						,'BUTTON.scan'.ui("$entry=#:scan,prefix")
 				
-				,'settings'.d("?? $tab@settings"
-					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
-				)
-			
-			)
-		)
-		
-		,'ARTICLE.welcome'.d("?:! $Entity; ! html.welcome")
-
-		,'ARTICLE.entity'.d("? $Entity; * $Entity@; $?="
-				
-			,'SECTION.tags'.d("$lists; * (`list)db"
-				,'tag'
-				.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
-				.a("!? $tagged")
-				.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
-			)			
-			
-			,'SECTION.editables'.d(""
-				,input("title")
-				,input("desc")
-				,'general'.d("! Aspect")
-			).u("(@entity $)db")
-			
-			//,'BUTTON.bindto'.d("! `Bind")
-		
-/*				,'SELECT.category'
-				.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
-				.ui(".aspects=#:value")
-			,'aspects'.d("Aspects($entity.aspects)")
-*/			
-
-			,'BUTTON.moreinfo'.d("? $?:!").ui("$?=:!")
-			,'BUTTON.lessinfo'.d("? $?").ui("$?=")
-			
-			,'SECTION.details'.d("? $?"
-				,'aspects'.d("$opinions; * (`opinion .entity)db"
-					,'opinion'.d("! Aspect").u("(@opinion $)db")
-				)
-				,'opinion'.d("$?="
-					,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
-					,'SELECT.name'
-					.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
-					.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
+					).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 				)
 			)
-		)
+		
+			
+			,'page.entity'.d("? $Entity; * $Entity@; $?="
+					
+				,'SECTION.tags'.d("$lists; * (`list)db"
+					,'tag'
+					.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
+					.a("!? $tagged")
+					.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
+				)
+				
+				,'SECTION.editables'.d(""
+					,input("title")
+					,input("desc")
+					,'general'.d("! Aspect")
+				).u("(@entity $)db")
+				
+				
+				//,'BUTTON.bindto'.d("! `Bind")
+			
+	/*				,'SELECT.category'
+					.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
+					.ui(".aspects=#:value")
+				,'aspects'.d("Aspects($entity.aspects)")
+	*/			
 
-		,'ARTICLE.find'.d("" //,'4627073803671'	
-			,'SECTION.entry'.d("$?= $entry="
-				,'INPUT.key'.ui("log $entry=#:value,prefix")
-				,'BUTTON.scan'.ui("$entry=#:scan,prefix")
-		
-			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
-		)
-		
+				,'BUTTON.moreinfo'.d("? $?:!").ui("$?=:!")
+				,'BUTTON.lessinfo'.d("? $?").ui("$?=")
+				
+				,'SECTION.details'.d("? $?"
+					,'aspects'.d("$opinions; * (`opinion .entity)db"
+						,'opinion'.d("! Aspect").u("(@opinion $)db")
+					)
+					,'opinion'.d("$?="
+						,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
+						,'SELECT.name'
+						.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
+						.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
+					)
+				)
+			)
+
 	)
 
 	.DICT({

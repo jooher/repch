@@ -1,20 +1,17 @@
 .EMPTY	{display:none !important}
 
 .ui	{cursor:pointer;}
-.ui:hover{text-decoration:underline}
+.ui:hover{/* text-decoration:underline */}
 
 
 
 html,body {
-padding: 0;
-height: 100%;
-margin: 0;
+	padding: 0;
+	height: 100%;
+	margin: 0;
 }
 
-body{
-font: normal 14px sans-serif;
-max-width: 48em;
-}
+body{font: normal 16px sans-serif;max-width: 24em;overflow-x: auto;}
 
 .scanner{
 	position:absolute;
@@ -39,44 +36,17 @@ max-width: 48em;
 	content:"Cancel";
 }
 
-.title{font: bold 1.75em sans-serif;}
+.title{font: bold 1.5em sans-serif;}
 
-button.addlist:before {
-    content: "Создать новый список";
-}
-
-button.addcat:before {
-    content: "Создать новую категорию";
-}
-
-button.addaspect:before {
-    content: "Добавить аспект";
-}
-
-button.addnote:before {
-    content: "!";
-    font-family: wingdings;
-}
 
 button.scan:before {
     content: "Scan";
 }
 
 
-.client {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    box-sizing: border-box;
-    background: whitesmoke;
-    position: relative;
-}
-
 input.key {
     flex: 1;
     margin-right: .5em;
-    /* font-size: 1.5em; */
     text-align: center;
 }
 
@@ -126,19 +96,21 @@ article:before {
 
 article.find {
     padding: .5em;
-    background: burlywood;
+    background: orange;
     box-sizing: border-box;
     display: flex;
     margin: 0;
-    font-size: 1.5em;
+    font-size: 1.25em;
 }
 
 .tagged {
-    background: lightslategray;
+    border: 1px solid;
+    border-radius: 6px;
 }
 
 .tag {
-    display: inline;
+    display: inline-block;
+    white-space: nowrap;
     margin: .2em;
     padding: .2em .5em;
 }
@@ -146,12 +118,12 @@ article.find {
 
 .tabs {
     text-align: left;
-    padding: .25em;
-    border-bottom: 2px solid lightslategray;
+    padding: .5em;
+    margin-bottom: -1px;
 }
 
 .tabs:before {
-    content: "►◄ REPCH";
+    content: "*";
     margin-right: 1em;
     font: bold 1em sans-serif;
     color: lightslategray;
@@ -160,32 +132,21 @@ article.find {
 .tab {
     display: inline;
     padding: .5em;
+    font-weight: bold;
+    text-transform: lowercase;
 }
 
 .tab.selected {
-    background: lightslategray;
-}
-
-header {
-    display: flex;
-    background: lightslategray;
-    padding: .25em;
-    margin: 0;
-}
-
-header>select {
-    flex: 1;
-    margin-right: .5em;
+    background: black;
+    color: white;
 }
 
 
 ul.entities {
-    border: 3px solid lightslategray;
     background: white;
     border-top: none;
-    padding: 1em;
+    padding: 0;
     margin: 0;
-    list-style: none;
     text-align: left;
 }
 
@@ -196,7 +157,7 @@ section.entry {
 }
 
 .aspect{
-    margin: 2em 0;
+    margin: 1em 0;
     text-align: left;
 }
 .aspect>.summary {
@@ -243,11 +204,11 @@ article.entity, article.welcome {
 }
 
 section.tags{
-    /* font-size:.75em */
+    font-size:.75em;
 }
 
 section.tags, section.editables {
-    margin: 1em 0;
+    margin: 1em;
     text-align: center;
 }
 
@@ -277,6 +238,12 @@ stars>stars {
     margin: -.4em 0 0 .2em;
 }
 
+button.moreinfo, button.lessinfo {
+    border:none;
+    background:none;
+    text-align: right;
+}
+
 
 .moreinfo:before {
     content: "Показать аспекты ▼";
@@ -286,22 +253,95 @@ stars>stars {
     content: "Скрыть аспекты ▲";
 }
 
-button.moreinfo, button.lessinfo {
-    border:none;
-    background:none;
-    text-align: right;
-}
 
 .note {
     font-style: italic;
 }
 
 section.top {
-    /* border: 3px solid lightslategray; */
+    position: relative;
 }
 
 .entities>li {
+    display: block;
+    padding: 1em;
+}
+
+
+
+
+
+/*
+
+button.addlist:before {
+    content: "Создать новый список";
+}
+
+button.addcat:before {
+    content: "Создать новую категорию";
+}
+*/
+
+.add{
+	position:absolute;
+	top: 6px;
+	right: 6px;
+	background:white;
+	width:1em;
+	text-align:center;
+	font: bold 1.5em/1 sans-serif;
+	border-radius: 3px;
+}
+
+.add:before {
+    content: "+";
+}
+
+.select {
+    padding: .5em 2em .5em .5em;
+    background: black;
+    color: white;
+}
+
+.option {
     display: inline-block;
-    padding: .5em;
-    margin: .25em;
+    padding: .2em .4em;
+    margin: .2em;
+    border: 1px solid;
+    border-radius: 8px;
+    color: gray;
+}
+
+.option.selected {
+    /* background: darkgrey; */
+    color: white;
+}
+
+
+
+
+.client {
+    width: 200%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    /* overflow-x: auto; */
+    transition: all .5s;
+}
+
+.page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+article.misc {flex: 1;}
+
+
+.page.entity {
+    background: whitesmoke;
+}
+
+.entities>.selected {
+    background: whitesmoke;
 }
