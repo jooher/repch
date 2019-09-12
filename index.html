@@ -201,7 +201,7 @@
 			)
 		
 			
-			,'page.entity'.d("? $Entity; * $Entity@; $?="
+			,'page.entity'.d("? $Entity; scroll #; * $Entity@; $?="
 					
 				,'SECTION.tags'.d("$lists; * (`list)db"
 					,'tag'
@@ -295,7 +295,13 @@
 			hint	:(value,alias,node)=>{node.setAttribute("placeholder",value)},
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
-			}
+			},
+			scroll:(value,alias,node)=>{
+					window.setTimeout(()=>{
+						//node.offsetParent.parentNode.scrollLeft=node.offsetLeft;
+						node.scrollIntoView({behavior:"smooth",inline:"start"});
+					},500);
+				}
 		},
 		flatten	:{ db,
 			"~"	:values=>values.join(":"),
