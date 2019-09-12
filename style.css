@@ -11,7 +11,7 @@ html,body {
 	margin: 0;
 }
 
-body{font: normal 16px sans-serif;max-width: 28em;overflow-x: auto;}
+body{font-family: sans-serif;max-width: 24em;overflow-x: auto;}
 
 .scanner{
 	position:absolute;
@@ -67,22 +67,18 @@ input::placeholder {
 }
 
 [contenteditable], .editables>input {
+    cursor: text !important;
     border: none;
     display: block;
     width: 100%;
-    border-bottom: 1px dotted lightslategray;
-    cursor: text !important;
-    padding: .1em;
-    box-sizing: border-box;
+    background: no-repeat;
 }
 
+[contenteditable]:focus, .editables>input:focus {
+	    background: white;
+}
 input.credit {
     width: 3em;
-}
-
-article {
-    /* position: relative; */
-    /* margin: 1em 0; */
 }
 
 article:before {
@@ -157,8 +153,9 @@ section.entry {
 }
 
 .aspect{
-    margin: 1em 0;
+    margin: 1.5em 0;
     text-align: left;
+    font-family: Georgia;
 }
 .aspect>.summary {
     display: flex;
@@ -182,8 +179,7 @@ section.entry {
 
 .summary>.name {
     flex: 1;
-    font: bold 1.1em sans-serif;
-    color: lightslategray;
+    font-weight: bold;
 }
 
 img.stats {
@@ -203,12 +199,15 @@ article.entity, article.welcome {
     flex-direction: column;
 }
 
+.entity>section{
+    margin: 1em;
+}
+
 section.tags{
     font-size:.75em;
 }
 
 section.tags, section.editables {
-    margin: 1em;
     text-align: center;
 }
 
@@ -234,14 +233,15 @@ stars>stars {
 }
 
 .credit>stars {
-    font: normal 2.5em/1em sans-serif;
-    margin: -.4em 0 0 .2em;
+    font: normal 1.5em/1em sans-serif;
+    margin: -.2em 0 .2em .2em;
 }
 
 button.moreinfo, button.lessinfo {
     border:none;
     background:none;
     text-align: right;
+    padding: 0;
 }
 
 
@@ -264,7 +264,7 @@ section.top {
 
 .entities>li {
     display: block;
-    padding: 1em;
+    padding: .75em;
 }
 
 
@@ -291,6 +291,7 @@ button.addcat:before {
 	text-align:center;
 	font: bold 1.5em/1 sans-serif;
 	border-radius: 3px;
+	border: none;
 }
 
 .add:before {
@@ -313,7 +314,6 @@ button.addcat:before {
 }
 
 .option.selected {
-    /* background: darkgrey; */
     color: white;
 }
 
@@ -325,7 +325,6 @@ button.addcat:before {
     height: 100%;
     display: flex;
     flex-direction: row;
-    /* overflow-x: auto; */
     transition: all .5s;
 }
 
@@ -344,4 +343,14 @@ article.misc {flex: 1;}
 
 .entities>.selected {
     background: whitesmoke;
+}
+
+
+section.aspects {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.opinion {
+    position: relative;
 }

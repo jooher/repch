@@ -201,7 +201,7 @@
 			)
 		
 			
-			,'page.entity'.d("? $Entity; scroll #; * $Entity@; $?="
+			,'page.entity'.d("? $Entity; scroll #; * $Entity@"
 					
 				,'SECTION.tags'.d("$lists; * (`list)db"
 					,'tag'
@@ -213,7 +213,7 @@
 				,'SECTION.editables'.d(""
 					,input("title")
 					,input("desc")
-					,'general'.d("! Aspect")
+					//,'general'.d("! Aspect")
 				).u("(@entity $)db")
 				
 				
@@ -224,16 +224,12 @@
 					.ui(".aspects=#:value")
 				,'aspects'.d("Aspects($entity.aspects)")
 	*/			
-
-				,'BUTTON.moreinfo'.d("? $?:!").ui("$?=:!")
-				,'BUTTON.lessinfo'.d("? $?").ui("$?=")
-				
-				,'SECTION.details'.d("? $?"
-					,'aspects'.d("$opinions; * (`opinion .entity)db"
+				,'SECTION.aspects'.d(""
+					,'opinions'.d("$opinions; * (`opinion .entity)db"
 						,'opinion'.d("! Aspect").u("(@opinion $)db")
 					)
 					,'opinion'.d("$?="
-						,'BUTTON.addaspect'.d("? $?:!").ui("$?=:!")
+						,'BUTTON.add'.d("? $?:!").ui("$?=:!")
 						,'SELECT.name'
 						.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
 						.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
@@ -252,10 +248,13 @@
 					,'credit'.d("! $!=.credit:starbar.enabled").ui("$?=.credit=$!.value")
 				)
 				,'notes'.d(""
-					,'public'.d("? $?; ? .ref; * (`ls:notes .ref)uri:query"
+					,'public'.d("? $?; ? .ref; * (`notes .ref)db"
 						,'note'.d("! .note").ui("..note=. ..publicnote=.")
 					)
-					,'note contenteditable'.d("? (.note $?)?; ! .note").ui(".note=#:text")//? (.note .publicnote:!)?;
+					,'note contenteditable'
+						.d("? (.note $?)?; ! .note")
+						.d("? (.note:! $?)!; focus")
+						.ui(".note=#:text")//? (.note .publicnote:!)?;
 				).u("$?=")
 			),					
 
@@ -276,10 +275,6 @@
 				note	:"Note",
 				aspects	:"Applicable aspects"
 			},
-			prompt	:{
-				addlist	:"Создать список:",
-				addcat	:"Создать категорию:"
-			},
 			tabs	: dataset(
 					["tab","title"],
 					[["lists","Списки"],["cats","Категории"],["settings","Настройки"]]
@@ -296,6 +291,7 @@
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			},
+			focus:(value,alias,node)=>{window.setTimeout(()=>{node.focus()},100)},
 			scroll:(value,alias,node)=>{
 					window.setTimeout(()=>{
 						//node.offsetParent.parentNode.scrollLeft=node.offsetLeft;
@@ -313,6 +309,7 @@
 			prefix	: entry => {
 				const	format	={
 					"EAN13"	:/^\d{13}$/,
+					//"youtube"	:/^(?:https://www.youtube.com/watch?v=)[a-zA-Z0-9-]/,
 					"http"	:/.+/,
 					"https"	:/.+/
 					},
