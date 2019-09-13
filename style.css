@@ -354,3 +354,13 @@ section.aspects {
 .opinion {
     position: relative;
 }
+
+section.entries {
+    text-align: center;
+    text-decoration: underline;
+    color: gray;
+}
+
+.desc {
+    font-weight: bold;
+}
