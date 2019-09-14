@@ -11,7 +11,7 @@ html,body {
 	margin: 0;
 }
 
-body{font-family: sans-serif;max-width: 24em;overflow-x: auto;}
+body{font-family: sans-serif;max-width: 32em;overflow-x: auto;}
 
 .scanner{
 	position:absolute;
