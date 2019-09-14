@@ -106,13 +106,13 @@
 
 <body>
 
-<section id="content">
+<div id="content">
 
 	<div id="welcome">
 		<h1>Welcome to Repch.io</h1>
 	</div>
 
-</section>
+</div>
 
 <script src="scan.js"></script>
 <script src="0.4.js"></script>
@@ -160,7 +160,7 @@
 						,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 					)
 					
-					,'SECTION.top'.d("? $tab"
+					,'top'.d("? $tab"
 					
 						,'lists'.d("?? $tab@lists; $list="
 							,'select'.d("$lists; *@ (`list)db"
@@ -190,9 +190,9 @@
 					
 					)
 				)
-				,'ARTICLE.welcome'.d("?:! $Entity; ! html.welcome")
+				//,'ARTICLE.welcome'.d("?:! $Entity; ! html.welcome")
 				,'ARTICLE.find'.d("" //,'4627073803671'	
-					,'SECTION.entry'.d("$?= $entry="
+					,'entry'.d("$?= $entry="
 						,'INPUT.key'.ui("log $entry=#:value,prefix")
 						,'BUTTON.scan'.ui("$entry=#:scan,prefix")
 				
@@ -203,40 +203,43 @@
 			
 			,'page.entity'.d("? $Entity; scroll #; * $Entity@"
 					
-				,'SECTION.tags'.d("$lists; * (`list)db"
-					,'tag'
-					.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
-					.a("!? $tagged")
-					.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
-				)
-				
 				,'SECTION.editables'.d(""
 					,input("title")
 					,input("desc")
 					//,'general'.d("! Aspect")
 				).u("(@entity $)db")
 				
-				,'SECTION.entries'.d("* (`entry .entity)db"
-					,'A.entry target=_blank'.d("!! .entry@ .entry@href")
-				)
+				,'info'.d(""
 				
-				
-				//,'BUTTON.bindto'.d("! `Bind")
-			
-	/*				,'SELECT.category'
-					.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
-					.ui(".aspects=#:value")
-				,'aspects'.d("Aspects($entity.aspects)")
-	*/			
-				,'SECTION.aspects'.d(""
-					,'opinions'.d("$opinions; * (`opinion .entity)db"
-						,'opinion'.d("! Aspect").u("(@opinion $)db")
+					,'SECTION.tags'.d("$lists; * (`list)db"
+						,'tag'
+						.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
+						.a("!? $tagged")
+						.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
 					)
-					,'opinion'.d("$?="
-						,'BUTTON.add'.d("? $?:!").ui("$?=:!")
-						,'SELECT.name'
-						.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
-						.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
+					
+					,'SECTION.entries'.d("* (`entry .entity)db"
+						,'A.entry target=_blank'.d("!! .entry@ .entry@href")
+					)
+					
+					
+					//,'BUTTON.bindto'.d("! `Bind")
+				
+		/*				,'SELECT.category'
+						.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
+						.ui(".aspects=#:value")
+					,'aspects'.d("Aspects($entity.aspects)")
+		*/			
+					,'SECTION.aspects'.d(""
+						,'opinions'.d("$opinions; * (`opinion .entity)db"
+							,'opinion'.d("! Aspect").u("(@opinion $)db")
+						)
+						,'opinion'.d("$?="
+							,'BUTTON.add'.d("? $?:!").ui("$?=:!")
+							,'SELECT.name'
+							.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
+							.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
+						)
 					)
 				)
 			)

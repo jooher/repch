@@ -6,12 +6,52 @@
 
 
 html,body {
-	padding: 0;
+	font-family: sans-serif;
 	height: 100%;
+	padding: 0;
 	margin: 0;
 }
 
-body{font-family: sans-serif;max-width: 32em;overflow-x: auto;}
+@media(max-width: 38rem){/* orientation:portrait */
+	  body{ max-width:100%; overflow-x: auto; }
+	  .client{ width: 200%;
+	}
+}
+
+
+.client {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    transition: all .5s;
+}
+
+.page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+section{
+    padding: 1rem;
+}
+
+article.misc {flex: 1;}
+
+
+.page.entity {
+    background: whitesmoke;
+    text-align: center;
+}
+
+.entities>.selected {
+    background: whitesmoke;
+}
+
+
+
+
+
 
 .scanner{
 	position:absolute;
@@ -36,9 +76,6 @@ body{font-family: sans-serif;max-width: 32em;overflow-x: auto;}
 	content:"Cancel";
 }
 
-.title{font: bold 1.5em sans-serif;}
-
-
 button.scan:before {
     content: "Scan";
 }
@@ -46,7 +83,7 @@ button.scan:before {
 
 input.key {
     flex: 1;
-    margin-right: .5em;
+    /* margin-right: .5em; */
     text-align: center;
 }
 
@@ -91,7 +128,7 @@ article:before {
 }
 
 article.find {
-    padding: .5em;
+    padding: .25em;
     background: orange;
     box-sizing: border-box;
     display: flex;
@@ -99,8 +136,8 @@ article.find {
     font-size: 1.25em;
 }
 
-.tagged {
-    border: 1px solid;
+.tag.tagged {
+    border-color: black;
     border-radius: 6px;
 }
 
@@ -109,6 +146,8 @@ article.find {
     white-space: nowrap;
     margin: .2em;
     padding: .2em .5em;
+    border: 1px solid transparent;
+    /* border-radius: 6px; */
 }
 
 
@@ -146,21 +185,27 @@ ul.entities {
     text-align: left;
 }
 
+ul.entities>li {
+    display: block;
+    padding: .75em;
+}
+
+
+
 
 section.entry {
     width: 100%;
     display: flex;
 }
 
+.title{font: bold 1.5em sans-serif;}
+
+
 .aspect{
     margin: 1.5em 0;
     text-align: left;
     font-family: Georgia;
 }
-.aspect>.summary {
-    display: flex;
-}
-
 
 .aspect>.note {
     border: none;
@@ -189,29 +234,22 @@ img.stats {
 }
 
 
-
-
 article.entity, article.welcome {
     padding: 1em;
     overflow-y: scroll;
     flex: 1;
     display: flex;
     flex-direction: column;
-}
-
-.entity>section{
-    margin: 1em;
-}
-
-section.tags{
-    font-size:.75em;
-}
-
-section.tags, section.editables {
     text-align: center;
 }
 
+section.info{
+    overflow-y: auto;
+}
 
+.tags{
+    font-size:.75em;
+}
 
 stars {
     display: inline-block;
@@ -244,16 +282,6 @@ button.moreinfo, button.lessinfo {
     padding: 0;
 }
 
-
-.moreinfo:before {
-    content: "Показать аспекты ▼";
-}
-
-.lessinfo:before {
-    content: "Скрыть аспекты ▲";
-}
-
-
 .note {
     font-style: italic;
 }
@@ -261,12 +289,6 @@ button.moreinfo, button.lessinfo {
 section.top {
     position: relative;
 }
-
-.entities>li {
-    display: block;
-    padding: .75em;
-}
-
 
 
 
@@ -287,11 +309,12 @@ button.addcat:before {
 	top: 6px;
 	right: 6px;
 	background:white;
-	width:1em;
+	/* width: 1.5rem; */
 	text-align:center;
-	font: bold 1.5em/1 sans-serif;
-	border-radius: 3px;
+	font: bold 1.5rem/1 sans-serif;
 	border: none;
+	padding: 0 .3rem;
+	border-radius: 3px;
 }
 
 .add:before {
@@ -318,39 +341,6 @@ button.addcat:before {
 }
 
 
-
-
-.client {
-    width: 200%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-    transition: all .5s;
-}
-
-.page {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-article.misc {flex: 1;}
-
-
-.page.entity {
-    background: whitesmoke;
-}
-
-.entities>.selected {
-    background: whitesmoke;
-}
-
-
-section.aspects {
-    flex: 1;
-    overflow-y: auto;
-}
-
 .opinion {
     position: relative;
 }
@@ -363,4 +353,10 @@ section.entries {
 
 .desc {
     font-weight: bold;
+}
+
+
+.info {
+    flex: 1;
+    overflow-y: auto;
 }
