@@ -83,8 +83,9 @@ button.scan:before {
 
 input.key {
     flex: 1;
-    /* margin-right: .5em; */
+    margin-right: .25rem;
     text-align: center;
+    /* border: navajowhite; */
 }
 
 input,button,select {
@@ -127,8 +128,8 @@ article:before {
     /* content: attr(class); */
 }
 
-article.find {
-    padding: .25em;
+.find {
+    padding: .25rem;
     background: orange;
     box-sizing: border-box;
     display: flex;
@@ -147,7 +148,6 @@ article.find {
     margin: .2em;
     padding: .2em .5em;
     border: 1px solid transparent;
-    /* border-radius: 6px; */
 }
 
 
@@ -325,6 +325,7 @@ button.addcat:before {
     padding: .5em 2em .5em .5em;
     background: black;
     color: white;
+    position: relative;
 }
 
 .option {
@@ -359,4 +360,13 @@ section.entries {
 .info {
     flex: 1;
     overflow-y: auto;
+}
+
+input.key {
+    /* border: none; */
+}
+
+article {
+    flex: 1;
+    position: relative;
 }

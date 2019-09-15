@@ -154,50 +154,45 @@
 	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
 	
 			,'page.nav'.d(""
-				,'ARTICLE.misc'.d(""
+			
+				,'tabs'.d("* dict.tabs@"
+					,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+				)
 				
-					,'tabs'.d("* dict.tabs@"
-						,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+				,'ARTICLE.lists'.d("?? $tab@lists; $list="
+					,'select'.d("$lists; *@ (`list)db"
+						,'option'.d("! .title").a("!? (.list $list)eq@selected").ui("$list=.")
 					)
-					
-					,'top'.d("? $tab"
-					
-						,'lists'.d("?? $tab@lists; $list="
-							,'select'.d("$lists; *@ (`list)db"
-								,'option'.d("! .title").a("!? (.list $list)eq@selected").ui("$list=.")
-							)
-							,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-							,'UL.entities'.d("? $list; * (`listentity $list)db"
-								,'LI'	.d("? .tagged; .Entity=(.entity)db; ! .Entity.title")
-									.a("!? (.Entity $Entity)eq@selected")
-									.ui("$Entity=.")
-							)
-						)
-						
-						,'cats'.d("?? $tab@cats; $cat="
-							,'select'.d("$cats; *@ (`cat)db"
-								,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
-							)
-							,'add'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
-							,'UL.entities'.d("? $cat; * (`entity $cat)db"
-								,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
-							)
-						)
-						
-						,'settings'.d("?? $tab@settings"
-							,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
-						)
-					
+					,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
+					,'UL.entities'.d("? $list; * (`listentity $list)db"
+						,'LI'	.d("? .tagged; .Entity=(.entity)db; ! .Entity.title")
+							.a("!? (.Entity $Entity)eq@selected")
+							.ui("$Entity=.")
 					)
 				)
-				//,'ARTICLE.welcome'.d("?:! $Entity; ! html.welcome")
-				,'ARTICLE.find'.d("" //,'4627073803671'	
-					,'entry'.d("$?= $entry="
-						,'INPUT.key'.ui("log $entry=#:value,prefix")
-						,'BUTTON.scan'.ui("$entry=#:scan,prefix")
 				
-					).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
+				,'ARTICLE.cats'.d("?? $tab@cats; $cat="
+					,'select'.d("$cats; *@ (`cat)db"
+						,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
+					)
+					,'add'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
+					,'UL.entities'.d("? $cat; * (`entity $cat)db"
+						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
+					)
 				)
+				
+				,'ARTICLE.settings'.d("?? $tab@settings"
+					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+				)
+				
+				,'ARTICLE.welcome'.d("? $tab:!; ! html.welcome")
+				
+				
+				,'find'.d("$?= $entry="//,'4627073803671'
+					,'INPUT.key'.ui("log $entry=#:value,prefix")
+					,'BUTTON.scan'.ui("$entry=#:scan,prefix")
+			
+				).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 			)
 		
 			
