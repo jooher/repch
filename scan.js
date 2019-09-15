@@ -261,8 +261,7 @@ Scan	= (function(){
 				video	= scanner.appendChild(el("video")),
 				canvas	= scanner.appendChild(el("canvas")),
 				cancel	= scanner.appendChild(el("button")),
-				pause	= scanner.appendChild(el("button")),
-				stop	=  
+				pause	= scanner.appendChild(el("button"));
 				
 			scanner.className = "scanner";
 			video.autoplay	= true;

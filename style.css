@@ -1,20 +1,57 @@
 .EMPTY	{display:none !important}
 
 .ui	{cursor:pointer;}
-.ui:hover{text-decoration:underline}
+.ui:hover{/* text-decoration:underline */}
 
 
 
 html,body {
-padding: 0;
-height: 100%;
-margin: 0;
+	font-family: sans-serif;
+	height: 100%;
+	padding: 0;
+	margin: 0;
 }
 
-body{
-font: normal 14px sans-serif;
-max-width: 48em;
+@media(max-width: 38rem){/* orientation:portrait */
+	  body{ max-width:100%; overflow-x: auto; }
+	  .client{ width: 200%;
+	}
 }
+
+
+.client {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    transition: all .5s;
+}
+
+.page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+section{
+    padding: 1rem;
+}
+
+article.misc {flex: 1;}
+
+
+.page.entity {
+    background: whitesmoke;
+    text-align: center;
+}
+
+.entities>.selected {
+    background: whitesmoke;
+}
+
+
+
+
+
 
 .scanner{
 	position:absolute;
@@ -39,45 +76,16 @@ max-width: 48em;
 	content:"Cancel";
 }
 
-.title{font: bold 1.75em sans-serif;}
-
-button.addlist:before {
-    content: "Создать новый список";
-}
-
-button.addcat:before {
-    content: "Создать новую категорию";
-}
-
-button.addaspect:before {
-    content: "Добавить аспект";
-}
-
-button.addnote:before {
-    content: "!";
-    font-family: wingdings;
-}
-
 button.scan:before {
     content: "Scan";
 }
 
 
-.client {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    /* padding: 1px 0; */
-    box-sizing: border-box;
-    background: whitesmoke;
-    position: relative;
-}
-
 input.key {
     flex: 1;
-    margin-right: .5em;
+    margin-right: .25rem;
     text-align: center;
+    /* border: navajowhite; */
 }
 
 input,button,select {
@@ -97,22 +105,18 @@ input::placeholder {
 }
 
 [contenteditable], .editables>input {
+    cursor: text !important;
     border: none;
     display: block;
     width: 100%;
-    border-bottom: 1px dotted lightslategray;
-    cursor: text !important;
-    padding: .1em;
-    box-sizing: border-box;
+    background: no-repeat;
 }
 
+[contenteditable]:focus, .editables>input:focus {
+	    background: white;
+}
 input.credit {
     width: 3em;
-}
-
-article {
-    /* position: relative; */
-    /* margin: 1em 0; */
 }
 
 article:before {
@@ -124,37 +128,37 @@ article:before {
     /* content: attr(class); */
 }
 
-article.find {
-    /* position: absolute; */
-    /* bottom: 0; */
-    /* width: 100%; */
-    padding: .5em;
-    background: burlywood;
+.find {
+    padding: .25rem;
+    background: orange;
     box-sizing: border-box;
     display: flex;
-    font-size: 2.5em;
     margin: 0;
+    font-size: 1.25em;
 }
 
-.tagged {
-    background: lightslategray;
+.tag.tagged {
+    border-color: black;
+    border-radius: 6px;
 }
 
 .tag {
-    display: inline;
+    display: inline-block;
+    white-space: nowrap;
     margin: .2em;
     padding: .2em .5em;
+    border: 1px solid transparent;
 }
 
 
 .tabs {
     text-align: left;
-    padding: .25em;
-    border-bottom: 2px solid lightslategray;
+    padding: .5em;
+    margin-bottom: -1px;
 }
 
 .tabs:before {
-    content: "►◄ REPCH";
+    content: "*";
     margin-right: 1em;
     font: bold 1em sans-serif;
     color: lightslategray;
@@ -163,34 +167,30 @@ article.find {
 .tab {
     display: inline;
     padding: .5em;
+    font-weight: bold;
+    text-transform: lowercase;
 }
 
 .tab.selected {
-    background: lightslategray;
-}
-
-header {
-    display: flex;
-    background: lightslategray;
-    padding: .25em;
-    margin: 0;
-}
-
-header>select {
-    flex: 1;
-    margin-right: .5em;
+    background: black;
+    color: white;
 }
 
 
 ul.entities {
-    border: 3px solid lightslategray;
     background: white;
     border-top: none;
-    padding: 1em;
+    padding: 0;
     margin: 0;
-    list-style: none;
     text-align: left;
 }
+
+ul.entities>li {
+    display: block;
+    padding: .75em;
+}
+
+
 
 
 section.entry {
@@ -198,23 +198,19 @@ section.entry {
     display: flex;
 }
 
-.aspect{
-    /* border-bottom: 1px solid lightslategray; */
-    margin: 2em 0;
-    text-align: left;
-}
-.aspect>.summary {
-    display: flex;
-    /* margin: .5em; */
-}
+.title{font: bold 1.5em sans-serif;}
 
+
+.aspect{
+    margin: 1.5em 0;
+    text-align: left;
+    font-family: Georgia;
+}
 
 .aspect>.note {
-    /* display: block; */
     border: none;
     width:100%;
     box-sizing:border-box;
-    /* padding: .2em; */
     color: gray;
     font-style: italic;
 }
@@ -228,18 +224,14 @@ section.entry {
 
 .summary>.name {
     flex: 1;
-    font: bold 1.1em sans-serif;
-    color: lightslategray;
+    font-weight: bold;
 }
 
 img.stats {
     width: 2em;
     height: 1em;
-    /* margin: 0 1em; */
     vertical-align: bottom;
 }
-
-
 
 
 article.entity, article.welcome {
@@ -248,19 +240,16 @@ article.entity, article.welcome {
     flex: 1;
     display: flex;
     flex-direction: column;
-    /* font-size: 1.4em; */
-}
-
-section.tags{
-    /* font-size:.75em */
-}
-
-section.tags, section.editables {
-    margin: 1em 0;
     text-align: center;
 }
 
+section.info{
+    overflow-y: auto;
+}
 
+.tags{
+    font-size:.75em;
+}
 
 stars {
     display: inline-block;
@@ -282,23 +271,15 @@ stars>stars {
 }
 
 .credit>stars {
-    font: normal 2.5em/1em sans-serif;
-    margin: -.4em 0 0 .2em;
-}
-
-
-.moreinfo:before {
-    content: "Показать аспекты ▼";
-}
-
-.lessinfo:before {
-    content: "Скрыть аспекты ▲";
+    font: normal 1.5em/1em sans-serif;
+    margin: -.2em 0 .2em .2em;
 }
 
 button.moreinfo, button.lessinfo {
     border:none;
     background:none;
     text-align: right;
+    padding: 0;
 }
 
 .note {
@@ -306,11 +287,86 @@ button.moreinfo, button.lessinfo {
 }
 
 section.top {
-    /* border: 3px solid lightslategray; */
+    position: relative;
 }
 
-.entities>li {
+
+
+
+/*
+
+button.addlist:before {
+    content: "Создать новый список";
+}
+
+button.addcat:before {
+    content: "Создать новую категорию";
+}
+*/
+
+.add{
+	position:absolute;
+	top: 6px;
+	right: 6px;
+	background:white;
+	/* width: 1.5rem; */
+	text-align:center;
+	font: bold 1.5rem/1 sans-serif;
+	border: none;
+	padding: 0 .3rem;
+	border-radius: 3px;
+}
+
+.add:before {
+    content: "+";
+}
+
+.select {
+    padding: .5em 2em .5em .5em;
+    background: black;
+    color: white;
+    position: relative;
+}
+
+.option {
     display: inline-block;
-    padding: .5em;
-    margin: .25em;
+    padding: .2em .4em;
+    margin: .2em;
+    border: 1px solid;
+    border-radius: 8px;
+    color: gray;
+}
+
+.option.selected {
+    color: white;
+}
+
+
+.opinion {
+    position: relative;
+}
+
+section.entries {
+    text-align: center;
+    text-decoration: underline;
+    color: gray;
+}
+
+.desc {
+    font-weight: bold;
+}
+
+
+.info {
+    flex: 1;
+    overflow-y: auto;
+}
+
+input.key {
+    /* border: none; */
+}
+
+article {
+    flex: 1;
+    position: relative;
 }
