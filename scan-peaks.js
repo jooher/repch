@@ -216,23 +216,23 @@ Scan	= (function(){
 			//alert("version 3");
 			const	el	= t=>document.createElement(t),
 				scanner	= el("div"),
-				video	= scanner.appendChild(el("video")),
+				video		= scanner.appendChild(el("video")),
 				canvas	= scanner.appendChild(el("canvas")),
-				cancel	= scanner.appendChild(el("button")),
-				pause	= scanner.appendChild(el("button")),
-				savebtn	= scanner.appendChild(el("button"));
+				cancel	= scanner.appendChild(el("button"));
+				//pause	= scanner.appendChild(el("button")),
+				//savebtn	= scanner.appendChild(el("button"));
 				//stop	=  
 				
 			video.autoplay	= true;
 			
 			scanner.className = "scanner";
 			cancel.className= "cancel";
-			pause.className	= "pause";
-			savebtn.textContent="save";
+			//pause.className	= "pause";
+			//savebtn.textContent="save";
 
 			cancel.onclick	= e => {Scan.stop(video); scanner.parentNode.removeChild(scanner)};
-			pause.onclick	= e => {Scan.pause()};
-			savebtn.onclick	= e => {Scan.save(canvas)};
+			//pause.onclick	= e => {Scan.pause()};
+			//savebtn.onclick	= e => {Scan.save(canvas)};
 			
 			(where||document.body).appendChild(scanner);
 			

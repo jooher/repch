@@ -28,6 +28,9 @@ html,body {
 
 .page {
     flex: 1;
+    overflow: hidden;
+    /* text-overflow: ellipsis; */
+    /* flex-grow: inherit; */
     display: flex;
     flex-direction: column;
 }
@@ -68,11 +71,12 @@ article.misc {flex: 1;}
 	width:100%;
 }
 .scanner>button{
-	display:block;
-	width:100%;
+	/* display:block; */
+	/* width:100%; */
 	padding:.5em;
+	flex: 1;
 }
-.scanner>button::before{
+.scanner>button.cancel::before{
 	content:"Cancel";
 }
 
@@ -183,11 +187,19 @@ ul.entities {
     padding: 0;
     margin: 0;
     text-align: left;
+    width: 100%;
+    /* overflow: hidden; */
 }
 
 ul.entities>li {
-    display: block;
+    /* display: block; */
     padding: .75em;
+    /* width: 100%; */
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* overflow: hidden; */
 }
 
 
@@ -308,7 +320,7 @@ button.addcat:before {
 	position:absolute;
 	top: 6px;
 	right: 6px;
-	background:white;
+	/* background:white; */
 	/* width: 1.5rem; */
 	text-align:center;
 	font: bold 1.5rem/1 sans-serif;
@@ -377,5 +389,42 @@ button.scan {
 }
 
 input:empty {
-    background: white;
+    /* background: white; */
+}
+
+.scanner>button.pause::before {content: "Pause";}
+
+.addaspect {
+    text-align: left;
+    /* background: white; */
+    border-top: 1px dashed;
+    padding: 0;
+    list-style: none;
+}
+
+.item {
+    padding: 1rem 0;
+}
+
+.more::before {content: "•••";/* background: gray; *//* color: white; *//* padding: 0 .5em; *//* border-radius: .25rem; */}
+
+.more {
+    display: inline;
+    margin: .5em;
+}
+
+.name {
+    display: inline;
+}
+
+ul.aspects {
+    padding-left: 1rem;
+}
+
+.aspects>li {
+    margin: .5em 0;
+}
+
+addaspect>li {
+    list-style: :none;
 }

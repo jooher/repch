@@ -114,7 +114,18 @@
 
 </div>
 
-<script src="scan.js"></script>
+<!--
+<div id="scanner">
+	<video></video>
+	<canvas></canvas>
+	<div class="buttons">
+		<button class="stop"/>
+		<button class="cancel"/>
+	</div>
+</div>
+-->
+
+<script src="scan-peaks.js"></script>
 <script src="0.4.js"></script>
 
 <script>
@@ -153,92 +164,91 @@
 
 	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
 	
-			,'page.nav'.d(""
-			
-				,'tabs'.d("* dict.tabs@"
-					,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
-				)
-				
-				,'ARTICLE.lists'.d("?? $tab@lists; $list="
-					,'select'.d("$lists; *@ (`list)db"
-						,'option'.d("! .title").a("!? (.list $list)eq@selected").ui("$list=.")
-					)
-					,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-					,'UL.entities'.d("? $list; * (`listentity $list)db"
-						,'LI'	.d("? .tagged; .Entity=(.entity)db; ! .Entity.title")
-							.a("!? (.Entity $Entity)eq@selected")
-							.ui("$Entity=.")
-					)
-				)
-				
-				,'ARTICLE.cats'.d("?? $tab@cats; $cat="
-					,'select'.d("$cats; *@ (`cat)db"
-						,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
-					)
-					,'add'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
-					,'UL.entities'.d("? $cat; * (`entity $cat)db"
-						,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
-					)
-				)
-				
-				,'ARTICLE.settings'.d("?? $tab@settings"
-					,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
-				)
-				
-				,'ARTICLE.welcome'.d("? $tab:!; ! html.welcome")
-				
-				
-				,'find'.d("$?= $entry="//,'4627073803671'
-					,'INPUT.key'.ui("log $entry=#:value,prefix")
-					,'BUTTON.scan'.ui("$entry=#:scan,prefix")
-			
-				).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
-			)
+		,'page.nav'.d(""
 		
+			,'tabs'.d("* dict.tabs@"
+				,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+			)
 			
-			,'page.entity'.d("? $Entity; scroll #; * $Entity@"
-					
-				,'SECTION.editables'.d(""
-					,input("title").d("focus .title:!")
-					,input("desc").d("focus (.title .desc:!)!")
-					//,'general'.d("! Aspect")
-				).u("(@entity $)db")
+			,'ARTICLE.lists'.d("?? $tab@lists; $list="
+				,'select'.d("$lists; *@ (`list)db"
+					,'option'.d("! .title").a("!? (.list $list)eq@selected").ui("$list=.")
+				)
+				,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
+				,'UL.entities'.d("? $list; * (`listentity $list)db"
+					,'LI'	.d("? .tagged; .Entity=(.entity)db; ! .Entity.title")
+						.a("!? (.Entity $Entity)eq@selected")
+						.ui("$Entity=.")
+				)
+			)
+			
+			,'ARTICLE.cats'.d("?? $tab@cats; $cat="
+				,'select'.d("$cats; *@ (`cat)db"
+					,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
+				)
+				,'add'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
+				,'UL.entities'.d("? $cat; * (`entity $cat)db"
+					,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
+				)
+			)
+			
+			,'ARTICLE.settings'.d("?? $tab@settings"
+				,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+			)
+			
+			,'ARTICLE.welcome'.d("? $tab:!; ! html.welcome")
+			
+			
+			,'find'.d("$?= $entry="//,'4627073803671'
+				,'INPUT.key'.ui("log $entry=#:value,prefix")
+				,'BUTTON.scan'.ui("$entry=#:scan,prefix")
+		
+			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
+		)
+	
+		
+		,'page.entity'.d("? $Entity; scroll #; * $Entity@"
 				
-				,'info'.d(""
+			,'SECTION.editables'.d(""
+				,input("title").d("focus .title:!")
+				,input("desc").d("focus (.title .desc:!)!")
+				//,'general'.d("! Aspect")
+			).u("(@entity $)db")
+			
+			,'info'.d(""
+			
+				,'SECTION.tags'.d("$lists; * (`list)db"
+					,'tag'
+					.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
+					.a("!? $tagged")
+					.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
+				)
 				
-					,'SECTION.tags'.d("$lists; * (`list)db"
-						,'tag'
-						.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)~)db $tagged=.?.; a!")
-						.a("!? $tagged")
-						.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
+				,'SECTION.entries'.d("* (`entry .entity)db"
+					,'A.entry target=_blank'.d("!! .entry@ .entry@href")
+				)
+				
+				
+				//,'BUTTON.bindto'.d("! `Bind")
+	/*		
+					,'SELECT.category'
+					.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
+					.ui(".aspects=#:value")
+				,'aspects'.d("Aspects($entity.aspects)")
+	*/			
+				,'SECTION.aspects'.d(""
+					,'opinions'.d("$opinions; * (`opinion .entity)db"
+						,'opinion'.d("! Aspect").u("(@opinion $)db")
 					)
-					
-					,'SECTION.entries'.d("* (`entry .entity)db"
-						,'A.entry target=_blank'.d("!! .entry@ .entry@href")
-					)
-					
-					
-					//,'BUTTON.bindto'.d("! `Bind")
-				
-		/*				,'SELECT.category'
-						.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
-						.ui(".aspects=#:value")
-					,'aspects'.d("Aspects($entity.aspects)")
-		*/			
-					,'SECTION.aspects'.d(""
-						,'opinions'.d("$opinions; * (`opinion .entity)db"
-							,'opinion'.d("! Aspect").u("(@opinion $)db")
-						)
-						,'opinion'.d("$?="
-							,'BUTTON.add'.d("? $?:!").ui("$?=:!")
-							,'SELECT.name'
-							.d("? $?; hint dict.entity.aspects; * mock.aspect; Option(.aspect@value)")//; #:focus
-							.ui(" $?= .aspect=#:value $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
-						)
+					,'opinion'.d("$?="
+						,'BUTTON.add'.d("? $?:!").ui("$?=:!")
+						,'UL.addaspect'
+						.d("? $?; $!= Item( (`static/aspects.txt? .entity)uri:query,untab.decode@items )")
+						.u("$?= .aspect=$!.result:check $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
 					)
 				)
 			)
-
+		)
 	)
 
 	.DICT({
@@ -257,7 +267,13 @@
 						.d("? (.note $?)?; ! .note; focus (.note:! $?)!")
 						.ui(".note=#:text")//? (.note .publicnote:!)?;
 				).u("$?=")
-			),					
+			),
+
+		Item	: 'LI'.d("$?=.name:!"
+				,'name'.d("! .name").ui("$!.result=($!.result .name)?")
+				,'more'.d("? .name; ? .items").ui("$?=$?:!; ?")
+				,'UL.aspects'.d("? $?; * .items@; ! Item")
+			),
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
@@ -292,12 +308,12 @@
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			},
-			focus:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},100)},
+			focus:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
 			scroll:(value,alias,node)=>{if(value)
 					window.setTimeout(()=>{
 						//node.offsetParent.parentNode.scrollLeft=node.offsetLeft;
 						node.scrollIntoView({behavior:"smooth",inline:"end"});
-					},500);
+					},200);
 				}
 		},
 		flatten	:{ db,
@@ -329,6 +345,10 @@
 	
 	.FUNC(Persist)
 	
+	.USES({
+		untab	:"untab.js" // external namespace, that provides a decoder for the custom-formatted data
+	})
+
 	.RENDER()
 
 	</script>
