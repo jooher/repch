@@ -5,6 +5,15 @@
 
 
 
+scanner{
+	position:absolute;
+	display:block;
+	top:0;
+}
+
+scanner>button::before {content: "Cancel";}
+
+
 html,body {
 	font-family: sans-serif;
 	height: 100%;
@@ -21,6 +30,7 @@ html,body {
 
 .client {
     height: 100%;
+    max-width:64rem;
     display: flex;
     flex-direction: row;
     transition: all .5s;
@@ -392,7 +402,6 @@ input:empty {
     /* background: white; */
 }
 
-.scanner>button.pause::before {content: "Pause";}
 
 .addaspect {
     text-align: left;
@@ -427,4 +436,8 @@ ul.aspects {
 
 addaspect>li {
     list-style: :none;
+}
+
+video {
+    display: none;
 }

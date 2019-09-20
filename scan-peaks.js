@@ -167,18 +167,28 @@ Scan	= (function(){
 		
 		start	: (video,canvas) => new Promise(async function(resolve,reject){
 		
+			
 			await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}}).catch(reject)
 			.then(stream=>video.srcObject=stream);
-
-			const	lines	= 10,
-				track	= video.srcObject.getVideoTracks()[0];
+/*			
+			.then(stream=>{
+				const	track		= stream.getVideoTracks()[0],
+					settings	= track.getSettings(),
+					height 	= settings.height,
+					width		= settings.width,
+					fps		= settings.framerate;
+			})
 			
-			let	decoded=null;
+*/			const	lines	= 10,
+				track	= video.srcObject.getVideoTracks()[0];
+				
+			let	decoded =null;
 			
 			while (track.readyState==="live" && !paused) {//!decoded&&
 				if(video.videoWidth!=w){
 					canvas.width	= w = video.videoWidth;
 					canvas.height	= h = video.videoHeight;
+					console.log("video size: "+w+" x "+h);
 					context = canvas.getContext('2d');
 				}
 				if(w){
@@ -189,8 +199,11 @@ Scan	= (function(){
 					}
 					decoded=scan(lines);
 				}
-				if(decoded)resolve(decoded); 
-				else await timeout(paused?1e3:1e2);
+				
+				if(decoded)
+					resolve(decoded); 
+				else
+					await timeout(paused?1e3:0);
 			};
 		}),
 		
@@ -213,32 +226,20 @@ Scan	= (function(){
 		save	: () => {dump=true},
 		
 		execute	: where => new Promise(async function(resolve,reject){
-			//alert("version 3");
-			const	el	= t=>document.createElement(t),
-				scanner	= el("div"),
-				video		= scanner.appendChild(el("video")),
-				canvas	= scanner.appendChild(el("canvas")),
-				cancel	= scanner.appendChild(el("button"));
-				//pause	= scanner.appendChild(el("button")),
-				//savebtn	= scanner.appendChild(el("button"));
-				//stop	=  
-				
-			video.autoplay	= true;
 			
-			scanner.className = "scanner";
-			cancel.className= "cancel";
-			//pause.className	= "pause";
-			//savebtn.textContent="save";
-
-			cancel.onclick	= e => {Scan.stop(video); scanner.parentNode.removeChild(scanner)};
-			//pause.onclick	= e => {Scan.pause()};
-			//savebtn.onclick	= e => {Scan.save(canvas)};
-			
-			(where||document.body).appendChild(scanner);
-			
-			await Scan.start(video,canvas).then(resolve).catch(reject);
-			//stop();
-		})
+					const	el	= t=>document.createElement(t),
+						scanner	= el("scanner"),
+						video		= scanner.appendChild(el("video")),
+						canvas	= scanner.appendChild(el("canvas")),
+						cancel	= scanner.appendChild(el("button"));
+						
+					video.autoplay	= true;
+					cancel.onclick	= e => {Scan.stop(video); scanner.parentNode.removeChild(scanner)};					
+					(where||document.body).appendChild(scanner);
+					
+					await Scan.start(video,canvas).then(resolve).catch(reject);
+					//stop();
+				})
 		
 	};
 
