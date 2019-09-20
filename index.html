@@ -14,6 +14,11 @@
 
 	const
 	
+	uid	= ((storage,uidkey)=>{
+			let last=parseInt(storage.getItem(uidkey)||"1");
+			return n=>n||storage.setItem(uidkey,++last)||last;
+		})(localStorage,"uid"),
+		
 	Starbar	= function(proto,bars){
 
 		proto.appendChild(proto.cloneNode(false));
@@ -47,11 +52,6 @@
 		}
 	},
 	
-	uid	= ((storage,uidkey)=>{
-			let last=parseInt(storage.getItem(uidkey)||"1");
-			return n=>n||storage.setItem(uidkey,++last)||last;
-		})(localStorage,"uid"),
-		
 	Persist	=(storage,box,unbox,single)=> // keeps the data coherent among several tabs
 		key	=>{
 			let	order=[],
@@ -63,7 +63,7 @@
 			ixrow	= r=>index[r[key]||(r[key]=uid())]=r,
 			ixset	= s=>s.forEach&&s.length&&s.forEach(ixrow),
 			anew	= s=>(index={})&&ixset(order=s&&s.reduce?s:[]),
-			update	= x=>++stamp&&!delay&&sync(),
+			update= x=>++stamp&&!delay&&sync(),
 			sync	= r=>{
 				if(stamp>0&&single&&!r)return;
 				const saved=parseInt(storage.getItem(stampname))||0;
@@ -76,7 +76,7 @@
 					ixrow(r);
 					stamp++;
 				}
-				if(stamp>saved){ //save
+				if(stamp>saved){ //save /// TODO: delay this stuff to page leave/enter
 					order=order.filter(r=>index[r[key]]==r);
 					storage.setItem(key,box(order));
 					storage.setItem(stampname,stamp);
@@ -160,6 +160,7 @@
 							values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... )
 				} //( @ ... ) reserved
 			})()
+		
 	;
 
 	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
@@ -200,8 +201,8 @@
 			
 			
 			,'find'.d("$?= $entry="//,'4627073803671'
-				,'INPUT.key'.ui("log $entry=#:value,prefix")
-				,'BUTTON.scan'.ui("$entry=#:scan,prefix")
+				,'INPUT.key'.ui("log $entry=#:value,scope.guess")
+				,'BUTTON.scan'.ui("$entry=#:scan,scope.guess")
 		
 			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 		)
@@ -210,8 +211,8 @@
 		,'page.entity'.d("? $Entity; scroll #; * $Entity@"
 				
 			,'SECTION.editables'.d(""
-				,input("title").d("focus .title:!")
-				,input("desc").d("focus (.title .desc:!)!")
+				,edit("title").d("focus .title:!")
+				,edit("desc").d("focus (.title .desc:!)!")
 				//,'general'.d("! Aspect")
 			).u("(@entity $)db")
 			
@@ -225,7 +226,7 @@
 				)
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
-					,'A.entry target=_blank'.d("!! .entry@ .entry@href")
+					,'A.entry target=_blank'.d("!! .entry@ .entry:scope.href@href")
 				)
 				
 				
@@ -277,13 +278,7 @@
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
-			
-		method	:['barcode','uri'],
-
-		mock	:{
-			aspect:['general','taste','nutrition','ethic']
-		},
-		
+					
 		dict	:{
 			barcode	:"barcode",
 			editable:{
@@ -323,21 +318,54 @@
 		convert	:{
 			"?uid"	: bool => bool&&uid(),
 			starbar	: Starbar(document.createElement("stars"),10),
-			prefix	: entry => {
-				const	format	={
-					"EAN13"	:/^\d{13}$/,
-					//"youtube"	:/^(?:https://www.youtube.com/watch?v=)[a-zA-Z0-9-]/,
-					"http"	:/.+/,
-					"https"	:/.+/
-					},
-					parts	= entry.split(":"),
-					key	= parts.pop(),
-					f	= parts.length&&parts.pop();
+			
+			scope		:(function(){
+					const
+						web	=[
+								[ /^(?:www.youtube.com\/watch\?v=)([a-zA-Z0-9-]+)/, "youtube"],
+								[ /^(?:youtu.be\/)([a-zA-Z0-9-]+)/, "youtube"],
+								[ /^(?:www.facebook.com\/)([^?]+)/, "facebook" ]
+							],
+							
+						nonweb={
+								EAN13		:/^\d{13}$/
+							},
+							
+						redir	={
+								EAN13		: gtin=>"http://srs.gs1ru.org/id/gtin/"+gtin,
+								youtube	: v	=>"https://youtu.be/"+v, // https://www.youtube.com/watch?v=
+								facebook	: id	=>"https://www.facebook.com/"+id
+							};
+						
+					return	{
 					
-				if(f)return key.match(format[f])?entry:console.log("format mismatch:"+entry);
-				else for(let f in format)if(key.match(format[f]))return f+":"+key;
-				console.log("Can't recognize key format");
-			},			
+						guess	: entry => {
+						
+							if(entry.startsWith("https://")){
+								const	key=entry.substring(8);									
+								for(let i=web.length; i--;){
+									const match=web[i][0].exec(key);
+									if(match)return web[i][1]+":"+match[1];
+								};
+								return entry;
+							}
+						
+							const	parts	= entry.split(":"),
+								key	= parts.pop(),
+								f	= parts.length&&parts.pop();
+								
+							if(f)return key.match(nonweb[f])?entry:console.log("format mismatch:"+entry);
+							else for(let f in nonweb)if(key.match(nonweb[f]))return f+":"+key;
+							console.log("Can't recognize key format");
+						},
+						
+						href	: entry =>{
+							const parts	= entry.split(":"),
+								urltp	= redir[parts[0]];
+							return urltp ? urltp(parts[1]) : parts[1];
+						}
+					};
+				})(),
 				
 			scan	: _ =>dap.Async(Scan.execute(),"scan")
 		}
