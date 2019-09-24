@@ -203,7 +203,7 @@
 			
 			,'find'.d("$?= $entry="//,'4627073803671'
 				,'INPUT.key'.ui("log $entry=#:value,scope.guess")
-				,'BUTTON.scan'.ui("$entry=#:scan,scope.guess")
+				,'BUTTON.scan'.ui("log $entry=#:scan,scope.guess")
 		
 			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 		)
@@ -368,7 +368,7 @@
 					};
 				})(),
 				
-			scan	: _ =>dap.Async(Scan.execute(),"scan")
+			scan	: _ =>dap.Async(Scan.exec(),"scan")
 		}
 	})
 	
