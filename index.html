@@ -111,6 +111,10 @@
 	<div id="welcome">
 		<h1>Welcome to Repch.io</h1>
 	</div>
+	
+	<div id="promo">
+		<h2>Recommended stuff</h2>
+	</div>
 
 </div>
 
@@ -208,6 +212,7 @@
 			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
 		)
 	
+		,'page.promo'.d("? $Entity:!; ! html.promo")
 		
 		,'page.entity'.d("? $Entity; scroll #; * $Entity@"
 				
