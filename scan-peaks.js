@@ -22,8 +22,8 @@ Scan	= (function(){
 				BARS=GRDS+DIGS+MIDS+DIGS+GRDS,
 				
 			fit3	= (spans,o)=>{
-				const	r0=spans[o+0]+2, r1=spans[o+1]+2, r2=spans[o+2]+2, half=(r0+r1+r2)/2;
-				return r0<half && r1<half && r2<half;
+				const	r0=spans[o+0]+2, r1=spans[o+1]+2, r2=spans[o+2]+2, half=(r0+r1+r2)*.5, quar=half*.5;
+				return r0<half && r1<half && r2<half && r0>quar && r1>quar && r2>quar;
 			},
 			
 			group	= (spans,o,count,left)=>{
@@ -100,19 +100,21 @@ Scan	= (function(){
 	},
 	
 	diff	= Y=>{
-		for(let x=Y.length-1;x>1;x--)Y[x]-=Y[x-1];
-		return Y;//.map(y=>y*y>thresh?y:0);
+		const D=Array(Y.length);
+		for(let x=Y.length-1;x>1;x--)D[x]=Y[x]-Y[x-1];
+		return D;//.map(y=>y*y>thresh?y:0);
 	},
 	
-	Spans	= (Y,thresh)=>{
+	Spans	= (D,thresh)=>{
 		
-		const	D	= diff(Y),
-			spans	= Array(200),
-			len	= D.length,
+		const	spans	= Array(200),
+			len	= D.length-1,
 			FLAT	= len*5/(14*7),
 			LEAST	= 40;
 			
-		let	x=1, count=0, d, w=0, dd=0;
+		let	x=0, count=0, d, w=0, dd=0;
+		
+		spans[0]=0;
 			
 		while(x<len){
 			
@@ -125,17 +127,13 @@ Scan	= (function(){
 			}				
 			
 			w += x-x0;
-			x0 = x;
 			
-			if(d*dd>0){
-//				w+=spans[count];
-				spans[count++]=w/2; /// TODO yet
-			}
-			
-			dd=d;
-			
-			let	s=0,
+			let	u = d*dd<0,
+				s=0,
 				y=d;
+				
+			dd=d;
+			x0 = x;
 			
 			while( ++x<len ){
 				d=D[x];
@@ -148,71 +146,85 @@ Scan	= (function(){
 			
 			w += a;
 			
-			spans[count++] = w;
-
-/*			
 			if( w<FLAT )
-				spans[count++] = w;
+				if(u)
+					spans[++count] = w;
+				else{
+					spans[++count]=w/2;
+					spans[++count]=w/2;
+				}
+
 			else
 				if( count < LEAST )
-					spans[count=0]+=w;
-				else break;//x=len; //done
-
-*/				
+					spans[count=0]=x0+a;
+				else
+					x=len;
 			w = x-x0-a;
 		}
 		
-		return spans.slice(0,count);
-	},
-	
-	drawY	= (y0,Y,style,k)=>{
-		context.beginPath();
-		for(let x=0;x<Y.length;x++){
-			context.moveTo(x+.5,y0);
-			context.lineTo(x+.5,y0+Y[x]*k);
-		}
-		context.strokeStyle = style;			
-		context.lineWidth = 1;
-		context.stroke();
-	},
-
-	drawW = (y0,W,style)=>{
-		context.fillStyle = style;		
-		let i=0,x=0;
-		while(i<W.length){
-			const a=W[i++], b=W[i++];
-			context.fillRect(x+a, y0, b, 10);
-			x+=a+b;
-		}
-	};
+		spans[++count]=w;
 		
+		return spans.slice(0,++count);
+	},
 	
-	scan	= (lines,thresh)=>{
-		const step = h/lines;
+	
+	draw	= {
+		
+		L	: (y0,s,l,c)=>{
+			context.beginPath();
+			context.moveTo(s||0,y0);
+			context.lineTo(l?(s+l):w,y0);
+			context.strokeStyle = c>99?'green':c>6?'red':'rgba(255,0,0,.25)';			
+			context.lineWidth = c>99?l/4:c||1;
+			context.stroke();
+		},
+		
+		Y	: (y0,Y,style,k)=>{
+			context.beginPath();
+			for(let x=0;x<Y.length;x++){
+				context.moveTo(x+.5,y0);
+				context.lineTo(x+.5,y0+Y[x]*k);
+			}
+			context.strokeStyle = style;			
+			context.lineWidth = 1;
+			context.stroke();
+		},
+
+		W	: (y0,W,style)=>{
+			context.fillStyle = style;		
+			let i=0,x=0;
+			while(i<W.length){
+				const a=W[i++], b=W[i++];
+				context.fillRect(x+a, y0, b, 10);
+				x+=a+b;
+			}
+		}
+	},
+	
+	scan	= _=>{
+		const lines=10,
+			step = h/lines;
 		for(let l=0;l<lines;l++){
 			
 			const	y	= l*step,
 				Y	= (Luma(context.getImageData(0, y, w, 1).data));
 			
-			drawY(y,Y,'rgba(255,255,255,.5)',.05);
+			draw.Y(y,Y,'rgba(255,255,255,.5)',.05);
 			
-			const	spans	= Spans(Y,thresh),
-				decoded = Barcode(spans);
+			const D 	= diff(Y),
+				spans	= Spans(D,1<<13),
+				attempt = Barcode(spans);
 				
-//			drawW(y,spans,'rgba(255,0,0,.25)');
+//			draw.W(y,spans,'rgba(255,0,0,.25)');
+//			draw.L(y,attempt.Start,attempt.Length,attempt.Chance)
 
-			if(decoded>100)
-				console.log("decoded: "+decoded);
-			
-			context.beginPath();
-			context.moveTo(0,y);
-			context.lineTo(w,y);
-			context.strokeStyle = decoded>100?'green':decoded>6?'red':'gray';			
-			context.lineWidth = decoded>100?10:decoded||1;// decoded?8:1;
-			context.stroke();
+			draw.L(y,0,0,attempt);
 
-			if(decoded>100)
-				return decoded;
+			if(attempt>99){
+				console.log("decoded: "+attempt);
+				return attempt;
+				
+			}
 		}
 	},
 		
@@ -238,8 +250,7 @@ Scan	= (function(){
 						//.catch(reject)
 						.then(stream=>video.srcObject=stream);
 						
-					const	lines	= 10,
-						track	= video.srcObject.getVideoTracks()[0],
+					const	track	= video.srcObject.getVideoTracks()[0],
 						stop	= e => {track.stop(); scanner.parentNode.removeChild(scanner)};
 						
 					cancel.onclick = stop;	
@@ -260,7 +271,7 @@ Scan	= (function(){
 								window.location = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
 								dump=false;
 							}
-							decoded=scan(lines,20000);
+							decoded=scan();
 						}
 						await timeout(25); //paused?1e3:
 					};

@@ -1,8 +1,6 @@
 .EMPTY	{display:none !important}
 
 .ui	{cursor:pointer;}
-.ui:hover{/* text-decoration:underline */}
-
 
 
 html,body {
@@ -18,7 +16,6 @@ html,body {
 	}
 }
 
-
 .client {
     height: 100%;
     display: flex;
@@ -29,14 +26,13 @@ html,body {
 .page {
     flex: 1;
     overflow: hidden;
-    /* text-overflow: ellipsis; */
-    /* flex-grow: inherit; */
     display: flex;
     flex-direction: column;
 }
 
 section{
     padding: 1rem;
+    position: relative;
 }
 
 article.misc {flex: 1;}
@@ -50,10 +46,6 @@ article.misc {flex: 1;}
 .entities>.selected {
     background: whitesmoke;
 }
-
-
-
-
 
 
 .scanner{
@@ -71,17 +63,8 @@ article.misc {flex: 1;}
 	width:100%;
 }
 .scanner>button{
-	/* display:block; */
-	/* width:100%; */
 	padding:.5em;
 	flex: 1;
-}
-.scanner>button.cancel::before{
-	content:"Cancel";
-}
-
-button.scan:before {
-    content: "Scan";
 }
 
 
@@ -89,12 +72,12 @@ input.key {
     flex: 1;
     margin-right: .25rem;
     text-align: center;
-    /* border: navajowhite; */
 }
 
 input,button,select {
     font-size: inherit;
 }
+
 input {
     text-align: inherit;
 }
@@ -108,7 +91,8 @@ input::placeholder {
     color: lightslategray;
 }
 
-[contenteditable], .editables>input {
+
+[contenteditable] {
     cursor: text !important;
     border: none;
     display: block;
@@ -116,22 +100,21 @@ input::placeholder {
     background: no-repeat;
 }
 
-[contenteditable]:focus, .editables>input:focus {
-	    background: white;
+[contenteditable]:focus, [contenteditable]:empty {
+	background: white;
+	border-bottom: 1px dashed;
 }
+
+[contenteditable]:empty::before{
+	color:lightgray; font: italic 1em sans-serif; 
+}
+
+
+
 input.credit {
     width: 3em;
 }
-
-article:before {
-    top: 0;
-    position: absolute;
-    right: 0;
-    color: lightblue;
-    padding: 0 .2em;
-    /* content: attr(class); */
-}
-
+ 
 .find {
     padding: .25rem;
     background: orange;
@@ -157,17 +140,17 @@ article:before {
 
 .tabs {
     text-align: left;
-    padding: .5em;
+    padding: .5rem;
     margin-bottom: -1px;
 }
-
+/*
 .tabs:before {
     content: "*";
     margin-right: 1em;
     font: bold 1em sans-serif;
     color: lightslategray;
 }
-
+*/
 .tab {
     display: inline;
     padding: .5em;
@@ -188,34 +171,36 @@ ul.entities {
     margin: 0;
     text-align: left;
     width: 100%;
-    /* overflow: hidden; */
 }
 
 ul.entities>li {
-    /* display: block; */
-    padding: .75em;
-    /* width: 100%; */
+    padding: 1rem;
     box-sizing: border-box;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    /* overflow: hidden; */
 }
 
 
 
+
+section.top {
+    position: relative;
+}
 
 section.entry {
     width: 100%;
     display: flex;
 }
 
-.title{font: bold 1.5em sans-serif;}
+section.opinions {
+    text-align: left;
+}
 
+.title{font: bold 1.5em sans-serif; margin:.2em 0;}
 
 .aspect{
-    margin: 1.5em 0;
-    text-align: left;
+    margin: 1em 0;
     font-family: Georgia;
 }
 
@@ -230,12 +215,14 @@ section.entry {
 
 .aspect>.summary {
     display: flex;
-    flex: 1;
     vertical-align: baseline;
 }
 
-.summary>.name {
+.summary>.name{
     flex: 1;
+}
+
+.aspect>.summary>.name {
     font-weight: bold;
 }
 
@@ -287,54 +274,29 @@ stars>stars {
     margin: -.2em 0 .2em .2em;
 }
 
-button.moreinfo, button.lessinfo {
-    border:none;
-    background:none;
-    text-align: right;
-    padding: 0;
-}
-
 .note {
     font-style: italic;
 }
 
-section.top {
-    position: relative;
-}
 
-
-
-
-/*
-
-button.addlist:before {
-    content: "Создать новый список";
-}
-
-button.addcat:before {
-    content: "Создать новую категорию";
-}
-*/
 
 .add{
 	position:absolute;
 	top: 6px;
 	right: 6px;
-	/* background:white; */
+	background:white;
+	border: 2px solid;
 	/* width: 1.5rem; */
 	text-align:center;
 	font: bold 1.5rem/1 sans-serif;
-	border: none;
+	/* border: none; */
 	padding: 0 .3rem;
 	border-radius: 3px;
 }
 
-.add:before {
-    content: "+";
-}
-
 .select {
     padding: .5em 2em .5em .5em;
+    /* margin-right: 1rem; */
     background: black;
     color: white;
     position: relative;
@@ -365,7 +327,7 @@ section.entries {
 }
 
 .desc {
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 
 
@@ -374,29 +336,13 @@ section.entries {
     overflow-y: auto;
 }
 
-input.key {
-    /* border: none; */
-}
-
 article {
     flex: 1;
     position: relative;
 }
 
-button.scan {
-    /* background: white url(barcode.gif); */
-    /* width: 4em; */
-}
-
-input:empty {
-    /* background: white; */
-}
-
-.scanner>button.pause::before {content: "Pause";}
-
 .addaspect {
     text-align: left;
-    /* background: white; */
     border-top: 1px dashed;
     padding: 0;
     list-style: none;
@@ -405,8 +351,6 @@ input:empty {
 .item {
     padding: 1rem 0;
 }
-
-.more::before {content: "•••";/* background: gray; *//* color: white; *//* padding: 0 .5em; *//* border-radius: .25rem; */}
 
 .more {
     display: inline;
@@ -422,7 +366,7 @@ ul.aspects {
 }
 
 .aspects>li {
-    margin: .5em 0;
+    margin: 1em 0;
 }
 
 addaspect>li {
@@ -446,4 +390,34 @@ scanner>canvas {
     margin: 0 auto;
 }
 
-scanner>button::before {content: "cancel";}
+.category {
+    font: bold italic 1em georgia;
+    text-decoration: underline;
+}
+
+
+ul.addaspects {
+    background: white;
+}
+
+
+
+
+button.scan::before {content: "Scan"}
+scanner>button::before {content: "cancel"}
+
+.title:empty::before{content: "What's the name of this?"; }
+.desc:empty::before{content: "What kind of thing is this?"; }
+
+.more::before {content: "•••";/* background: gray; *//* color: white; *//* padding: 0 .5em; *//* border-radius: .25rem; */}
+.add::before {content: "+"}
+
+
+
+
+
+section.editables {
+    background: white;
+    /* color: white; */
+    margin: 1rem;
+}

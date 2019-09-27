@@ -86,7 +86,8 @@
 			return	{
 				data	: _ => sync()	||order,
 				take	: m => sync()	||index[m],
-				save	: r => sync(r)	||r
+				save	: r => sync(r)	||r,
+				anew
 			}
 		}
 	</script>
@@ -137,7 +138,7 @@
 
 	"use strict";
 
-	const	edit	= what =>'what contenteditable'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
+	const	edit	= what =>'what contenteditable tabindex=0'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
 		input	= what =>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
 		
 		grab	= src	=> [...src.children].reduce((a,n)=>{if(n.id)a[n.id]=src.removeChild(n); return a},{}),
@@ -146,12 +147,15 @@
 		
 		db	=(function(){ // dap wrapper for Persist object
 					
-				const	P	=Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
-					T	=(tables=> key=>tables[key]||(tables[key]=P(key)) )({}),
-					detach=r=>{r=Object.assign({},r);if(r[""])delete r[""];return r},
-					filter=(data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
-					join	=(row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
-					save	=(table,values)		=> values.forEach(r=>table.save(detach(r)))||table.data();
+				const	P	= Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
+					tables= {},
+					T	= key=> tables[key]||(tables[key]=P(key)),
+					detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
+					filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
+					join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
+					save	= (table,values)		=> values.forEach(r=>table.save(detach(r)))||table.data(),
+					reset	= (values,tags)		=> tags.length ? tags.forEach((t,i)=>T(t).anew(values[i])) : Object.keys(tables).forEach(t=>tables[t].anew());
+					
 					
 				return	(values,tags)=>{
 					const	v=values.pop(),
@@ -159,11 +163,12 @@
 						t=tags[c-1],
 						a=tags[c];
 						
-					return	!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
+					return	!a&&!v ? reset(values,tags) :			// ( @ ... ) anew... 
+							!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
 							!v ? save(T(a),values) :						// ( @key $row1 $row2 ... )
 							!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :		// ( $key `t1 `t2 ... )
 							values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... )
-				} //( @ ... ) reserved
+				}
 			})()
 		
 	;
@@ -199,17 +204,17 @@
 			)
 			
 			,'ARTICLE.settings'.d("?? $tab@settings"
-				,'BUTTON.clear'.d("! `Clear").ui("storage.clear")
+				,'BUTTON.clear'.d("! `Clear").ui("? (dict.cleardb)confirm; (@)db")
 			)
 			
 			,'ARTICLE.welcome'.d("? $tab:!; ! html.welcome")
 			
 			
-			,'find'.d("$?= $entry="//,'4627073803671'
+			,'find'.d("$?= $entry="
 				,'INPUT.key'.ui("log $entry=#:value,scope.guess")
 				,'BUTTON.scan'.ui("log $entry=#:scan,scope.guess")
 		
-			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@title)db") /// <--tweak this
+			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity .timestamp:timestamp)db") /// <--tweak this
 		)
 	
 		,'page.promo'.d("? $Entity:!; ! html.promo")
@@ -219,7 +224,6 @@
 			,'SECTION.editables'.d(""
 				,edit("title").d("focus .title:!")
 				,edit("desc").d("focus (.title .desc:!)!")
-				//,'general'.d("! Aspect")
 			).u("(@entity $)db")
 			
 			,'info'.d(""
@@ -243,16 +247,15 @@
 					.ui(".aspects=#:value")
 				,'aspects'.d("Aspects($entity.aspects)")
 	*/			
-				,'SECTION.aspects'.d(""
-					,'opinions'.d("$opinions; * (`opinion .entity)db"
-						,'opinion'.d("! Aspect").u("(@opinion $)db")
-					)
-					,'opinion'.d("$?="
-						,'BUTTON.add'.d("? $?:!").ui("$?=:!")
-						,'UL.addaspect'
-						.d("? $?; $!= Item( (`static/aspects.txt? .entity)uri:query,untab.decode@items )")
-						.u("$?= .aspect=$!.result:check $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
-					)
+				,'SECTION.opinions'.d("$opinions; * (`opinion .entity)db"
+					,'opinion'.d("! Aspect").u("(@opinion $)db")
+				)
+				
+				,'SECTION.opinions'.d("$?="
+					,'BUTTON.add'.d("? $?:!").ui("$?=:!")
+					,'UL.addaspects'
+					.d("? $?; $!=; * (`static/aspects.txt? .entity)uri:query,untab.decode; ! AddAspect")//@items
+					.u("$?= .aspect=$!.result:check $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
 				)
 			)
 		)
@@ -276,16 +279,17 @@
 				).u("$?=")
 			),
 
-		Item	: 'LI'.d("$?=.name:!"
-				,'name'.d("! .name").ui("$!.result=($!.result .name)?")
-				,'more'.d("? .name; ? .items").ui("$?=$?:!; ?")
-				,'UL.aspects'.d("? $?; * .items@; ! Item")
+		AddAspect	: 'LI.aspect'.d("$?="
+				,'name'.d("? .items:!; ! .name").ui("$!.result=($!.result .name)?")
+				,'category'.d("? .items; ! .name").ui("$?=$?:!; ?")
+				,'UL.aspects'.d("? $?; * .items@; ! AddAspect")
 			),
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
 					
 		dict	:{
+			cleardb	:"Sure to clear all data?",
 			barcode	:"barcode",
 			editable:{
 				title	:"Entity title",
@@ -324,6 +328,8 @@
 		convert	:{
 			"?uid"	: bool => bool&&uid(),
 			starbar	: Starbar(document.createElement("stars"),10),
+			
+			timestamp	: _ => +Date.now(),
 			
 			scope		:(function(){
 					const
