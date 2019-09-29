@@ -177,22 +177,35 @@
 	
 		,'page.nav'.d(""
 		
-			,'tabs'.d("* dict.tabs@"
-				,'tab'.d("! .title; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+			,'tabs'.d("*@tab :split`recent,lists,categories"//
+				,'tab'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 			)
+			.u("?? $tab@recent; $lists= $entities=( (`entity)db @timestamp`dsc )sort")
+			.u("?? $tab@lists; $entities= $lists=(`list)db")
 			
-			,'ARTICLE.lists'.d("?? $tab@lists; $list="
-				,'select'.d("$lists; *@ (`list)db"
-					,'option'.d("! .title").a("!? (.list $list)eq@selected").ui("$list=.")
+//			,'lists'.d("? $lists"
+				,'select'
+				.d("? $lists"
+					,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
 				)
-				,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-				,'UL.entities'.d("? $list; * (`listentity $list)db"
-					,'LI'	.d("? .tagged; .Entity=(.entity)db; ! .Entity.title")
-						.a("!? (.Entity $Entity)eq@selected")
-						.ui("$Entity=.")
+				.d("? $lists; *@ $lists"
+					,'option'
+					.d("! .title")
+					.a("!? (.list $list)eq@selected")
+					.ui("$entities=(`listentity .list)db")
 				)
+//			)
+			
+			,'UL.entities'.d("*@ $entities:log"
+				,'LI'	.d("? (.tagged `-)ne; .Entity=(.entity)db; ! .Entity.title")//? .tagged;
+					.a("!? (.Entity $Entity)eq@selected")
+					.ui("$Entity=.")
 			)
-			
+				
+			,'ARTICLE.recent'.d(""
+				,'list'.d("Entities( ( (`entity)db @timestamp`dsc )sort@entities )")
+			)
+/*			
 			,'ARTICLE.cats'.d("?? $tab@cats; $cat="
 				,'select'.d("$cats; *@ (`cat)db"
 					,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
@@ -202,7 +215,7 @@
 					,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
 				)
 			)
-			
+*/			
 			,'ARTICLE.settings'.d("?? $tab@settings"
 				,'BUTTON.clear'.d("! `Clear").ui("? (dict.cleardb)confirm; (@)db")
 			)
@@ -236,7 +249,7 @@
 				)
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
-					,'A.entry target=_blank'.d("!! .entry@ .entry:scope.href@href")
+					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
 				
@@ -255,14 +268,14 @@
 					,'BUTTON.add'.d("? $?:!").ui("$?=:!")
 					,'UL.addaspects'
 					.d("? $?; $!=; * (`static/aspects.txt? .entity)uri:query,untab.decode; ! AddAspect")//@items
-					.u("$?= .aspect=$!.result:check $opinions=(.opinion=(.entity .aspect)~ .entity .aspect)db")//$opinions=()
+					.u("$?= .aspect=$!. $opinions=( (.entity .aspect)~@opinion .entity .aspect)db")//$opinions=()
 				)
 			)
 		)
 	)
 
 	.DICT({
-	
+		
 		Aspect	: 'aspect'.d("$?="
 				,'summary'.d(""
 					,'name'.d("! .aspect").ui("$?=$?:!; ?")
@@ -280,7 +293,7 @@
 			),
 
 		AddAspect	: 'LI.aspect'.d("$?="
-				,'name'.d("? .items:!; ! .name").ui("$!.result=($!.result .name)?")
+				,'name'.d("? .items:!; ! .name").ui("$!=($! (.name@aspect ..name@category) )?")
 				,'category'.d("? .items; ! .name").ui("$?=$?:!; ?")
 				,'UL.aspects'.d("? $?; * .items@; ! AddAspect")
 			),
@@ -323,11 +336,23 @@
 		},
 		flatten	:{ db,
 			"~"	:values=>values.join(":"),
-			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; "))
+			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; ")),
+			
+			sort	:(ops=>
+					(values,names)=>values.reduce((a,v,i)=>v?ops[v](a,names[i]):a,values.pop())
+				)({
+					asc	:(a,v)=>a.sort((x,y)=>
+							x[v]-y[v]
+						),
+					dsc	:(a,v)=>a.sort((x,y)=>
+							y[v]-x[v]
+						)
+				})
 		},
 		convert	:{
-			"?uid"	: bool => bool&&uid(),
+			"?uid"	: bool => bool?uid():"-",
 			starbar	: Starbar(document.createElement("stars"),10),
+			split		: str=>str.split(/,/g),
 			
 			timestamp	: _ => +Date.now(),
 			
@@ -359,7 +384,7 @@
 									const match=web[i][0].exec(key);
 									if(match)return web[i][1]+":"+match[1];
 								};
-								return entry;
+								return decodeURI(entry);
 							}
 						
 							const	parts	= entry.split(":"),

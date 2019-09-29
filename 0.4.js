@@ -1570,7 +1570,10 @@ const	dap=(Env=>
 						if(alias)value?node.setAttribute(alias,value):node.removeAttribute(alias);
 						else node.innerHTML=value;//appendChild(newText(value));
 					},
-				"!?"	:(value,alias,node)=>{ Style.mark(node,alias,!!value); }
+					
+				"!?"	:(value,alias,node)=>{ Style.mark(node,alias,!!value); },
+				
+				"!class":(value,alias,node)=>{ node.classList.add(value); }
 			}
 		}
 	}		

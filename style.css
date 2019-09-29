@@ -4,7 +4,7 @@
 
 
 html,body {
-	font-family: sans-serif;
+	font-family: Roboto, sans-serif;
 	height: 100%;
 	padding: 0;
 	margin: 0;
@@ -40,11 +40,15 @@ article.misc {flex: 1;}
 
 .page.entity {
     background: whitesmoke;
+    /* background: linear-gradient(to right, #eee, transparent 25%); */
     text-align: center;
+    /* border-left: 1rem solid #eee; */
+    overflow-x: hidden;
 }
 
 .entities>.selected {
     background: whitesmoke;
+    /* margin: 0; */
 }
 
 
@@ -139,9 +143,11 @@ input.credit {
 
 
 .tabs {
+    background: lightgray;
+    border-bottom: .2rem solid black;
     text-align: left;
     padding: .5rem;
-    margin-bottom: -1px;
+    /* margin-bottom: -1px; */
 }
 /*
 .tabs:before {
@@ -153,7 +159,7 @@ input.credit {
 */
 .tab {
     display: inline;
-    padding: .5em;
+    padding: .6em 1em;
     font-weight: bold;
     text-transform: lowercase;
 }
@@ -179,6 +185,8 @@ ul.entities>li {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    /* margin-right: 1rem; */
+    border-bottom: 1px solid #eee;
 }
 
 
@@ -285,6 +293,7 @@ stars>stars {
 	top: 6px;
 	right: 6px;
 	background:white;
+	color: gray;
 	border: 2px solid;
 	/* width: 1.5rem; */
 	text-align:center;
@@ -295,7 +304,7 @@ stars>stars {
 }
 
 .select {
-    padding: .5em 2em .5em .5em;
+    padding: .25rem 2.5rem .5rem .5rem;
     /* margin-right: 1rem; */
     background: black;
     color: white;
@@ -398,10 +407,14 @@ scanner>canvas {
 
 ul.addaspects {
     background: white;
+    padding: 1px 1rem;
+    list-style: none;
 }
 
 
-
+.tabs>.recent::before {content:"Recent"}
+.tabs>.lists::before {content:"Lists"}
+.tabs>.cats::before {content:"Categories"}
 
 button.scan::before {content: "Scan"}
 scanner>button::before {content: "cancel"}
@@ -417,7 +430,20 @@ scanner>button::before {content: "cancel"}
 
 
 section.editables {
-    background: white;
+    background: gainsboro;
+    /* background: white; */
     /* color: white; */
-    margin: 1rem;
+    /* margin: 1rem; */
+}
+
+li.ui:hover {
+    /* background: whitesmoke; */
+    background: linear-gradient(to right, whitesmoke, white);
+}
+
+a.entry {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
