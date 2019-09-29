@@ -138,7 +138,7 @@
 
 	"use strict";
 
-	const	edit	= what =>'what contenteditable tabindex=0'.d("!! dict.editable.what@title .what@").ui(".what=#:text").FOR({what}),
+	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui(".what=#:text").FOR({what}), //!! dict.editable.what@title 
 		input	= what =>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
 		
 		grab	= src	=> [...src.children].reduce((a,n)=>{if(n.id)a[n.id]=src.removeChild(n); return a},{}),
@@ -183,39 +183,23 @@
 			.u("?? $tab@recent; $lists= $entities=( (`entity)db @timestamp`dsc )sort")
 			.u("?? $tab@lists; $entities= $lists=(`list)db")
 			
-//			,'lists'.d("? $lists"
-				,'select'
-				.d("? $lists"
-					,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-				)
-				.d("? $lists; *@ $lists"
-					,'option'
-					.d("! .title")
-					.a("!? (.list $list)eq@selected")
-					.ui("$entities=(`listentity .list)db")
-				)
-//			)
+			,'lists'
+			.d("? $lists"
+				,'add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
+			)
+			.d("? $lists; *@ $lists"
+				,'option'
+				.d("! .title")
+				.a("!? (.list $list)eq@selected")
+				.ui("$entities=(`listentity .list)db")
+			)
 			
-			,'UL.entities'.d("*@ $entities:log"
-				,'LI'	.d("? (.tagged `-)ne; .Entity=(.entity)db; ! .Entity.title")//? .tagged;
-					.a("!? (.Entity $Entity)eq@selected")
-					.ui("$Entity=.")
+			,'UL.entities'.d("*@ $entities"
+				,'LI'	.d("? (.tagged `-)ne; $=(.entity)db; ! .title")//? .tagged;
+					.a("!? ($ $Entity)eq@selected")
+					.ui("$Entity=$")
 			)
 				
-			,'ARTICLE.recent'.d(""
-				,'list'.d("Entities( ( (`entity)db @timestamp`dsc )sort@entities )")
-			)
-/*			
-			,'ARTICLE.cats'.d("?? $tab@cats; $cat="
-				,'select'.d("$cats; *@ (`cat)db"
-					,'option'.d("! .title").a("!? (.cat $cat)eq@selected").ui("$cat=.")
-				)
-				,'add'.ui("? .title=(dict.prompt.addlist)prompt; $cats=(@cat (.title))db")
-				,'UL.entities'.d("? $cat; * (`entity $cat)db"
-					,'LI'.d("? .tagged; .Entity=(.entity)db; ! .Entity.title").ui("$Entity=.")
-				)
-			)
-*/			
 			,'ARTICLE.settings'.d("?? $tab@settings"
 				,'BUTTON.clear'.d("! `Clear").ui("? (dict.cleardb)confirm; (@)db")
 			)
@@ -252,14 +236,6 @@
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
-				
-				//,'BUTTON.bindto'.d("! `Bind")
-	/*		
-					,'SELECT.category'
-					.d("? $entity.aspects:!; hint dict.entity.category; Options(mock.categories:)")
-					.ui(".aspects=#:value")
-				,'aspects'.d("Aspects($entity.aspects)")
-	*/			
 				,'SECTION.opinions'.d("$opinions; * (`opinion .entity)db"
 					,'opinion'.d("! Aspect").u("(@opinion $)db")
 				)
@@ -268,7 +244,7 @@
 					,'BUTTON.add'.d("? $?:!").ui("$?=:!")
 					,'UL.addaspects'
 					.d("? $?; $!=; * (`static/aspects.txt? .entity)uri:query,untab.decode; ! AddAspect")//@items
-					.u("$?= .aspect=$!. $opinions=( (.entity .aspect)~@opinion .entity .aspect)db")//$opinions=()
+					.u("$?= .aspect=$!. $opinions=( (.entity .aspect)~@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }")//$opinions=()
 				)
 			)
 		)
@@ -304,16 +280,18 @@
 		dict	:{
 			cleardb	:"Sure to clear all data?",
 			barcode	:"barcode",
-			editable:{
+/*			editable:{
 				title	:"Entity title",
 				credit:"Credit",
 				note	:"Note",
 				aspects	:"Applicable aspects"
 			},
+			
 			tabs	: dataset(
 					["tab","title"],
 					[["lists","Списки"],["cats","Категории"],["settings","Настройки"]]
 				)
+			*/
 		},
 		
 		html	:grab(document.getElementById("content"))
