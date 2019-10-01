@@ -43,10 +43,7 @@ const	dap=(Env=>
 		"?"	: values=>{ for(let i=values.length;i--;)if(values[i])return values[i]; },			/// any - first non-empty //return false; 
 		"!"	: values=>{ for(let i=values.length;i--;)if(!values[i])return null; return values[0]; },	/// all - succeeds if empty token found
 		
-		"~"	: values=>{ const a=values[values.length-1]; let i=0;
-		while(a!=values[++i]); 
-		return values[i-1]
-		},		
+		"~"	: values=>{ const a=values[values.length-1]; let i=0;while(a!=values[++i]);return values[i-1]},		
 		eq	: values=>{ const a=values.pop(); for(let i=values.length;i--;)if(values[i]!=a)return null;return true; },
 		ne	: values=>{ const a=values.pop(); for(let i=values.length;i--;)if(values[i]!=a)return true;return null; },
 		asc	: values=>{ for(let a=parseFloat(values.pop()),i=values.length;i--;)if(a>(a=parseFloat(values[i])))return null;return a; },
@@ -600,19 +597,22 @@ const	dap=(Env=>
 				
 				return new Feed(values,tags,tokens,op);
 			}
-			
-			function makeArgsFeed(context,str){
-				let	a	= str.split(">");
-				const	flatten	= a[1] && context.ns.reach(a[1],FUNCS.FLATTEN),// : Util.hash,
-					tokens	= a[0] && (a=context.branchStack[a[0]]) && a.split(TOKENS);
-					
-				return	tokens ? makeTokens( context, tokens.reverse(), flatten ) : EMPTY.Feed;
-			}
 						
-			
 			const
-			
-			makeConverts=(context,str)=>str.split(",").reverse().map(path=>context.ns.reach(path,FUNCS.CONVERT));
+			makeArgsFeed = (context,str)=>{
+					let	a	= str.split(">");
+					const	flatten	= a[1] && ( a[1].charAt(0)=="."
+							? makeAccessor(makePath(a[1].substr(1)))
+							: context.ns.reach(a[1],FUNCS.FLATTEN)
+						),// : Util.hash,
+						tokens	= a[0] && (a=context.branchStack[a[0]]) && a.split(TOKENS);
+						
+					return	tokens ? makeTokens( context, tokens.reverse(), flatten ) : EMPTY.Feed;
+				},			
+			makeAccessor = path => values=>
+				Util.reach(values,path)
+			,
+			makeConverts =(context,str)=>str.split(",").reverse().map(path=>context.ns.reach(path,FUNCS.CONVERT));
 			
 			return {		
 				engage	: function(){
@@ -1582,7 +1582,7 @@ const	dap=(Env=>
 					
 				"!?"	:(value,alias,node)=>{ Style.mark(node,alias,!!value); },
 				
-				"!class":(value,alias,node)=>{ node.classList.add(value); }
+				"!class":(value,alias,node)=>{ value && node.classList.add(value); }
 			}
 		}
 	}		

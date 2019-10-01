@@ -183,16 +183,14 @@
 			.u("?? $tab@recent; $lists= $entities=( (`entity)db @timestamp`dsc )sort")
 			.u("?? $tab@lists; $entities= $lists=(`list)db")
 			
-			,'l'.d("? $lists; $list="
+			,'SECTION'.d("? $lists; $list="
 				,'UL.lists'.d("*@ $lists"
 					,'LI'
 					.d("! .title; a!")
 					.a("!? (.list $list)eq@selected")
 					.ui("$entities=(`listentity $list=.)db")
 				)
-				,'deck'.d(""
-					,'BUTTON.add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-				)
+				,'BUTTON.add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
 			)
 			
 			,'UL.entities'.d("*@ $entities"
@@ -241,12 +239,12 @@
 					,'opinion'.d("! Aspect").u("(@opinion $)db")
 				)
 				
-				,'SECTION.opinions'.d("$?= $aspects=(`static/aspects.txt? .entity)uri:query"
+				,'SECTION.opinions'.d("$?=; ? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query"
 					,'UL.addaspects'
 						.d("?? $?@pick; $!=; *@ $aspects:untab.decode; ! AddAspect")//@items
 						.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }")//$opinions=()
-					,'TEXTAREA'.d("?? $?@edit; ! $aspects").ui("$aspects=#:value")
-					,'BUTTON.add'.ui("$?=($? `pick `edit)~")
+					,'TEXTAREA'.d("?? $?@edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
+					,'BUTTON.add'.d("!class $?").ui("$?=($? `pick `edit)~")
 				)
 			)
 		)
