@@ -8,7 +8,7 @@ dap
 			const	stack	=[],
 				tab		= /;\t+/g,
 				lines		= source.split(/[\r\n]+/g),
-				scheme	= lines.shift().split(tab),
+				scheme	= lines[0].charAt(0)=="#" && lines.shift().substr(1).split(tab),
 				rowskey	= scheme[scheme.length-1];
 				
 			let	rows=[],

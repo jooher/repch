@@ -6,59 +6,35 @@ dap
 	convert	:{
 		decode	:source=>{
 			const	stack	=[],
-				tab		= /;\t+/g,
-				lines		= source.split(/[\r\n]+/g),
-				scheme	= lines.shift().split(tab),
-				rowskey	= scheme[scheme.length-1];
+				tab		= /;\s+/g,
+				lines		= source.split(/[\r\n]+/g);
 				
 			let	rows=[],
-				last={};
+				last=[];
 				
-			lines.forEach(line=>if(line){
-				const	row	= line.split(tab),
-					head	= row.shift().split("\t"),
-					tabs	= head.length,
-					data	= {};
+			lines.forEach(line=>{
+				
+				if(!line)return;
 					
-				row.unshift(head.pop());
-				row.forEach((v,i)=>data[scheme[i]]=v);
-				
-				if(tabs>stack.length){
-					stack.push(rows);
-					rows=last[rowskey]=[];
-				}
-				
-				while(tabs<stack.length)
-					rows=stack.pop();
-					
-				rows.push(data);
-				last=data;
-			});
-			return Check(stack[0]);//
-		}		
-	}
-})
-
-
-
-
-			lines.forEach(line=>if(line){
-				const	prep	= /^(\t*)(.*)/.exec(line),
+				const	prep	= /^(\s*)(.*)/.exec(line),
 					pads	= prep[1].length,
-					tabs	= prep[2].split(tab),
-					data	= {};
-									
-				row.forEach((v,i)=>data[scheme[i]]=v);
-				
+					tabs	= prep[2].split(tab);
+					
+				tabs.unshift(null);
+					
 				if(pads>stack.length){
 					stack.push(rows);
-					rows=last[rowskey]=[];
+					rows=last[0]=[];
 				}
 				
-				while(tabs<stack.length)
+				while(pads<stack.length)
 					rows=stack.pop();
 					
-				rows.push(data);
-				last=data;
+				rows.push(tabs);
+				last=tabs;
 			});
-
+			
+			return stack[0];
+		}		
+	}
+});

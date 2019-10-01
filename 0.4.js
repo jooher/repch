@@ -43,6 +43,10 @@ const	dap=(Env=>
 		"?"	: values=>{ for(let i=values.length;i--;)if(values[i])return values[i]; },			/// any - first non-empty //return false; 
 		"!"	: values=>{ for(let i=values.length;i--;)if(!values[i])return null; return values[0]; },	/// all - succeeds if empty token found
 		
+		"~"	: values=>{ const a=values[values.length-1]; let i=0;
+		while(a!=values[++i]); 
+		return values[i-1]
+		},		
 		eq	: values=>{ const a=values.pop(); for(let i=values.length;i--;)if(values[i]!=a)return null;return true; },
 		ne	: values=>{ const a=values.pop(); for(let i=values.length;i--;)if(values[i]!=a)return true;return null; },
 		asc	: values=>{ for(let a=parseFloat(values.pop()),i=values.length;i--;)if(a>(a=parseFloat(values[i])))return null;return a; },
@@ -1471,10 +1475,15 @@ const	dap=(Env=>
 
 		console	:window.console,
 		
-		uievent	:node=>	node.nodeName.toLowerCase()=='input'	?'change':
-				node.nodeName.toLowerCase()=='select'	?'change':
-				node.isContentEditable	?'blur':
-				DEFAULT.EVENT,//'click',
+		uievent	:(elems => node=>
+					elems[node.nodeName.toLowerCase()] || 
+					node.isContentEditable ? 'blur' :
+					DEFAULT.EVENT //'click',
+				)({
+					input		:'change',
+					select	:'change',
+					textarea	:'change'
+				}),
 		
 		print	:(place,P,alias)=>{place.appendChild(P.$ ? P : P.nodeType ? P : newText(P));}, //P.cloneNode(true)
 		react	:(node,alias,value,handle,hilite)=>{//,capture
