@@ -39,7 +39,7 @@ article.misc {flex: 1;}
 
 
 .page.entity {
-    background: #eee;
+    /* background: #eee; */
     text-align: center;
     overflow-x: hidden;
 }
@@ -138,25 +138,36 @@ input.credit {
     border: 1px solid transparent;
 }
 
+.topbar{
+    background: #6200ee;
+    position:relative;
+    height:3rem;
+    box-shadow: 0 8px 8px rgba(0,0,0,.2);
+    margin-bottom: 1em;
+    color: white;
+}
+
 
 .tabs {
-    background: #ccc;
-    /* border-bottom: 1px solid black; */
-    text-align: right;
-    padding: 1.5rem 1rem .5rem 1rem;
+	position:absolute;
+	bottom:0;
+	right:0;
+	text-transform: uppercase;
+	font-size: .9em;
 }
 
 .tab {
-    display: inline;
-    padding: .6em 1em;
-    font-size: 1.2em;
-    border-radius: .5rem .5rem 0 0;
-    text-transform: lowercase;
+    display: inline-block;
+    transition: all .5s;
+    padding: 1em 1em .5em 1em;
+    color: rgba(255,255,255,.75);
+    border-bottom: 3px solid transparent;
 }
 
 .tab.selected {
-    background: white;
-    /* color: white; */
+    /* background: white; */
+    border-bottom-color: white;
+    color: white;
     /* border-bottom: 4px solid white; */
 }
 
@@ -290,7 +301,7 @@ stars>stars {
 	font: bold 1.5rem/1 sans-serif;
 	/* padding: 0 .3rem; */
 	/* margin: 1rem 0; */
-	border-radius: 3px;
+	border-radius: 50%;
 	/* display: inline-block; */
 	width: 1.2em;
 	padding: 0;
@@ -302,20 +313,21 @@ ul.lists {
 	/* background: black; */
 	/* color: white; */
 	position: relative;
-	border-bottom: 1px solid;
+	/* border-bottom: 1px solid; */
 }
 
 ul.lists>li {
     display: inline-block;
     padding: .4em .8em;
     margin: .2em;
-    border: 1px solid lightgray;
+    color: #6200ee;
+    border: 2px solid #6200ee;
     border-radius: 1em;
     /* color: lightgray; */
 }
 
 ul.lists>li.selected {
-    background: black;
+    background: #6200ee;
     color: white;
 }
 
@@ -408,9 +420,9 @@ ul.addaspects {
 }
 
 
-.tabs>.recent::before {content:"Recent"}
+.tabs>.recent::before {content: "Recent";}
 .tabs>.lists::before {content:"Lists"}
-.tabs>.cats::before {content:"Categories"}
+.tabs>.categories::before {content:"Categories"}
 
 button.scan::before {content: "Scan"}
 scanner>button::before {content: "cancel"}
@@ -426,10 +438,11 @@ scanner>button::before {content: "cancel"}
 
 
 section.editables {
-    background: #ddd;
+    /* background: #018786; */
     /* background: white; */
-    /* color: white; */
+    /* color: #6200ee; */
     /* margin: 1rem; */
+    /* box-shadow: 0 4px 8px rgba(0,0,0,.2); */
 }
 
 li.ui:hover {

@@ -6,7 +6,7 @@
 	<title>repch</title>
 	
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" /> 
-	<link rel="stylesheet" href="style.css"/> 
+	<link rel="stylesheet" href="material.css"/> 
 	<link rel="manifest" href="manifest.json"/>
 	
 	<script>
@@ -177,12 +177,16 @@
 	
 		,'page.nav'.d(""
 		
-			,'tabs'.d("*@tab :split`recent,lists,categories"//
-				,'tab'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+			,'topbar'.d(""
+				,'tabs'.d("*@tab :split`recent,lists,categories"//
+					,'tab'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+				)
+				//.u("material:tab @selected")
+				.u("?? $tab@recent; $lists= $entities=( (`entity)db @timestamp`dsc )sort")
+				.u("?? $tab@lists; $entities= $lists=(`list)db")
+				
 			)
-			.u("?? $tab@recent; $lists= $entities=( (`entity)db @timestamp`dsc )sort")
-			.u("?? $tab@lists; $entities= $lists=(`list)db")
-			
+		
 			,'SECTION'.d("? $lists; $list="
 				,'UL.lists'.d("*@ $lists"
 					,'LI'
@@ -216,6 +220,8 @@
 		,'page.promo'.d("? $Entity:!; ! html.promo")
 		
 		,'page.entity'.d("? $Entity; scroll #; * $Entity@"
+		
+			,'topbar'.d("")
 				
 			,'SECTION.editables'.d(""
 				,edit("title").d("focus .title:!")
