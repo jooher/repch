@@ -233,17 +233,7 @@ const	dap=(Env=>
 				},
 				
 			$$	:function(){ return this.tgt=this },
-			/*
-			set	:function(key,stuff,react){
-					const p = this.tgt || new Proto(this.ns,this.utag).$$();
-					if(stuff.length){
-						if(stuff[0].replace)	append(p.attrs,key,stuff.shift());
-						if(stuff.length)	append(p.stuff,key,stuff);
-					}
-					if(react)p.react.push(key);
-					return p;
-				},
-			*/	
+
 			set	:function(key,stuff,react){
 					const	p = this.tgt || new Proto(this.ns,this.utag).$$();
 					if(stuff.length)
@@ -308,7 +298,7 @@ const	dap=(Env=>
 						this.react=null;
 					
 					if(this.utag)
-						this.elem=Env.Native(this.utag,this.rules[""]&&"ui");
+						this.elem=Env.Native(this.utag,!!this.rules[""]);
 					
 					// if(!this.elem && d && (d.defs||d.uses))
 						// Fail("Entry must be an element");
@@ -331,7 +321,7 @@ const	dap=(Env=>
 					
 				if(react)
 					for(let i=react.length; i-->0;){
-						if(!react[i])rules[react[i]=Env.uievent(node)]=rules[""];
+						if(!react[i])rules[react[i]=node.getAttribute("ui")]=rules[""];
 						Env.react(node,react[i],null,Execute.React);
 					}
 					
@@ -1139,7 +1129,7 @@ const	dap=(Env=>
 			tag	= (type.length&&type[0]==type[0].toUpperCase()) ? type.shift().toLowerCase() : DEFAULT.TAG,
 			elem	= extra ? parseWithExtra(tag,extra) : newElem(tag);
 		
-		if(ui)type.push(ui);
+		if(ui)elem.setAttribute("ui",Event.ui(elem));//type.push(ui);
 		if(type.length)elem.className = type.join(" ").toLowerCase();
 		if(id)elem.id=id;
 		return elem;
@@ -1152,16 +1142,28 @@ const	dap=(Env=>
 		
 		const
 		
-		stop	= window.Event		? (e)=>{ e.stopPropagation(); e.preventDefault(); return e; }
-						: ( )=>{ const e=window.event; e.cancelBubble=true; e.returnValue=false; return e; },
-						
-		attach	= doc.addEventListener	? (node,event,handler,capture)=>{node.addEventListener(event,handler,capture||false)}:
-			  doc.attachEvent	? (node,event,handler)=>{node.attachEvent("on"+event,handler,false)}
+		stop	= window.Event 
+			? (e)=>{ e.stopPropagation(); e.preventDefault(); return e; }
+			: ( )=>{ const e=window.event; e.cancelBubble=true; e.returnValue=false; return e; }
+				
+		return	{
+			attach	: doc.addEventListener	? (node,event,handler,capture)=>{node.addEventListener(event,handler,capture||false)}:
+					  doc.attachEvent	? (node,event,handler)=>{node.attachEvent("on"+event,handler,false)}
 						: console.warn("Can't listen to events"),//(node,event,handler)=>{node["on"+event]=handler},
 						
-		normalize = e=>{ stop(e); return {type:e.type, target:e.currentTarget||e.srcElement} }
-				
-		return	{ attach, normalize }
+			normalize 	: e=>{ stop(e); return {type:e.type, target:e.currentTarget||e.srcElement} },
+		
+		
+			ui	:(elems => node=>
+				elems[node.nodeName.toLowerCase()] || 
+				node.isContentEditable ? 'blur' :
+				DEFAULT.EVENT //'click',
+			)({
+				input		:'change',
+				select	:'change',
+				textarea	:'change'
+			})
+		}
 	})(),
 	
 	QueryString = (function(){
@@ -1475,15 +1477,6 @@ const	dap=(Env=>
 
 		console	:window.console,
 		
-		uievent	:(elems => node=>
-					elems[node.nodeName.toLowerCase()] || 
-					node.isContentEditable ? 'blur' :
-					DEFAULT.EVENT //'click',
-				)({
-					input		:'change',
-					select	:'change',
-					textarea	:'change'
-				}),
 		
 		print	:(place,P,alias)=>{place.appendChild(P.$ ? P : P.nodeType ? P : newText(P));}, //P.cloneNode(true)
 		react	:(node,alias,value,handle,hilite)=>{//,capture

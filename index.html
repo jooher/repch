@@ -9,6 +9,8 @@
 	<link rel="stylesheet" href="material.css"/> 
 	<link rel="manifest" href="manifest.json"/>
 	
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	
 	<script>
 	"use strict";
 
@@ -221,7 +223,9 @@
 		
 		,'page.entity'.d("? $Entity; scroll #; * $Entity@"
 		
-			,'topbar'.d("")
+			,'topbar'.d(""
+				,'ICON.share'.ui("( `share )alert")
+			)
 				
 			,'SECTION.editables'.d(""
 				,edit("title").d("focus .title:!")
@@ -241,16 +245,24 @@
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
-				,'SECTION.opinions'.d("$opinions; * (`opinion .entity)db"
-					,'opinion'.d("! Aspect").u("(@opinion $)db")
-				)
+				,'SECTION.opinions'.d("$?="
 				
-				,'SECTION.opinions'.d("$?=; ? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query"
-					,'UL.addaspects'
-						.d("?? $?@pick; $!=; *@ $aspects:untab.decode; ! AddAspect")//@items
-						.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }")//$opinions=()
-					,'TEXTAREA'.d("?? $?@edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
-					,'BUTTON.add'.d("!class $?").ui("$?=($? `pick `edit)~")
+					,'present'.d("$opinions; * (`opinion .entity)db"
+						,'opinion'.d("! Aspect").u("(@opinion $)db")
+					)
+					
+					//,'BUTTON.add'.ui("$?=$?:!")
+					
+					,'append'.d("? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
+					
+						,'UL.addaspects'
+							.d("? $edit:!; $!=; *@ $aspects:untab.decode; ! AddAspect")//@items
+							.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }")//$opinions=()
+							
+						,'TEXTAREA'.d("? $edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
+						
+						,'BUTTON'.d("!class ($edit:# @+`done @-`edit)case").ui("$edit=$edit:!")
+					)
 				)
 			)
 		)

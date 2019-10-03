@@ -1,6 +1,65 @@
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: url(MaterialIcons-Regular.eot); /* For IE6-8 */
+  src: local('Material Icons'),
+       local('MaterialIcons-Regular'),
+       url(MaterialIcons-Regular.woff2) format('woff2'),
+       url(MaterialIcons-Regular.woff) format('woff'),
+       url(MaterialIcons-Regular.ttf) format('truetype');
+}
+
+icon, button
+{
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;  /* Preferred icon size */
+  padding:8px;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Support for all WebKit browsers. */
+  -webkit-font-smoothing: antialiased;
+  /* Support for Safari and Chrome. */
+  text-rendering: optimizeLegibility;
+  /* Support for Firefox. */
+  -moz-osx-font-smoothing: grayscale;
+  /* Support for IE. */
+  font-feature-settings: 'liga';
+}
+
+icon::before, button::before{
+	content:attr(class)
+}
+
+button{
+	background: #6200ee;
+	color: white;
+	box-shadow:0 4px 4px rgba(0,0,0,.25);
+	height: 2em;
+	width: 2em;
+	border:none;
+	border-radius:50%;
+}
+
+
+
 .EMPTY	{display:none !important}
 
 .ui	{cursor:pointer;}
+
+
+
+
+
 
 
 html,body {
@@ -71,11 +130,13 @@ article.misc {flex: 1;}
 
 input.key {
     flex: 1;
-    margin-right: .25rem;
+    margin-right: .5rem;
     text-align: center;
+    border: none;
+    /* border-radius: 1rem; */
 }
 
-input,button,select {
+input, select {
     font-size: inherit;
 }
 
@@ -117,8 +178,8 @@ input.credit {
 }
  
 .find {
-    padding: .25rem;
-    background: #bbb;
+    padding: .5rem;
+    background: #9fa8da;
     box-sizing: border-box;
     display: flex;
     margin: 0;
@@ -126,8 +187,8 @@ input.credit {
 }
 
 .tag.tagged {
-    border-color: black;
-    border-radius: 6px;
+    border-color: #6200ee;
+    border-radius: 1em;
 }
 
 .tag {
@@ -135,7 +196,7 @@ input.credit {
     white-space: nowrap;
     margin: .2em;
     padding: .2em .5em;
-    border: 1px solid transparent;
+    border: 2px solid transparent;
 }
 
 .topbar{
@@ -143,7 +204,7 @@ input.credit {
     position:relative;
     height:3rem;
     box-shadow: 0 8px 8px rgba(0,0,0,.2);
-    margin-bottom: 1em;
+    margin-bottom: 8px;
     color: white;
 }
 
@@ -205,12 +266,13 @@ section.entry {
 
 section.opinions {
     text-align: left;
+    /* background: #eef; */
 }
 
 .title{font-size: 1.35em;margin:.2em 0;}
 
 .aspect{
-    margin-top: 1em;
+    margin: .5em 0;
     /* font-family: Georgia; */
 }
 
@@ -233,7 +295,7 @@ section.opinions {
 }
 
 .aspect>.summary>.name {
-    font-weight: bold;
+    /* font-weight: bold; */
 }
 
 img.stats {
@@ -267,11 +329,11 @@ stars {
 }
 
 stars:before {
-    content: "★★★★★";
+    content:"★★★★★";
 }
 
 stars>stars {
-    color: lightslategray;
+    color: #6200F8;
     position: absolute;
     top: 0;
     left: 0;
@@ -286,30 +348,30 @@ stars>stars {
 
 .note {
     font-style: italic;
+    color: #aaa;
 }
 
 
-
+/*
 .add{
 	position:absolute;
-	top: 1rem;
+	top: 0;
 	right: 1rem;
-	background:white;
-	color: gray;
-	border: 2px solid;
+	background: #3700b3;
+	color: white;
+	border: 1px solid #3700b3;
 	text-align:center;
-	font: bold 1.5rem/1 sans-serif;
-	/* padding: 0 .3rem; */
-	/* margin: 1rem 0; */
+	font: normal 2rem/1.1 sans-serif;
 	border-radius: 50%;
-	/* display: inline-block; */
 	width: 1.2em;
-	padding: 0;
+	height: 1.2em;
+	box-shadow: 0 4px 4px rgba(0,0,0,.25);
 }
+*/
 
 ul.lists {
 	margin: -1rem;
-	padding: .7rem 3rem .75rem .5rem;
+	padding: .5rem;
 	/* background: black; */
 	/* color: white; */
 	position: relative;
@@ -379,10 +441,12 @@ article {
 
 ul.aspects {
     padding-left: 1rem;
+    list-style: none;
+    /* border-left: 1px solid #ddd; */
 }
 
 .aspects>li {
-    margin: 1em 0;
+    /* margin: 1em 0; */
 }
 
 addaspect>li {
@@ -406,17 +470,26 @@ scanner>canvas {
     margin: 0 auto;
 }
 
-.category {
-    font-weight: bold;
-    text-decoration: underline;
+.aspect>.name::before {
+    /* font-weight: bold; */
+    /* text-decoration: underline; */
+    /* text-transform: uppercase; */
+    /* background: #bbe; */
+    /* display: inline-block; */
+    /* padding: .2em; */
+    /* content: " ∙∙∙"; */
+    content: "★ ";
+    color: #ddd;
 }
 
 
 ul.addaspects {
-    background: white;
-    padding: 1px 1rem 1rem 1rem;
-    margin: 0;
+    /* background: #eef; */
+    padding: 0;
+    line-height: 1.4;
+    /* margin: 0 -1rem; */
     list-style: none;
+    /* border-top: 1px solid lightgray; */
 }
 
 
@@ -430,12 +503,6 @@ scanner>button::before {content: "cancel"}
 .title:empty::before{content: "What's the name of this?"; }
 .desc:empty::before{content: "What kind of thing is this?"; }
 
-.more::before {content: "•••";/* background: gray; *//* color: white; *//* padding: 0 .5em; *//* border-radius: .25rem; */}
-.add::before {content: "+"}
-
-
-
-
 
 section.editables {
     /* background: #018786; */
@@ -446,8 +513,7 @@ section.editables {
 }
 
 li.ui:hover {
-    /* background: whitesmoke; */
-    background: linear-gradient(to right, #eee, white);
+    background: #eee;
 }
 
 a.entry {
@@ -457,25 +523,28 @@ a.entry {
     white-space: nowrap;
 }
 
-.opinions>textarea {
+.append>textarea {
     display: block;
     width: 100%;
     height: 24em;
-    margin: 10;
-    padding: .5rem;
+    margin: 0;
+    /* padding: .5rem; */
     box-sizing: border-box;
     font: normal 1.25rem/1.4 monospace;
     /* flex: 1; */
+    /* border-color: #6200ee; */
+    /* border-width: 1px 0 1px 0; */
+    /* box-shadow: 0 4px 8px rgba(0,0,0,.25); */
+    /* border-radius: .25rem; */
+    background: floralwhite;
     border: none;
 }
 
-.deck {
-    margin: 1rem;
-    text-align: right;
-}
-
-.opinions>textarea::before {content: "edit this";}
-
 button.add.pick::before {content: "∙∙∙";}
-
 button.add.edit::before {content: "✓";}
+
+.append>button {
+    position: absolute;
+    right: 1rem;
+    bottom: 2rem;
+}
