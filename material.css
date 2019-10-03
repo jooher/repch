@@ -504,14 +504,6 @@ scanner>button::before {content: "cancel"}
 .desc:empty::before{content: "What kind of thing is this?"; }
 
 
-section.editables {
-    /* background: #018786; */
-    /* background: white; */
-    /* color: #6200ee; */
-    /* margin: 1rem; */
-    /* box-shadow: 0 4px 8px rgba(0,0,0,.2); */
-}
-
 li.ui:hover {
     background: #eee;
 }
@@ -528,23 +520,24 @@ a.entry {
     width: 100%;
     height: 24em;
     margin: 0;
-    /* padding: .5rem; */
     box-sizing: border-box;
     font: normal 1.25rem/1.4 monospace;
-    /* flex: 1; */
-    /* border-color: #6200ee; */
-    /* border-width: 1px 0 1px 0; */
-    /* box-shadow: 0 4px 8px rgba(0,0,0,.25); */
-    /* border-radius: .25rem; */
     background: floralwhite;
     border: none;
 }
-
-button.add.pick::before {content: "∙∙∙";}
-button.add.edit::before {content: "✓";}
 
 .append>button {
     position: absolute;
     right: 1rem;
     bottom: 2rem;
+}
+
+button.add {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+}
+
+.append {
+    margin-top: 4rem;
 }
