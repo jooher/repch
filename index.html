@@ -63,9 +63,13 @@
 				
 			const
 			ixrow	= r=>index[r[key]||(r[key]=uid())]=r,
-			ixset	= s=>s.forEach&&s.length&&s.forEach(ixrow),
-			anew	= s=>(index={})&&ixset(order=s&&s.reduce?s:[]),
-			update= x=>++stamp&&!delay&&sync(),
+			ixset	= s=>{ s.forEach&&s.length&&s.forEach(ixrow); },
+			flush	= _=>{
+					order=order.filter(r=>index[r[key]]==r);
+					storage.setItem(key,box(order));
+					storage.setItem(stampname,stamp);
+				},
+			anew	= s=>{ index={}; ixset(order=s&&s.reduce?s:[]); ++stamp; flush(); },
 			sync	= r=>{
 				if(stamp>0&&single&&!r)return;
 				const saved=parseInt(storage.getItem(stampname))||0;
@@ -79,9 +83,7 @@
 					stamp++;
 				}
 				if(stamp>saved){ //save /// TODO: delay this stuff to page leave/enter
-					order=order.filter(r=>index[r[key]]==r);
-					storage.setItem(key,box(order));
-					storage.setItem(stampname,stamp);
+					flush();
 				}
 			};
 				
@@ -111,13 +113,28 @@
 
 <div id="content">
 
-	<div id="welcome">
-		<h1>Welcome to Repch.io</h1>
-	</div>
+	<article id="welcome">
+		<h3>Welcome to Repch.io</h3>
+	</article>
 	
-	<div id="promo">
-		<h2>Recommended stuff</h2>
-	</div>
+	<article id="promo">
+		<h3>Recommended stuff</h3>
+	</article>
+	
+	<article id="about-lists">
+		<h3>Item lists</h3>
+		<p>Lists you organize your items. Any item can be added to any number of lists. Add new list with the + button.</p>
+	</article>
+	
+	<article id="about-lists">
+		<h3>List items</h3>
+		<p>To add an item to the list, go to the item details, and toggle the list name marker.</p>
+	</article>
+	
+	<article id="about-recent">
+		<h3>Recent items</h3>
+		<p>Here, you will see items you recently interacted with.</p>
+	</article>
 
 </div>
 
@@ -156,7 +173,9 @@
 					filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
 					join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
 					save	= (table,values)		=> values.forEach(r=>table.save(detach(r)))||table.data(),
-					reset	= (values,tags)		=> tags.length ? tags.forEach((t,i)=>T(t).anew(values[i])) : Object.keys(tables).forEach(t=>tables[t].anew());
+					reset	= (values,tags)		=> values.length 
+						? values.forEach((v,i)=>T(tags[i]).anew(v))
+						: Object.keys(tables).forEach(t=>tables[t].anew());
 					
 					
 				return	(values,tags)=>{
@@ -177,63 +196,80 @@
 
 	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
 	
-		,'page.nav'.d(""
+		,'PAGE.nav'.d(""
 		
-			,'topbar'.d(""
+			,'ROOF'.d(""
 				,'tabs'.d("*@tab :split`recent,lists,categories"//
 					,'tab'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 				)
-				//.u("material:tab @selected")
 				.u("?? $tab@recent; $lists= $entities=( (`entity)db @timestamp`dsc )sort")
 				.u("?? $tab@lists; $entities= $lists=(`list)db")
 				
+				,'ICON.settings'.ui("$Entity=")
 			)
-		
-			,'SECTION'.d("? $lists; $list="
-				,'UL.lists'.d("*@ $lists"
-					,'LI'
-					.d("! .title; a!")
-					.a("!? (.list $list)eq@selected")
-					.ui("$entities=(`listentity $list=.)db")
+			
+			,'WALL'.d(""
+			
+				,'lists'.d("? $lists; $list="
+					,'UL'.d("*@ $lists"
+						,'LI'
+						.d("! .title; a!")
+						.a("!? (.list $list)eq@selected")
+						.ui("$entities=(`listentity $list=.)db")
+					)
+					,'BUTTON.add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
 				)
-				,'BUTTON.add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-			)
-			
-			,'UL.entities'.d("*@ $entities"
-				,'LI'	.d("? (.tagged `-)ne; $=(.entity)db; ! .title")//? .tagged;
-					.a("!? ($ $Entity)eq@selected")
-					.ui("$Entity=$")
-			)
 				
-			,'ARTICLE.settings'.d("?? $tab@settings"
-				,'BUTTON.clear'.d("! `Clear").ui("? (dict.cleardb)confirm; (@)db")
+				,'entities'.d("? $entities"
+					,'UL.entities'.d("; *@ $entities"
+						,'LI'	.d("? (.tagged `-)ne; $=(.entity)db; ! .title")//? .tagged;
+							.a("!? ($ $Entity)eq@selected")
+							.ui("$Entity=$")
+					)
+				)
+				
 			)
+			.d("? ($lists:! $entities:!)!; ! html.welcome")
+			.d("? ($lists $lists.length:!)!; ! html.about-lists")
+			.d("? ($lists.length $entities.length:!)!; ! html.about-listitems")
+			.d("? ($lists:! $entities.length:!)!; ! html.about-recent")
 			
-			,'ARTICLE.welcome'.d("? $tab:!; ! html.welcome")
-			
-			
-			,'find'.d("$?= $entry="
+			,'VAULT'.d("$?= $entry="
 				,'INPUT.key'.ui("log $entry=#:value,scope.guess")
 				,'BUTTON.scan'.ui("log $entry=#:scan,scope.guess")
 		
 			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity .timestamp:timestamp)db") /// <--tweak this
 		)
-	
-		,'page.promo'.d("? $Entity:!; ! html.promo")
 		
-		,'page.entity'.d("? $Entity; scroll #; * $Entity@"
+		,'PAGE.other'.d("? $Entity:!; scroll #; $tab="
 		
-			,'topbar'.d(""
+			,'ROOF'.d(""
+				,'tabs'.d("*@tab :split`help`data"//
+					,'tab'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+				)
+			)
+			
+			,'WALL'
+			.d("? $tab:!; ! html.promo")
+			.d("?? $tab@data"
+				,'cleardb'.d("! `Clear").ui("? (dict.cleardb)confirm; (@)db")
+			)
+			
+		)
+		
+		,'PAGE.entity'.d("? $Entity; scroll #; * $Entity@"
+		
+			,'ROOF'.d(""
 				,'ICON.share'.ui("( `share )alert")
 			)
+			
+			,'WALL'.d(""
+			
+				,'editables'.d(""
+					,edit("title").d("focus .title:!")
+					,edit("desc").d("focus (.title .desc:!)!")
+				).u("(@entity $)db")
 				
-			,'SECTION.editables'.d(""
-				,edit("title").d("focus .title:!")
-				,edit("desc").d("focus (.title .desc:!)!")
-			).u("(@entity $)db")
-			
-			,'info'.d(""
-			
 				,'SECTION.tags'.d("$lists; * (`list)db"
 					,'tag'
 					.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)|)db $tagged=.?.; a!")
@@ -251,13 +287,11 @@
 						,'opinion'.d("! Aspect").u("(@opinion $)db")
 					)
 					
-					//,'BUTTON.add'.ui("$?=$?:!")
-					
 					,'append'.d("? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
 					
 						,'UL.addaspects'
 							.d("? $edit:!; $!=; *@ $aspects:untab.decode; ! AddAspect")//@items
-							.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }")//$opinions=()
+							.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }; $!=")//$opinions=()
 							
 						,'TEXTAREA'.d("? $edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
 						
@@ -287,7 +321,7 @@
 			),
 
 		AddAspect	: 'LI.aspect'.d("$?="
-				,'name'.d("? .0:!; ! .1").ui("$!=($! (.1@aspect ..name@category) )?")
+				,'name'.d("? .0:!; ! .1").ui("$!=($! (.1@aspect ..1@category) )?")
 				,'category'.d("? .0; ! .1").ui("$?=$?:!; ?")
 				,'UL.aspects'.d("? $?; * .0@; ! AddAspect")
 			),

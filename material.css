@@ -16,8 +16,8 @@ icon, button
   font-family: 'Material Icons';
   font-weight: normal;
   font-style: normal;
-  font-size: 24px;  /* Preferred icon size */
-  padding:8px;
+  font-size: 1.5rem;  /* Preferred icon size */
+  padding: .75rem;
   display: inline-block;
   line-height: 1;
   text-transform: none;
@@ -41,14 +41,25 @@ icon::before, button::before{
 }
 
 button{
-	background: #6200ee;
+	background: #52f;
 	color: white;
 	box-shadow:0 4px 4px rgba(0,0,0,.25);
 	height: 2em;
 	width: 2em;
 	border:none;
 	border-radius:50%;
+	z-index: 1;
 }
+
+
+
+h1{font:normal 60px Roboto,sans-serif}
+h2{font:normal 48px Roboto,sans-serif;}
+h3{font:normal 32px Roboto,sans-serif}
+h4{font:normal 27px Roboto,sans-serif}
+h5{font:normal 24px Roboto,sans-serif}
+h6{font:normal 20px Roboto,sans-serif}
+
 
 
 
@@ -63,7 +74,7 @@ button{
 
 
 html,body {
-	font-family: Roboto, sans-serif;
+	font: normal 16px Roboto, sans-serif;
 	height: 100%;
 	padding: 0;
 	margin: 0;
@@ -82,26 +93,43 @@ html,body {
     transition: all .5s;
 }
 
-.page {
+page {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
+roof{
+    position:relative;
+    height:3rem;
+    z-index: 1;
+    box-shadow: 0 8px 8px rgba(0,0,0,.2);
+    background: #52f;
+    color: white;
+    text-align: right;
+}
+
+wall {
+    flex: 1;
+    position: relative;
+}
+
+vault {
+    padding: .5rem;
+    box-sizing: border-box;
+    display: flex;
+    margin: 0;
+    font-size: 1.25em;
+}
+
+
+
 section{
     padding: 1rem;
     position: relative;
 }
 
-article.misc {flex: 1;}
-
-
-.page.entity {
-    /* background: #eee; */
-    text-align: center;
-    overflow-x: hidden;
-}
 
 .entities>.selected {
     background: #eee;
@@ -132,8 +160,8 @@ input.key {
     flex: 1;
     margin-right: .5rem;
     text-align: center;
-    border: none;
-    /* border-radius: 1rem; */
+    border: 4px solid #52f;
+    border-radius: 1.5rem;
 }
 
 input, select {
@@ -158,13 +186,13 @@ input::placeholder {
     cursor: text !important;
     border: none;
     display: block;
-    width: 100%;
+    /* width: 100%; */
     background: no-repeat;
 }
 
 [contenteditable]:focus, [contenteditable]:empty {
 	background: white;
-	border-bottom: 1px dashed;
+	/* border-bottom: 1px dashed; */
 }
 
 [contenteditable]:empty::before{
@@ -176,18 +204,10 @@ input::placeholder {
 input.credit {
     width: 3em;
 }
- 
-.find {
-    padding: .5rem;
-    background: #9fa8da;
-    box-sizing: border-box;
-    display: flex;
-    margin: 0;
-    font-size: 1.25em;
-}
+
 
 .tag.tagged {
-    border-color: #6200ee;
+    border-color: #52f;
     border-radius: 1em;
 }
 
@@ -199,20 +219,12 @@ input.credit {
     border: 2px solid transparent;
 }
 
-.topbar{
-    background: #6200ee;
-    position:relative;
-    height:3rem;
-    box-shadow: 0 8px 8px rgba(0,0,0,.2);
-    margin-bottom: 8px;
-    color: white;
-}
 
 
 .tabs {
 	position:absolute;
 	bottom:0;
-	right:0;
+	left: 0;
 	text-transform: uppercase;
 	font-size: .9em;
 }
@@ -220,7 +232,7 @@ input.credit {
 .tab {
     display: inline-block;
     transition: all .5s;
-    padding: 1em 1em .5em 1em;
+    padding: .5em;
     color: rgba(255,255,255,.75);
     border-bottom: 3px solid transparent;
 }
@@ -266,14 +278,12 @@ section.entry {
 
 section.opinions {
     text-align: left;
-    /* background: #eef; */
 }
 
 .title{font-size: 1.35em;margin:.2em 0;}
 
 .aspect{
-    margin: .5em 0;
-    /* font-family: Georgia; */
+    margin: 1em 0;
 }
 
 .aspect>.note {
@@ -287,7 +297,7 @@ section.opinions {
 
 .aspect>.summary {
     display: flex;
-    vertical-align: baseline;
+    /* vertical-align: bottom; */
 }
 
 .summary>.name{
@@ -302,16 +312,6 @@ img.stats {
     width: 2em;
     height: 1em;
     vertical-align: bottom;
-}
-
-
-article.entity, article.welcome {
-    padding: 1em;
-    overflow-y: auto;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    text-align: center;
 }
 
 section.info{
@@ -342,8 +342,8 @@ stars>stars {
 }
 
 .credit>stars {
-    font: normal 1.5em/1em sans-serif;
-    margin: -.2em 0 .2em .2em;
+    font: normal 1.25em/.8em sans-serif;
+    margin-left: .2em;
 }
 
 .note {
@@ -352,44 +352,24 @@ stars>stars {
 }
 
 
-/*
-.add{
-	position:absolute;
-	top: 0;
-	right: 1rem;
-	background: #3700b3;
-	color: white;
-	border: 1px solid #3700b3;
-	text-align:center;
-	font: normal 2rem/1.1 sans-serif;
-	border-radius: 50%;
-	width: 1.2em;
-	height: 1.2em;
-	box-shadow: 0 4px 4px rgba(0,0,0,.25);
-}
-*/
-
-ul.lists {
-	margin: -1rem;
-	padding: .5rem;
-	/* background: black; */
-	/* color: white; */
+.lists>ul {
+	margin: 1rem;
+	padding: 0;
 	position: relative;
-	/* border-bottom: 1px solid; */
 }
 
-ul.lists>li {
+.lists>ul>li {
     display: inline-block;
     padding: .4em .8em;
     margin: .2em;
-    color: #6200ee;
-    border: 2px solid #6200ee;
+    color: #52f;
+    border: 2px solid #52f;
     border-radius: 1em;
     /* color: lightgray; */
 }
 
-ul.lists>li.selected {
-    background: #6200ee;
+.lists>ul>li.selected {
+    background: #52f;
     color: white;
 }
 
@@ -402,21 +382,6 @@ section.entries {
     text-align: center;
     text-decoration: underline;
     color: gray;
-}
-
-.desc {
-    /* font-weight: bold; */
-}
-
-
-.info {
-    flex: 1;
-    overflow-y: auto;
-}
-
-article {
-    flex: 1;
-    position: relative;
 }
 
 .addaspect {
@@ -471,13 +436,6 @@ scanner>canvas {
 }
 
 .aspect>.name::before {
-    /* font-weight: bold; */
-    /* text-decoration: underline; */
-    /* text-transform: uppercase; */
-    /* background: #bbe; */
-    /* display: inline-block; */
-    /* padding: .2em; */
-    /* content: " ∙∙∙"; */
     content: "★ ";
     color: #ddd;
 }
@@ -535,9 +493,29 @@ a.entry {
 button.add {
     position: absolute;
     right: 1rem;
-    bottom: 1rem;
+    top: 1rem;
 }
 
 .append {
     margin-top: 4rem;
+}
+
+.editables {
+ padding:1em;
+    background: whitesmoke;
+}
+
+.tab.data::before {
+    content: "Storage";
+}
+
+.tab.help::before {content: "Help";}
+
+.hint {
+    margin-right: 6em;
+}
+
+
+article {
+    margin: 1rem;
 }
