@@ -13,6 +13,8 @@ Scan	= (function(){
 		
 		EAN13	=(function(){
 			
+			let	unit = 1.0;
+			
 			const	EAN	={ "3211":"0", "2221":"1", "2122":"2", "1411":"3", "1132":"4", "1231":"5", "1114":"6", "1312":"7", "1213":"8", "3112":"9" },
 				HED	={ "LLLLLL":"0", "LLGLGG":"1", "LLGGLG":"2", "LLGGGL":"3", "LGLLGG":"4", "LGGLLG":"5", "LGGGLL":"6", "LGLGLG":"7", "LGLGGL":"8", "LGGLGL":"9" },
 				
@@ -29,15 +31,15 @@ Scan	= (function(){
 			group	= (spans,o,count,left)=>{
 				
 				const
-				WDTH = 7,
-				THIN = 1,
-				WIDE = 4,
-				TRIES= 6;
+					WDTH = 7,
+					THIN = 1,
+					WIDE = 4,
+					TRIES= 6;
 				
 				let	digits=[],
 					p=[],
-					parity="",
-					unit=(spans[o+0]+spans[o+1]+spans[o+2]+spans[o+3])/WDTH;
+					parity="";
+					
 						
 				for(let dig=0; dig<count; dig++, o+=4 )
 				{
@@ -58,7 +60,7 @@ Scan	= (function(){
 				if(left)
 					digits.unshift(HED[parity]||"*");
 						
-				return	digits;
+				return digits;
 			},
 			
 			verify	= digits=>{				
@@ -78,7 +80,11 @@ Scan	= (function(){
 				const	HOPE=spans.length-BARS+4;
 				let	left, right,decoded;
 				for( let o=0; o <= HOPE; o++ )
-					if(	fit3(spans,o) && fit3(spans,o+GRDS+DIGS)
+					if(fit3(spans,o)){
+						unit=(spans[o+0]+spans[o+1]+spans[o+2])/3;
+						
+					}
+					 && fit3(spans,o+GRDS+DIGS)
 						&& (left=group(spans,o+GRDS,6,true))
 						&& (right=group(spans,o+GRDS+DIGS+MIDS,6,false))
 						&& (decoded=verify(left.concat(right)))
@@ -87,7 +93,6 @@ Scan	= (function(){
 			
 		})();
 		
-
 		return	spans=>EAN13(spans)||EAN13(spans.reverse());
 	})(),
 
@@ -148,7 +153,10 @@ Scan	= (function(){
 			
 			if( w<FLAT )
 				if(u)
-					spans[++count] = w;
+					if(w>1)
+						spans[++count] = w;
+					else
+						w+=spans[count--];
 				else{
 					spans[++count]=w/2;
 					spans[++count]=w/2;

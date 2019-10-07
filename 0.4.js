@@ -27,7 +27,11 @@ const	dap=(Env=>
 		"-?"	:num=>parseFloat(num)<0,	/// test negative
 		"0?"	:num=>parseFloat(num)===0,	/// test zero
 		"!0"	:num=>parseFloat(num)||"",	/// non-zero only
-		"??"	:arr=>arr&&arr.length,
+		
+		"!!"	:arr=>!isArray(arr),			/// not an array
+		"!?"	:arr=>!isArray(arr)&&arr!=null,	/// anything but an array
+		"?!"	:arr=>isArray(arr)&&!arr.length,	/// empty array
+		"??"	:arr=>isArray(arr)&&arr.length,	/// non-empty array
 		
 		"+"	:num=>Math.abs(parseFloat(num)||0),	/// abs
 		"-"	:num=>-(parseFloat(num)||0),		/// neg
@@ -1154,15 +1158,12 @@ const	dap=(Env=>
 			normalize 	: e=>{ stop(e); return {type:e.type, target:e.currentTarget||e.srcElement} },
 		
 		
-			ui	:(elems => node=>
-				elems[node.nodeName.toLowerCase()] || 
-				node.isContentEditable ? 'blur' :
-				DEFAULT.EVENT //'click',
-			)({
-				input		:'change',
-				select	:'change',
-				textarea	:'change'
-			})
+			ui	:(elems => node=>elems[node.nodeName.toLowerCase()] || ( node.isContentEditable ? 'blur' : DEFAULT.EVENT ) //'click',
+				)({
+					input		:'change',
+					select	:'change',
+					textarea	:'change'
+				})
 		}
 	})(),
 	
