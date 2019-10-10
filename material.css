@@ -491,24 +491,9 @@ button.add {
 }
 
 .editables {
- padding:1em;
-    background: whitesmoke;
+	padding:1em;
+	background: whitesmoke;
 }
-
-.tab.data::before { content: "Storage";}
-.tab.help::before {content: "Help";}
-.tabs>.recent::before {content: "Recent";}
-.tabs>.lists::before {content:"Lists"}
-.tabs>.categories::before {content:"Categories"}
-
-button.scan::before {content: "camera";}
-scanner>button::before {content: "cancel"}
-
-.title:empty::before{content: "What's the name of this?"; }
-.desc:empty::before{content: "What kind of thing is this?"; }
-
-
-
 
 
 article {
@@ -523,3 +508,16 @@ article {
     color: gray;
     font-style: italic;
 }
+
+
+.tabs>.data::before	{ content: "Storage";}
+.tabs>.help::before	{content: "Help";}
+.tabs>.recent::before	{content: "Recent";}
+.tabs>.lists::before	{content:"Lists"}
+.tabs>.categories::before {content:"Categories"}
+
+button.scan::before	{content: "camera";}
+scanner>button::before	{content: "cancel"}
+
+.title:empty::before	{content: "What's the name of this?"; }
+.desc:empty::before	{content: "What kind of thing is this?"; }
