@@ -446,24 +446,10 @@ scanner>canvas {
 
 
 ul.addaspects {
-    /* background: #eef; */
     padding: 0;
     line-height: 1.4;
-    /* margin: 0 -1rem; */
     list-style: none;
-    /* border-top: 1px solid lightgray; */
 }
-
-
-.tabs>.recent::before {content: "Recent";}
-.tabs>.lists::before {content:"Lists"}
-.tabs>.categories::before {content:"Categories"}
-
-button.scan::before {content: "Scan"}
-scanner>button::before {content: "cancel"}
-
-.title:empty::before{content: "What's the name of this?"; }
-.desc:empty::before{content: "What kind of thing is this?"; }
 
 
 li[ui]:hover {
@@ -509,15 +495,20 @@ button.add {
     background: whitesmoke;
 }
 
-.tab.data::before {
-    content: "Storage";
-}
-
+.tab.data::before { content: "Storage";}
 .tab.help::before {content: "Help";}
+.tabs>.recent::before {content: "Recent";}
+.tabs>.lists::before {content:"Lists"}
+.tabs>.categories::before {content:"Categories"}
 
-.hint {
-    /* margin-right: 6em; */
-}
+button.scan::before {content: "camera";}
+scanner>button::before {content: "cancel"}
+
+.title:empty::before{content: "What's the name of this?"; }
+.desc:empty::before{content: "What kind of thing is this?"; }
+
+
+
 
 
 article {
