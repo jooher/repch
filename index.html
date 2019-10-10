@@ -10,6 +10,9 @@
 	<link rel="manifest" href="manifest.json"/>
 	
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+		
+	<script src="barkodnik.js"></script>
+	<script src="untab-.js"></script>
 	
 	<script>
 	if(navigator.serviceWorker)
@@ -32,6 +35,12 @@
 			return n=>n||storage.setItem(uidkey,++last)||last;
 		})(localStorage,"uid"),
 		
+	textOnly	= e => {
+		e.stopPropagation();
+		e.preventDefault();
+		e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
+	},
+	
 	Starbar	= function(proto,bars){
 
 		proto.appendChild(proto.cloneNode(false));
@@ -104,14 +113,8 @@
 				save	: r => sync(r)	||r,
 				anew
 			}
-		},
+		}
 
-	textOnly	= e => {
-	    e.stopPropagation();
-	    e.preventDefault();
-	    e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
-	}
-	
 	</script>
 	
 
@@ -132,10 +135,12 @@
 		<p>Ever been dissatisfied with a product you bought? Or, otherwise, extremely happy with it? Scan its code, rate it, and next time you'll be aware. Refer to your own records and records from other people, before showing your money!</p>
 		<p>A website, a movie, a venue, a book... whatever you've contacted with and want to give a feedback — you can do it with a single tap now. Or, if you feel like, provide a detailed report why you loved or hated your interaction.</p>
 		<p>Experiences of thousands of us are collected anonymously and statistically agregated to aware all of us from what's bad — and promote what's good!</p>
+<!--
 		<h4>Can I trust it?</h4>
 		<p>Unlike many of ratings scattered around in the Internet, where you can't actually be sure that the rating is "real" (not spinned up by the seller or pushed down by competitors), Repch.io works on other principles. Our algorithms evaluate the reputation of each voter, based on all their previous feedbacks, and their correlation to The Truth. This reputation is the main asset of a voter in Repch.io. It is hard to earn, and easy to lose. Those who don't have much reputation can't really influence the rating. Those who have reputation, will not risk it by posting falsey votes. If they do, the falsey vote will have a very short effect and will be corrected by other votes very quickly, so it simply doesn't worth it.</p>
 		<h4>What is The Truth?</h4>
 		<p>There's only one criterion for thruth, when it comes to evaluation of a thing's worthness: the totality of people's voices. However the weight of each voice is individual and calculated from the voter's reputation.</p>
+-->
 	</article>
 	
 	<article id="promo">
@@ -171,7 +176,6 @@
 
 -->
 
-<script src="scan-peaks.js"></script>
 <script src="0.4.js"></script>
 
 <script>
@@ -312,7 +316,7 @@
 					,'append'.d("? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
 					
 						,'UL.addaspects'
-							.d("? $edit:!; $!=; *@ $aspects:untab.decode; ! AddAspect")//@items
+							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")//@items
 							.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }; $!=")//$opinions=()
 							
 						,'TEXTAREA'.d("? $edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
@@ -379,7 +383,8 @@
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			},
 			focus:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
-			scroll:(value,alias,node)=>{if(value)
+			scroll:(value,alias,node)=>{
+					if(value);
 					window.setTimeout(()=>{
 						//node.offsetParent.parentNode.scrollLeft=node.offsetLeft;
 						node.scrollIntoView({behavior:"smooth",inline:"end"});
@@ -400,6 +405,9 @@
 				})
 		},
 		convert	:{
+		
+			untab,
+			
 			starbar	: Starbar(document.createElement("stars"),10),
 			"?uid"	: bool	=> bool?uid():"-",
 			split		: str		=> str.split(/,/g),
@@ -456,15 +464,11 @@
 					};
 				})(),
 				
-			scan	: _ =>dap.Async(Scan.exec(),"scan")
+			scan	: _ =>dap.Async(Barkodnik.Execute())
 		}
 	})
 	
 	.FUNC(Persist)
-	
-	.USES({
-		untab	:"untab-.js" // external namespace, that provides a decoder for the custom-formatted data
-	})
 
 	.RENDER()
 

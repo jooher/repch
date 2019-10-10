@@ -2,7 +2,7 @@
 <head>
 <style>canvas{display:block;}</style>
 
-<script src="barcode.js"></script>
+<script src="barkodnik.js"></script>
 
 </head>
 <body>
@@ -26,13 +26,13 @@ const
 		document.body.insertBefore(h2,threshEl);
 		
 		Ys.forEach(Y=>{
-				const canvas=canvasEl.cloneNode(true);
-		
-				document.body.insertBefore(canvas,threshEl);
-				context=canvas.getContext('2d');
+			const canvas=canvasEl.cloneNode(true);
 
-				const	
-					b=Barcode.fromLine(Y,thresh);
+			document.body.insertBefore(canvas,threshEl);
+			context=canvas.getContext('2d');
+
+			const	
+				b=Barkodnik.fromLine(Y,thresh);//Execute();
 		});
 		
 	};
