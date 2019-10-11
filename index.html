@@ -164,22 +164,9 @@
 
 </div>
 
-<!--
-<div id="scanner">
-	<video></video>
-	<canvas></canvas>
-	<button class="cancel"/>
-	<div class="buttons">
-		<button class="stop"/>
-	</div>
-</div>
-
--->
-
 <script src="0.4.js"></script>
 
 <script>
-
 	"use strict";
 
 	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui(".what=#:text").FOR({what}), //!! dict.editable.what@title 
@@ -195,12 +182,11 @@
 					tables= {},
 					T	= key=> tables[key]||(tables[key]=P(key)),
 					detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
+					
 					filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
 					join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
-					save	= (table,values)		=> values.forEach(r=>table.save(detach(r)))||table.data(),
-					reset	= (values,tags)		=> values.length 
-						? values.forEach((v,i)=>T(tags[i]).anew(v))
-						: Object.keys(tables).forEach(t=>tables[t].anew());
+					save	= (table,values)		=> { values.forEach(r=>table.save(detach(r)))||table.data()},
+					reset	= (values,tags)		=> { values.length ? values.forEach((v,i)=>T(tags[i]).anew(v)) : Object.keys(tables).forEach(t=>tables[t].anew()); }
 					
 					
 				return	(values,tags)=>{
@@ -385,7 +371,7 @@
 			focus:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
 			scroll:(value,alias,node)=>{
 					if(value);
-					window.setTimeout(()=>{
+					window.setTimeout( _=>{
 						//node.offsetParent.parentNode.scrollLeft=node.offsetLeft;
 						node.scrollIntoView({behavior:"smooth",inline:"end"});
 					},200);
