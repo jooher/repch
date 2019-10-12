@@ -1,6 +1,9 @@
 const	Barkodnik = (_=>{
 	
-	let draw,w,h,ofs=0;
+	let	draw,
+		w,
+		h,
+		ofs=0;
 
 	const
 	
@@ -262,17 +265,24 @@ const	Barkodnik = (_=>{
 			scanner	= el("scanner"),
 			video		= scanner.appendChild(el("video")),
 			canvas	= scanner.appendChild(el("canvas")),
-			cancel	= scanner.appendChild(el("button"));
-			
+			deck		= scanner.appendChild(el("div")),
+			dumpbtn	= deck.appendChild(el("button")),
+			cancelbtn	= deck.appendChild(el("button"));
+		
+		dumpbtn.className = "bug_rerport";
+		cancelbtn.className="cancel";
 		(where||document.body).appendChild(scanner);
 					
 		await	navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
 			.then(stream=>video.srcObject=stream);//.catch(reject);
 			
 		const	track	= video.srcObject.getVideoTracks()[0],
-			stop	= e => {track.stop(); scanner.parentNode.removeChild(scanner)};
+			stop	= e => {track.stop(); scanner.parentNode.removeChild(scanner)},
+			dump	= e => {window.location = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")};
 			
-		cancel.onclick = stop;	
+		cancelbtn.onclick = stop;
+		dumpbtn.onclick = dump;
+		
 		video.play();
 		
 		let decoded=null;
@@ -286,12 +296,6 @@ const	Barkodnik = (_=>{
 			}
 			if(w){
 				context.drawImage(video,0,0,w,h);
-				/*
-				if(dump){
-					window.location = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-					dump=false;
-				}
-				*/
 				decoded=fromContext(context,10);
 			}
 			await timeout(25); //paused?1e3:

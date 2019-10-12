@@ -344,6 +344,11 @@ stars>stars {
 }
 
 
+wall>.lists {
+    margin: 1em;
+    position: relative;
+}
+
 .lists>ul {
 	margin: 0;
 	padding: 0;
@@ -428,6 +433,13 @@ scanner>canvas {
     margin: 0 auto;
 }
 
+scanner>.deck{
+	position:absolute;
+	bottom:0;
+	right:0;
+	text-align:right;
+}
+
 
 
 li[ui]:hover {
@@ -489,13 +501,5 @@ article {
 .tabs>.lists::before	{content:"Lists"}
 .tabs>.categories::before {content:"Categories"}
 
-button.scan::before	{content: "camera";}
-scanner>button::before	{content: "cancel"}
-
 .title:empty::before	{content: "What's the name of this?"; }
 .desc:empty::before	{content: "What kind of thing is this?"; }
-
-.lists {
-    margin: 1em;
-    position: relative;
-}

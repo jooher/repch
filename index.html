@@ -247,7 +247,7 @@
 			
 			,'VAULT'.d("$?= $entry="
 				,'INPUT.key'.d("textonly").ui("log $entry=#:value,scope.guess")
-				,'BUTTON.scan'.ui("log $entry=#:scan,scope.guess")
+				,'BUTTON.camera'.ui("log $entry=#:scan,scope.guess")
 		
 			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@fallback .timestamp:timestamp)db") /// <--tweak this
 		)
