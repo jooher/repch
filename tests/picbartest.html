@@ -2,10 +2,16 @@
 <head>
 <style>canvas{display:block;} scanner>video{display:none}</style></style>
 
-<script src="barkodnik.js"></script>
+<script src="../barkodnik.js"></script>
+
+<img id="img" src="4690485102120.png"/>
+
+<script>
+const scanimg=_=>{ Barkodnik.fromImage(document.getElementById("img")) };
+</script>
 
 </head>
 <body>
-	<button onclick="Barkodnik.Execute()">Scan</button>
+	<button onclick="scanimg()">Scan</button>
 </body>
 </html>

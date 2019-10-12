@@ -3,9 +3,12 @@ const	Barkodnik = (_=>{
 	let	draw,
 		w,
 		h,
-		ofs=0;
+		ofs=0,
+		dump=false;
 
 	const
+	
+	el	= t=>document.createElement(t),
 	
 	Soft	= Y=>Y.map((n,i)=>Y[i]+Y[i+1]),
 	Diff	= Y=>Y.map((n,i)=>Y[i]-Y[i-1]),
@@ -219,6 +222,19 @@ const	Barkodnik = (_=>{
 		
 		return result;
 	},
+
+	fromImage	= img=>{
+		
+		const canvas = document.body.appendChild(el("canvas"));
+		
+		canvas.width	= w = img.width;
+		canvas.height	= h = img.height;
+		
+		context= canvas.getContext('2d');
+		context.drawImage(img,0,0);
+		
+		console.log(fromContext(context,10));
+	}
 	
 	fromContext	=(ctx,lines)=>{
 		
@@ -261,15 +277,14 @@ const	Barkodnik = (_=>{
 	timeout = ms => new Promise(resolve => setTimeout(resolve, ms)),
 
 	Execute	= async where=>{
-		const	el		= t=>document.createElement(t),
-			scanner	= el("scanner"),
+		const	scanner	= el("scanner"),
 			video		= scanner.appendChild(el("video")),
 			canvas	= scanner.appendChild(el("canvas")),
 			deck		= scanner.appendChild(el("div")),
 			dumpbtn	= deck.appendChild(el("button")),
 			cancelbtn	= deck.appendChild(el("button"));
 		
-		dumpbtn.className = "bug_rerport";
+		dumpbtn.className = "bug_report";
 		cancelbtn.className="cancel";
 		(where||document.body).appendChild(scanner);
 					
@@ -277,11 +292,10 @@ const	Barkodnik = (_=>{
 			.then(stream=>video.srcObject=stream);//.catch(reject);
 			
 		const	track	= video.srcObject.getVideoTracks()[0],
-			stop	= e => {track.stop(); scanner.parentNode.removeChild(scanner)},
-			dump	= e => {window.location = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream")};
+			stop	= e => {track.stop(); scanner.parentNode.removeChild(scanner)};
 			
 		cancelbtn.onclick = stop;
-		dumpbtn.onclick = dump;
+		dumpbtn.onclick = _=>{dump=true};
 		
 		video.play();
 		
@@ -296,7 +310,11 @@ const	Barkodnik = (_=>{
 			}
 			if(w){
 				context.drawImage(video,0,0,w,h);
-				decoded=fromContext(context,10);
+				if(dump){
+					window.location = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+					dump=false;
+				}else
+					decoded=fromContext(context,10);
 			}
 			await timeout(25); //paused?1e3:
 		};
@@ -315,7 +333,7 @@ const	Barkodnik = (_=>{
 			
 			at	: y => (y0=y),
 			
-			S	: score =>{
+			S	: score =>{//return;
 					context.beginPath();
 					context.moveTo(0,y0+.5);
 					context.lineTo(w,y0+.5);
@@ -324,7 +342,7 @@ const	Barkodnik = (_=>{
 					context.stroke();
 				},
 			
-			L	: (y0,s,l,c)=>{return;
+			L	: (y0,s,l,c)=>{//return;
 					context.beginPath();
 					context.moveTo(s||0,y0);
 					context.lineTo(l?(s+l):w,y0);
@@ -347,7 +365,7 @@ const	Barkodnik = (_=>{
 					ctx.fillRect(x, y0, x+w, 10);
 				},
 			
-			W	: W	=>{if(!style.W)return;
+			W	: W	=>{if(!style.W)//return;
 					ctx.fillStyle = style.W;		
 					let i=0,x=0;
 					while(i<W.length){
@@ -380,6 +398,7 @@ const	Barkodnik = (_=>{
 	return {
 		Execute,
 		fromContext,
+		fromImage,
 		fromLine,
 		Draw
 	}

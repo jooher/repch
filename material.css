@@ -419,7 +419,8 @@ ul.addaspects {
 scanner {
     position: absolute;
     top: 0;
-    width: 100%;
+    /* margin: auto; */
+    /* width: 100%; */
     text-align: center;
 }
 
@@ -503,3 +504,9 @@ article {
 
 .title:empty::before	{content: "What's the name of this?"; }
 .desc:empty::before	{content: "What kind of thing is this?"; }
+
+scanner>div {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
