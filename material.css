@@ -65,20 +65,16 @@ h6{font:normal 20px Roboto,sans-serif}
 
 
 
-
-
-
 html,body {
-	font: normal 16px Roboto, sans-serif;
+	font: normal 1rem Roboto, sans-serif;
 	height: 100%;
 	padding: 0;
 	margin: 0;
 }
 
 @media(max-width: 38rem){/* orientation:portrait */
-	  body{ max-width:100%; overflow-x: auto; }
-	  .client{ width: 200%;
-	}
+	body{ max-width:100%; overflow-x: auto; }
+	.client{ width: 200%;}
 }
 
 .client {
@@ -93,7 +89,6 @@ page {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    /* border-right: 1px solid whitesmoke; */
 }
 
 roof{
@@ -121,6 +116,28 @@ vault {
     box-shadow: 0 -.5rem .5rem white;
     z-index: 1;
 }
+
+.tabs {
+	position:absolute;
+	bottom:0;
+	left: 1rem;
+	text-transform: uppercase;
+	font-size: .9em;
+}
+
+.tab {
+    display: inline-block;
+    transition: all .5s;
+    padding: .5em;
+    color: rgba(255,255,255,.75);
+    border-bottom: 3px solid transparent;
+}
+
+.tab.selected {
+    border-bottom-color: white;
+    color: white;
+}
+
 
 
 
@@ -185,13 +202,11 @@ input::placeholder {
     cursor: text !important;
     border: none;
     display: block;
-    /* width: 100%; */
     background: no-repeat;
 }
 
 [contenteditable]:focus, [contenteditable]:empty {
 	background: white;
-	/* border-bottom: 1px dashed; */
 }
 
 [contenteditable]:empty::before{
@@ -221,30 +236,6 @@ input.credit {
 
 
 
-.tabs {
-	position:absolute;
-	bottom:0;
-	left: 1rem;
-	text-transform: uppercase;
-	font-size: .9em;
-}
-
-.tab {
-    display: inline-block;
-    transition: all .5s;
-    padding: .5em;
-    color: rgba(255,255,255,.75);
-    border-bottom: 3px solid transparent;
-}
-
-.tab.selected {
-    /* background: white; */
-    border-bottom-color: white;
-    color: white;
-    /* border-bottom: 4px solid white; */
-}
-
-
 ul.entities {
     background: white;
     border-top: none;
@@ -266,11 +257,6 @@ ul.entities>li {
 
 
 
-
-section.top {
-    position: relative;
-}
-
 section.entry {
     width: 100%;
     display: flex;
@@ -279,6 +265,13 @@ section.entry {
 section.opinions {
     text-align: left;
 }
+
+section.entries {
+    text-align: center;
+    text-decoration: underline;
+    color: gray;
+}
+
 
 .title{font-size: 1.35em;margin:.2em 0;}
 
@@ -297,7 +290,6 @@ section.opinions {
 
 .aspect>.summary {
     display: flex;
-    /* vertical-align: bottom; */
 }
 
 .summary>.name{
@@ -365,7 +357,6 @@ stars>stars {
     color: #52f;
     border: 1px solid #52f;
     border-radius: 1em;
-    /* color: lightgray; */
 }
 
 .lists>ul>li.selected {
@@ -376,12 +367,6 @@ stars>stars {
 
 .opinion {
     position: relative;
-}
-
-section.entries {
-    text-align: center;
-    text-decoration: underline;
-    color: gray;
 }
 
 .addaspect {
@@ -413,10 +398,18 @@ ul.aspects {
 .aspects>li {
     /* margin: 1em 0; */
 }
-
-addaspect>li {
-    list-style: :none;
+.aspect>.name::before {
+    content: "★ ";
+    color: #ddd;
 }
+
+
+ul.addaspects {
+    padding: 0;
+    line-height: 1.4;
+    list-style: none;
+}
+
 
 scanner {
     position: absolute;
@@ -435,17 +428,6 @@ scanner>canvas {
     margin: 0 auto;
 }
 
-.aspect>.name::before {
-    content: "★ ";
-    color: #ddd;
-}
-
-
-ul.addaspects {
-    padding: 0;
-    line-height: 1.4;
-    list-style: none;
-}
 
 
 li[ui]:hover {
@@ -457,6 +439,11 @@ a.entry {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.append {
+    margin-top: 4rem;
+    position: relative;
 }
 
 .append>textarea {
@@ -474,17 +461,6 @@ a.entry {
     position: absolute;
     right: 0;
     top: 0;
-}
-
-button.add {
-    /* position: absolute; */
-    /* right: 1rem; */
-    /* top: 1rem; */
-}
-
-.append {
-    margin-top: 4rem;
-    position: relative;
 }
 
 .editables {
