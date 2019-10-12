@@ -324,7 +324,7 @@ const	Barkodnik = (_=>{
 					context.stroke();
 				},
 			
-			L	: (y0,s,l,c)=>{
+			L	: (y0,s,l,c)=>{return;
 					context.beginPath();
 					context.moveTo(s||0,y0);
 					context.lineTo(l?(s+l):w,y0);
