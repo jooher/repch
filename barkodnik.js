@@ -301,7 +301,7 @@ const	Barkodnik = (_=>{
 			.then(stream=>video.srcObject=stream);//.catch(reject);
 			
 		const	track	= video.srcObject.getVideoTracks()[0],
-			stop	= e => {track.stop(); scanner.parentNode.removeChild(scanner)};
+			stop	= e => {track.stop(); scanner.parentNode&&scanner.parentNode.removeChild(scanner)};
 			
 		cancelbtn.onclick = stop;
 		dumpbtn.onclick = _=>{dump=true};

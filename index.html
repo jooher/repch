@@ -113,7 +113,12 @@
 				save	: r => sync(r)	||r,
 				anew
 			}
-		}
+		};
+	
+(stay =>{
+	window.addEventListener('load', stay);
+	window.addEventListener('popstate', stay);
+})(e=>{window.history.pushState({},'')})
 
 	</script>
 	
@@ -230,11 +235,15 @@
 					,'BUTTON.add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
 				)
 				
-				,'entities'.d("? $entities"
+				,'entities'.d("? $entities; $multi="
+					,'multi'.d("? $multi"
+						,'BUTTON.delete'.ui("? (`delete)confirm; ?")
+					)
 					,'UL.entities'.d("; *@ $entities"
-						,'LI'	.d("? (.tagged `-)ne; $=(.entity)db; ! (.title .fallback)?; !? .title:!@fallback")//? .tagged;
-							.a("!? ($ $Entity)eq@selected")
+						,'LI'	.d("? (.tagged `-)ne; $=(.entity)db $marked=; ! (.title .fallback)?; !? .title:!@fallback")//? .tagged;
+							.a("!? ($ $Entity)eq@selected $marked")
 							.ui("$Entity=$")
+							.e("contextmenu","$marked=$marked:! $multi=($multi .entity ( $marked $ :? )?! )multi")
 					)
 				)
 				
@@ -382,6 +391,14 @@
 		flatten	:{ db,
 			"|"	:values=>values.join(":"),
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; ")),
+			
+			multi	:(values,names)=>{
+					const list	=values.pop()||{},
+						key	=values.pop(),
+						item	=values.pop();
+					list[key] = item;
+					return list;
+				},
 			
 			sort	:(ops=>
 					(values,names)=>values.reduce((a,v,i)=>v?ops[v](a,names[i]):a,values.pop())

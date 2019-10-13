@@ -10,7 +10,7 @@
        url(MaterialIcons-Regular.ttf) format('truetype');*/
 }
 
-icon, button
+icon, button, .marked::before
 {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -30,6 +30,8 @@ icon, button
   -moz-osx-font-smoothing: grayscale; 	/* Support for Firefox. */
   font-feature-settings: 'liga';		/* Support for IE. */
 }
+
+.marked::before {content: "check";position: absolute;right:0;top:0;}
 
 icon::before, button::before{
 	content:attr(class)
@@ -253,6 +255,7 @@ ul.entities>li {
     overflow: hidden;
     text-overflow: ellipsis;
     border-bottom: 1px solid #eee;
+    position: relative;
 }
 
 
@@ -510,3 +513,4 @@ scanner>div {
     bottom: 0;
     right: 0;
 }
+
