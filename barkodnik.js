@@ -1,6 +1,7 @@
 const	Barkodnik = (_=>{
 	
 	let	draw,
+		styles={},
 		w,
 		h,
 		ofs=0,
@@ -206,19 +207,26 @@ const	Barkodnik = (_=>{
 	
 	fromLine	=(luma,thresh)=>{
 		
-		const	Y=Soft(luma);
-		//draw.Y(Y,.025);
+		const	Y= w>480?Soft(luma):luma;
+		draw.Y(Y,.025);
 
 		const	diff	= Diff(Y);
 		//draw.Y(diff,.1,"rgba(0,0,100,1)");
 		
-		const	spans	= Spans(diff,thresh||1<<12);
-		draw.W(spans);
+		if(!thresh)
+			thresh=1<<10;
 		
-		const	result=Code.EAN13(spans);
-		draw.T(result.score+"% "+result.code,"black");
+		let	spans, result;
 		
-		result.spans=spans;
+		do{
+			spans = Spans(diff,thresh);
+			draw.W(spans);
+			result=Code.EAN13(spans);
+			result.spans=spans,
+			result.thresh=thresh;
+		}while(result.score<100&&result.score>60&&spans.length>59&&(thresh<<=1<1<<16))
+			
+		draw.T(result.score+"%"+thresh+"  "+result.code,"black");
 		
 		return result;
 	},
@@ -230,22 +238,23 @@ const	Barkodnik = (_=>{
 		canvas.width	= w = img.width;
 		canvas.height	= h = img.height;
 		
-		context= canvas.getContext('2d');
-		context.drawImage(img,0,0);
+		const context= canvas.getContext('2d');
 		
+		context.drawImage(img,0,0);
+
 		console.log(fromContext(context,10));
 	}
 	
 	fromContext	=(ctx,lines)=>{
 		
-		draw	= Draw(ctx,{Y:"rgba(255,255,255,.25)",w:"rgba(255,0,0,.5)"});
-			
 		let	y0	= h/2,
  			besty = y0,
 			step	= y0/lines,
 			best	= null,
 			score =0,
 			tries	= 4;
+			
+		draw	= Draw(ctx,styles);
 			
 		do{
 			for(let i=0; i<lines; i++){
@@ -288,7 +297,7 @@ const	Barkodnik = (_=>{
 		cancelbtn.className="cancel";
 		(where||document.body).appendChild(scanner);
 					
-		await	navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
+		await	navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:640}})
 			.then(stream=>video.srcObject=stream);//.catch(reject);
 			
 		const	track	= video.srcObject.getVideoTracks()[0],
@@ -324,6 +333,7 @@ const	Barkodnik = (_=>{
 		return decoded;//resolve(decoded); //"1234567890122";//
 	},
 
+	setStyles= s=> {styles=s},
 	
 	Draw	= (ctx,style)=>{
 		
@@ -334,28 +344,28 @@ const	Barkodnik = (_=>{
 			at	: y => (y0=y),
 			
 			S	: score =>{//return;
-					context.beginPath();
-					context.moveTo(0,y0+.5);
-					context.lineTo(w,y0+.5);
-					context.strokeStyle = "rgba(255,0,0,"+(score<10?.1:score>100?1:score*.01)+")";			
-					context.lineWidth = 1;
-					context.stroke();
+					ctx.beginPath();
+					ctx.moveTo(0,y0+.5);
+					ctx.lineTo(w,y0+.5);
+					ctx.strokeStyle = "rgba(255,0,0,"+(score<10?.1:score>100?1:score*.01)+")";			
+					ctx.lineWidth = 1;
+					ctx.stroke();
 				},
 			
 			L	: (y0,s,l,c)=>{//return;
-					context.beginPath();
-					context.moveTo(s||0,y0);
-					context.lineTo(l?(s+l):w,y0);
-					context.strokeStyle = c>99?'green':c>6?'red':'rgba(255,0,0,.25)';			
-					context.lineWidth = c>99?l/4:c||1;
-					context.stroke();
+					ctx.beginPath();
+					ctx.moveTo(s||0,y0);
+					ctx.lineTo(l?(s+l):w,y0);
+					ctx.strokeStyle = c>99?'green':c>6?'red':'rgba(255,0,0,.25)';			
+					ctx.lineWidth = c>99?l/4:c||1;
+					ctx.stroke();
 				},
 			
-			I	: x	=>{if(!style.I)return;
+			I	: (x,s)	=>{if(!style.I)return;
 					ctx.beginPath();
 					ctx.moveTo(x+.5,y0);
-					ctx.lineTo(x+.5,y0+10);
-					ctx.strokeStyle = style.I;			
+					ctx.lineTo(x+.5,y0+20);
+					ctx.strokeStyle = s;			
 					ctx.lineWidth = 1;
 					ctx.stroke();
 				},
@@ -365,7 +375,7 @@ const	Barkodnik = (_=>{
 					ctx.fillRect(x, y0, x+w, 10);
 				},
 			
-			W	: W	=>{if(!style.W)//return;
+			W	: W	=>{if(!style.W)return;
 					ctx.fillStyle = style.W;		
 					let i=0,x=0;
 					while(i<W.length){
@@ -393,14 +403,13 @@ const	Barkodnik = (_=>{
 		}
 		
 	};
-	
-	
+		
 	return {
 		Execute,
 		fromContext,
 		fromImage,
 		fromLine,
-		Draw
+		setStyles
 	}
 	
 })();

@@ -429,9 +429,9 @@ scanner>video {
 }
 
 scanner>canvas {
-    display: block;
-    max-width: 100%;
-    margin: 0 auto;
+    /* display: block; */
+    /* max-width: 100%; */
+    /* margin: 0 auto; */
 }
 
 scanner>.deck{
