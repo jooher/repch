@@ -38,8 +38,6 @@ icon::before, button::before{
 }
 
 button{
-	background: #52f;
-	color: white;
 	box-shadow:0 4px 4px rgba(0,0,0,.25);
 	height: 2em;
 	width: 2em;
@@ -98,8 +96,6 @@ roof{
     height:3rem;
     z-index: 1;
     box-shadow: 0 8px 8px rgba(0,0,0,.2);
-    background: #52f;
-    color: white;
     text-align: right;
 }
 
@@ -107,6 +103,11 @@ wall {
     flex: 1;
     position: relative;
     overflow: auto;
+}
+
+attic {
+	display: block;
+	text-align: right;
 }
 
 vault {
@@ -119,7 +120,7 @@ vault {
     z-index: 1;
 }
 
-.tabs {
+tabset {
 	position:absolute;
 	bottom:0;
 	left: 1rem;
@@ -127,19 +128,16 @@ vault {
 	font-size: .9em;
 }
 
-.tab {
+tab {
     display: inline-block;
     transition: all .5s;
     padding: .5em;
-    color: rgba(255,255,255,.75);
     border-bottom: 3px solid transparent;
 }
 
-.tab.selected {
-    border-bottom-color: white;
-    color: white;
+tab.selected {
+    border-bottom-color: inherit;
 }
-
 
 
 
@@ -148,10 +146,6 @@ section{
     position: relative;
 }
 
-
-.entities>.selected {
-    background: #eee;
-}
 
 
 .scanner{
@@ -178,7 +172,7 @@ input.key {
     flex: 1;
     margin-right: .5rem;
     text-align: center;
-    border: 2px solid #52f;
+    border: 2px solid;
     border-radius: 1.5rem;
 }
 
@@ -196,7 +190,6 @@ input[type=number] {
 
 input::placeholder {
     font: italic 1em sans-serif;
-    color: lightslategray;
 }
 
 
@@ -207,12 +200,8 @@ input::placeholder {
     background: no-repeat;
 }
 
-[contenteditable]:focus, [contenteditable]:empty {
-	background: white;
-}
-
 [contenteditable]:empty::before{
-	color:lightgray; font: italic 1em sans-serif; 
+	font: italic 1em sans-serif; 
 }
 
 
@@ -223,12 +212,10 @@ input.credit {
 
 
 .tag.tagged {
-    border-color: #52f;
     border-radius: 1em;
 }
 
 .tag {
-    color: #52f;
     display: inline-block;
     white-space: nowrap;
     margin: .2em;
@@ -239,7 +226,6 @@ input.credit {
 
 
 ul.entities {
-    background: white;
     border-top: none;
     padding: 0;
     margin: 0;
@@ -272,7 +258,6 @@ section.opinions {
 section.entries {
     text-align: center;
     text-decoration: underline;
-    color: gray;
 }
 
 
@@ -280,14 +265,6 @@ section.entries {
 
 .aspect{
     margin: 1em 0;
-}
-
-.aspect>.note {
-    border: none;
-    width:100%;
-    box-sizing:border-box;
-    color: gray;
-    font-style: italic;
 }
 
 
@@ -299,9 +276,6 @@ section.entries {
     flex: 1;
 }
 
-.aspect>.summary>.name {
-    /* font-weight: bold; */
-}
 
 img.stats {
     width: 2em;
@@ -320,30 +294,30 @@ section.info{
 stars {
     display: inline-block;
     position: relative;
-    color: lightgray;
 }
 
 stars:before {
     content:"★★★★★";
 }
-
 stars>stars {
-    color: #6200F8;
     position: absolute;
     top: 0;
     left: 0;
     overflow: hidden;
     pointer-events: none;
+    text-decoration:underline;
 }
 
 .credit>stars {
-    font: normal 1.25em/.8em sans-serif;
-    margin-left: .2em;
+	font: normal 1em/.7em sans-serif;
+	margin-left: .25em;
+	letter-spacing: 2px;
 }
+
+
 
 .note {
     font-style: italic;
-    color: #aaa;
 }
 
 
@@ -362,14 +336,8 @@ wall>.lists {
     display: inline-block;
     padding: .25em .5em;
     margin: .2em;
-    color: #52f;
-    border: 1px solid #52f;
+    border: 1px solid;
     border-radius: 1em;
-}
-
-.lists>ul>li.selected {
-    background: #52f;
-    color: white;
 }
 
 
@@ -400,15 +368,10 @@ wall>.lists {
 ul.aspects {
     padding-left: 1rem;
     list-style: none;
-    /* border-left: 1px solid #ddd; */
 }
 
-.aspects>li {
-    /* margin: 1em 0; */
-}
 .aspect>.name::before {
     content: "★ ";
-    color: #ddd;
 }
 
 
@@ -446,10 +409,6 @@ scanner>.deck{
 
 
 
-li[ui]:hover {
-    background: #eee;
-}
-
 a.entry {
     display: block;
     overflow: hidden;
@@ -469,7 +428,6 @@ a.entry {
     margin: 0;
     box-sizing: border-box;
     font: normal 1rem/1.4 monospace;
-    background: floralwhite;
     border: none;
 }
 
@@ -481,7 +439,6 @@ a.entry {
 
 .editables {
 	padding:1em;
-	background: whitesmoke;
 }
 
 
@@ -494,23 +451,23 @@ article {
 }
 
 .fallback {
-    color: gray;
     font-style: italic;
 }
-
-
-.tabs>.data::before	{ content: "Storage";}
-.tabs>.help::before	{content: "Help";}
-.tabs>.recent::before	{content: "Recent";}
-.tabs>.lists::before	{content:"Lists"}
-.tabs>.categories::before {content:"Categories"}
-
-.title:empty::before	{content: "What's the name of this?"; }
-.desc:empty::before	{content: "What kind of thing is this?"; }
 
 scanner>div {
     position: absolute;
     bottom: 0;
     right: 0;
 }
+
+tab.data::before		{content: "Storage"}
+tab.help::before		{content: "Help"}
+tab.recent::before	{content: "Recent"}
+tab.lists::before		{content: "Lists"}
+tab.categories::before	{content: "Categories"}
+
+.title:empty::before	{content: "What's the name of this?"; }
+.desc:empty::before	{content: "What kind of thing is this?"; }
+
+
 
