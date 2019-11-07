@@ -1,0 +1,11 @@
+tab.data::before		{content: "Storage"}
+tab.help::before		{content: "Help"}
+tab.lists::before		{content: "Lists"}
+tab.categories::before	{content: "Categories"}
+
+li.recent::before	{content: "Recent"}
+li.offers::before	{content: "Offers"}
+li.recent::before	{content: "Recent"}
+
+.title:empty::before	{content: "What's the name of this?"; }
+.desc:empty::before	{content: "What kind of thing is this?"; }

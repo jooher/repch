@@ -10,7 +10,7 @@
        url(MaterialIcons-Regular.ttf) format('truetype');*/
 }
 
-icon, button, .marked::before
+icon, button, .checked::before
 {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -31,10 +31,10 @@ icon, button, .marked::before
   font-feature-settings: 'liga';		/* Support for IE. */
 }
 
-.marked::before {content: "check";position: absolute;right:0;top:0;}
+.checked::before {content: "check";position: absolute;right:0;top:0;}
 
-icon::before, button::before{
-	content:attr(class)
+icon::before, button::before, action:empty::before{
+	content:attr(class);
 }
 
 button{
@@ -44,6 +44,13 @@ button{
 	border:none;
 	border-radius:50%;
 	z-index: 1;
+}
+
+action{
+	display: inline-block;
+	margin: 1rem 0 0 1rem;
+	text-transform:uppercase;
+	letter-spacing: .1em;
 }
 
 input, button {outline:none}
@@ -102,12 +109,26 @@ roof{
 wall {
     flex: 1;
     position: relative;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    /* overflow: auto; */
+    /* margin-top: 1rem; */
 }
 
-attic {
-	display: block;
-	text-align: right;
+attic>bar {
+	/* position: fixed; */
+	/* top: 0; */
+	/* width: 100%; */
+	height: 3rem;
+	/* padding: 1rem; */
+	background: floralwhite;
+	/* color: #52f; */
+	/* z-index: 1; */
+	display: flex;
+	flex-direction: row;
+	/* font-size: .8rem; */
+	/* margin: 1rem; */
+	/* text-align: right; */
 }
 
 vault {
@@ -142,7 +163,7 @@ tab.selected {
 
 
 section{
-    padding: 1rem;
+    margin: 2rem 1rem;
     position: relative;
 }
 
@@ -232,6 +253,7 @@ ul.entities {
     text-align: left;
     width: 100%;
     flex: 1;
+    overflow-y: auto;
 }
 
 ul.entities>li {
@@ -240,7 +262,7 @@ ul.entities>li {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    border-bottom: 1px solid #eee;
+    border-top: 1px solid #eee;
     position: relative;
 }
 
@@ -264,7 +286,8 @@ section.entries {
 .title{font-size: 1.35em;margin:.2em 0;}
 
 .aspect{
-    margin: 1em 0;
+    /* margin: 1em 0; */
+    /* line-height: 2; */
 }
 
 
@@ -281,6 +304,7 @@ img.stats {
     width: 2em;
     height: 1em;
     vertical-align: bottom;
+    display: none;
 }
 
 section.info{
@@ -321,18 +345,13 @@ stars>stars {
 }
 
 
-wall>.lists {
-    margin: 1em;
-    position: relative;
+attic {
+    /* padding: .5rem; */
+    margin: 0;
+    background: linen;
 }
 
-.lists>ul {
-	margin: 0;
-	padding: 0;
-	position: relative;
-}
-
-.lists>ul>li {
+.lists>li {
     display: inline-block;
     padding: .25em .5em;
     margin: .2em;
@@ -342,6 +361,7 @@ wall>.lists {
 
 
 .opinion {
+    margin: 1em 0;
     position: relative;
 }
 
@@ -377,7 +397,7 @@ ul.aspects {
 
 ul.addaspects {
     padding: 0;
-    line-height: 1.4;
+    /* line-height: 1.4; */
     list-style: none;
 }
 
@@ -419,6 +439,7 @@ a.entry {
 .append {
     margin-top: 4rem;
     position: relative;
+    line-height: 2em;
 }
 
 .append>textarea {
@@ -431,7 +452,7 @@ a.entry {
     border: none;
 }
 
-.lists>button, .append>button {
+.append>icon {
     position: absolute;
     right: 0;
     top: 0;
@@ -460,14 +481,28 @@ scanner>div {
     right: 0;
 }
 
-tab.data::before		{content: "Storage"}
-tab.help::before		{content: "Help"}
-tab.recent::before	{content: "Recent"}
-tab.lists::before		{content: "Lists"}
-tab.categories::before	{content: "Categories"}
+.tick {
+    position: absolute;
+    right: 0;
+    width: 3em;
+    height: 100%;
+    top: 0;
+    color: black;
+}
 
-.title:empty::before	{content: "What's the name of this?"; }
-.desc:empty::before	{content: "What kind of thing is this?"; }
+bar>.multi {
+    /* position: absolute; */
+    /* right: 0; */
+    /* top: 0; */
+    flex: 1;
+    text-align: end;
+}
 
+.entities {
+    flex: 1;
+}
 
-
+wall>.entities {
+    display: flex;
+    flex-direction: column;
+}

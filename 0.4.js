@@ -975,7 +975,7 @@ const	dap=(Env=>
 				
 					const	$	= node.$,
 						$0	= $[0],
-						defs	= !snitch&&d.defs,
+						defs	= !snitch&&d&&d.defs,
 						uses	= d&&d.uses,
 						affs	= a&&a.uses;
 						
@@ -1307,7 +1307,7 @@ const	dap=(Env=>
 		},
 		
 		consume	=(request)=>{
-			//if(Math.floor(request.status/100)!=2)return;
+			if(Math.floor(request.status/100)!=2)return;
 			const	ctype=request.getResponseHeader('content-type'),
 				handle=ctype&&MimeHandlers[ctype.split(";")[0]];
 			return	handle ? handle(request) : request;

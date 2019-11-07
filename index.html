@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" /> 
 	<link rel="stylesheet" href="material.css"/>
 	<link rel="stylesheet" href="colors.css"/>
+	<link rel="stylesheet" href="lang-en.css"/>
 	
 	
 	<link rel="manifest" href="manifest.json"/>
@@ -85,7 +86,11 @@
 				stampname=key+"_stamp";
 				
 			const
-			ixrow	= r=>index[r[key]||(r[key]=uid())]=r,
+			
+			keys	= key.indexOf("-")>0 && key.split("-"),
+			ixkey	= r=>keys?keys.map(k=>r[k]).join("|"):uid(),
+			
+			ixrow	= r=>index[r[key]||(r[key]=ixkey(r))]=r,
 			ixset	= s=>{ s.forEach&&s.length&&s.forEach(ixrow); },
 			flush	= _=>{
 					order=order.filter(r=>index[r[key]]==r && r.TIME);
@@ -104,8 +109,8 @@
 				}
 				if(r){
 					r.TIME=Date.now();
-					order.push(r);
 					ixrow(r);
+					order.push(r);
 					stamp++;
 				}
 				if(stamp>saved){ //save /// TODO: delay this stuff to page leave/enter
@@ -123,6 +128,7 @@
 				save	: r => sync(r)	||r,
 				
 				kill	: m => index[m].TIME=null,
+				killr	: r => index[r[key]||ixkey(r)]=null
 			}
 	};
 				
@@ -187,7 +193,7 @@
 <script>
 	"use strict";
 
-	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui(".what=#:text").FOR({what}), //!! dict.editable.what@title 
+	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui("? (.what .what=#:text)ne").FOR({what}), //!! dict.editable.what@title 
 		input	= what =>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
 		
 		grab	= src	=> [...src.children].reduce((a,n)=>{if(n.id)a[n.id]=src.removeChild(n); return a},{}),
@@ -217,78 +223,96 @@
 								
 							return	!a&&!v ? reset(values,tags) :			// ( @ ... ) anew... 
 									!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
-									!v ? save(T(a),values) :						// ( @key $row1 $row2 ... )
+									!v&&!t ? save(T(a),values) :						// ( @key $row1@ $row2@ ... )
 									!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :		// ( $key `t1 `t2 ... )
-									values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... )
+									values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... ) | (@key $x $y)
 						},
 						
-					multi:(actions=>(values,tags)=>{
-							const key=values.pop();
-							values.forEach((m,i)=>actions[tags[i]](key,m));
-						})({
-							'del'	: (key,m)=>{const t=T(key); for(let i in m)t.kill(i); t.flush();},
-							'add'	: (key,m)=>{const t=T(key); m.forEach(r=>t.save(r));}
-						})
+					multi	:(values,tags)=>{
+							const add=values.pop(),
+								key=tags[values.length],//actions[],
+								mul=values.pop();
+								
+							if(mul&&mul.length){
+								const	ite=tags[values.length],
+									tail=values.length&&dap.Util.hash(values,tags),
+									t = T(key);
+								mul.forEach(r=>{
+									const row={[ite]:r};
+									if(tail)
+										Object.assign(row,tail);
+									add
+										?t.save(row)
+										:t.killr(row);
+								});
+								t.flush();
+							}
+						}
 				}
 			})()
 			
 	;
 
-	'client'.d("$tab= $Entity=; $entries= $aspects= $entities= $opinions= $cats= $lists= $listentities="
+	'client'.d("$Entity=; $aspects= $entities= $opinions= $lists!= $entities!="
 	
-		,'PAGE.nav'.d(""
+		,'PAGE.nav'.d("$tab=`lists"
 		
 			,'ROOF'.d(""
-				,'TABSET'.d("*@tab :split`recent,lists,categories"//
+				,'TABSET'.d("*@tab :split`lists,categories"//
 					,'TAB'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
-				)
-				.u("?? $tab@recent; $lists= $entities=( (`entity)db @TIME`dsc )sort")
-				.u("?? $tab@lists; $entities= $lists=(`list)db")
-				
+				)				
 				,'ICON.settings'.ui("$Entity=")
 			)
 			
-			,'WALL'.d(""
+			,'WALL'.d("?? $tab@lists; $list= $checked=$:checked.set,??"
 			
-				,'lists'.d("? $lists; $list="
-					,'UL'.d("*@ $lists"
+				,'ATTIC'.d(""
+				
+					,'UL.lists'.d(""
+						,'LI.recent'.d("a!").ui("$list=`recent").a("!? (`recent $list)eq@selected")
+						//,'LI.favorite'.ui()
+						,'LI.offers'.ui()
+					)
+				
+					,'UL.lists'.d("$lists!; * (`list)db"
 						,'LI'.d("! .title; a!")
 						.a("!? (.list $list)eq@selected")
-						.ui("$list=. $entities=( (`listentity $list)db @TIME`dsc )sort")//
+						.ui("$list=.; {? $:checked.set,??; ? (`addtolist)confirm; (:!@list-entity .entity:checked.set .list)dbmulti}")//
 					)
-					,'BUTTON.add'.ui("? .title=(dict.prompt.addlist)prompt; $lists=(@list (.title))db")
-				)
-				
-				,'entities'.d("? $entities; $multi="
-					,'ATTIC'
-						.d("? $multi"
-							,'ICON.delete'.ui("? (`delete)confirm; (`entity $multi@del)dbmulti")
-							//,'ICON.remove_circle'.ui("? (`removefromlist)confirm; (`listentity $multi@del)dbmulti")
-							//,'ICON.add_circle'.ui("? .list (`addto)prompt; ?")
-						)
-						.d("? $multi:! "
-							,'ICON.share'.ui()
-						)
-					,'UL.entities'.d("*@ $entities"
-						,'LI'	.d("? .TIME; $=(.entity)db $marked=; ! (.title .fallback)?; !? .title:!@fallback")//? .tagged;
-							.a("!? ($ $Entity)eq@selected $marked")
-							.ui("$Entity=$")
-							.e("contextmenu","$marked=$marked:! $multi=($multi .entity ( $marked $ :? )?! )multi")
+					
+					,'BAR'.d(""
+						,'ICON.add_circle'.ui("? .title=(dict.prompt.addlist)prompt; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
+						,'ICON.share'.ui()
+						,'multi'.d("? $checked"
+							,'ICON.remove_circle_outline'.ui("? (`removefromlist)confirm; (@list-entity .entity:checked.set $list)dbmulti")
+							,'ICON.delete'.ui("? (`delete)confirm; (@entity $:checked.set)dbmulti")
+							,'ICON.clear'.ui("$checked=$:checked.clear")
+						).u("$entities!=()")
 					)
 				)
 				
-				,'hint'
-					.d("? ($lists:!! $entities:!!)!; ! html.welcome")
-					.d("? ($lists:!! $entities:?!)!; ! html.about-recent")
-					.d("? $lists:?!; ! html.about-lists")
-					.d("? ($lists:?? $entities:!)!; ! html.about-listitems")
+				,'UL.entities'.d("$entities!; *@ ( (`list-entity $list)db @TIME`dsc )sort"
+					,'LI'	.d("? .TIME; $=(.entity)db; ! (.title .fallback)?; !? .title:!@fallback"
+						,'tick'
+						.d ("!?@checked .entity:checked.?")
+						.ui("$checked=.entity:checked.!; !?@checked .entity:checked.?; ?")
+					)
+					.a("!? ($ $Entity)eq@selected")
+					.ui("$Entity=$")
+					//.e("contextmenu",)	
+				)
+				
+				,'ARTICLE'
+					//.d("? $lists:!! $entities:?!)!; ! html.about-recent")
+					.d("? $list:!; ! html.about-lists")
+					//.d("? $lists:??; ! html.about-listitems")
 			)
 			
 			,'VAULT'.d("$?= $entry="
-				,'INPUT.key'.ui("log $entry=#:value,scope.guess")//.d("textonly")
+				,'INPUT.key'.d("!! $entry@value").ui("log $entry=#:value,scope.guess")//.d("textonly")
 				,'BUTTON.camera'.ui("log $entry=#:scan,scope.guess")
 		
-			).u("? $entry; ? .Entry=($entry)db .Entry=($entry .entity=():?uid)db; ? $Entity=(.Entry.entity)db $Entity=(.Entry.entity $entry@fallback .timestamp:timestamp)db") /// <--tweak this
+			).u("? $entry; ? $Entity= .Entry=($entry)db ($Entity=(@entity $entry@fallback)db .Entry=(@entry $entry $Entity.entity)db)!; ? $Entity $Entity=(.Entry.entity)db; (@list-entity @list`recent $Entity.entity)db; log $entry=") /// $Entity=(server@ $entry)uri:query 
 		)
 		
 		,'PAGE.other'.d("? $Entity:!; scroll #; $tab="
@@ -300,15 +324,15 @@
 			)
 			
 			,'WALL'
-			.d("? $tab:!; ! html.promo")
-			.d("?? $tab@data"
-				,'cleardb'.d("! `Clear").ui("? (dict.cleardb)confirm; (@)db")
-			)
+			.d("? $tab:!; ! html.welcome")
 			.d("?? $tab@help; ! html.help")
+			.d("?? $tab@data"
+				,'cleardb'.d("! `Clear").ui("? (dict.cleardb)confirm; storage.clear")//(@)db
+			)
 			
 		)
 		
-		,'PAGE.entity'.d("? $Entity; scroll #; * $Entity@"
+		,'PAGE.entity'.d("? $Entity; scroll #; * $Entity@"//; (`list-entity @list`recent .entity)db
 		
 			,'ATTIC'.d(""
 				,'ICON.share'.ui("( `share )alert")
@@ -319,34 +343,34 @@
 				,'editables'.d(""
 					,edit("title").d("textonly; focus .title:!")
 					,edit("desc").d("textonly; focus (.title .desc:!)!")
-				).u("(@entity $)db")
+				).u("(@entity $)db $entities!=()")
 				
-				,'SECTION.tags'.d("$lists; * (`list)db"
+				,'SECTION.tags'.d("$lists!; * (`list)db"
 					,'tag'
-					.d("! .title; .?=(.listentity=(.list .entity=$Entity.entity)|)db $tagged=.?.; a!")
+					.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
 					.a("!? $tagged")
-					.ui("(.listentity .list .entity $tagged:?uid=$tagged:!)db")
+					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")
 				)
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
-				,'SECTION.opinions'.d("$?="
+				,'SECTION.opinions'.d("$?=  $aspects!="
 				
-					,'present'.d("$opinions; * (`opinion .entity)db"
-						,'opinion'.d("! Aspect").u("(@opinion $)db")
+					,'present'.d("$aspects!; * (`entity-aspect .entity)db"
+						,'opinion'.d("! Aspect").u("(@entity-aspect $)db")
 					)
 					
 					,'append'.d("? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
 					
 						,'UL.addaspects'
 							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")//@items
-							.u("$?= .aspect=$!. $opinions=( (.entity .aspect)|@opinion .entity .aspect)db; { ? .desc:!; .desc=$!.category (`entity $)db }; $!=")//$opinions=()
+							.u("$?= $aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }; $!=")//$opinions=() //
 							
 						,'TEXTAREA'.d("? $edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
 						
-						,'BUTTON'.d("!class ($edit:# @+`done @-`edit)case").ui("$edit=$edit:!")
+						,'ICON'.d("!class ($edit:# @+`done @-`edit)case").ui("$edit=$edit:!")
 					)
 				)
 			)
@@ -354,6 +378,8 @@
 	)
 
 	.DICT({
+	
+		server	:"https://cookstat.dapmx.org/repch/query.php?",
 		
 		Aspect	: 'aspect'.d("$?="
 				,'summary'.d(""
@@ -367,7 +393,7 @@
 					)
 					,'note contenteditable'
 						.d("? (.note $?)?; ! .note; focus (.note:! $?)!")
-						.ui(".note=#:text")//? (.note .publicnote:!)?;
+						.ui("? (.note .note=#:text)ne")//? (.note .publicnote:!)?;
 				).u("$?=")
 			),
 
@@ -422,15 +448,20 @@
 			db	:db.basic,
 			dbmulti:db.multi,
 			
-			"|"	:values=>values.join(":"),
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; ")),
-			
+/*			
 			multi	:(values,names)=>{
 					const list	=values.pop()||{},
 						key	=values.pop(),
 						item	=values.pop();
 					list[key] = item;
 					return list;
+				},
+*/				
+			alter	:(values,names)=>{
+					const	src	=values.pop(),
+						tail	=dap.Util.hash(values,names);
+					return src&&src.map(row=>Object.assign(row,tail));
 				},
 				
 			sort	:(ops=>
@@ -449,6 +480,14 @@
 			split		: str		=> str.split(/,/g),
 			share		: data	=> window.navigator.share ? window.navigator.share(data) : alert("Can't share"),
 			
+			checked	: ((set,count)=>({
+						"?"	: key	=> set[key],
+						"!"	: key => (set[key]=set[key]?null:Date.now())? ++count : --count,
+						all	: _=>Object.keys(set),
+						set	: _=>Object.keys(set).filter(k=>set[k]),
+						clear	: _=>{ set={}; count=0 }
+					}))({},0),
+			
 			
 			timestamp	: _ => +Date.now(),
 			
@@ -461,11 +500,11 @@
 							],
 							
 						nonweb={
-								EAN13		:/^\d{13}$/
+								gtin		:/^\d{13}$/
 							},
 							
 						redir	={
-								EAN13		: gtin=>"http://srs.gs1ru.org/id/gtin/"+gtin,
+								gtin		: gtin=>"http://srs.gs1ru.org/id/gtin/"+gtin,
 								youtube	: v	=>"https://youtu.be/"+v, // https://www.youtube.com/watch?v=
 								facebook	: id	=>"https://www.facebook.com/"+id
 							};
