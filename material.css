@@ -402,32 +402,6 @@ ul.addaspects {
 }
 
 
-scanner {
-    position: absolute;
-    top: 0;
-    /* margin: auto; */
-    /* width: 100%; */
-    text-align: center;
-}
-
-scanner>video {
-    display: none;
-}
-
-scanner>canvas {
-    /* display: block; */
-    /* max-width: 100%; */
-    /* margin: 0 auto; */
-}
-
-scanner>.deck{
-	position:absolute;
-	bottom:0;
-	right:0;
-	text-align:right;
-}
-
-
 
 a.entry {
     display: block;
@@ -475,12 +449,6 @@ article {
     font-style: italic;
 }
 
-scanner>div {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-}
-
 .tick {
     position: absolute;
     right: 0;
@@ -491,9 +459,6 @@ scanner>div {
 }
 
 bar>.multi {
-    /* position: absolute; */
-    /* right: 0; */
-    /* top: 0; */
     flex: 1;
     text-align: end;
 }
@@ -506,3 +471,33 @@ wall>.entities {
     display: flex;
     flex-direction: column;
 }
+
+
+scanner>div {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+scanner {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    text-align: center;
+}
+
+scanner>video {
+    display: none;
+}
+
+scanner>canvas {
+    max-width: 100%;
+}
+
+scanner>.deck{
+	position:absolute;
+	bottom:0;
+	right:0;
+	text-align:right;
+}
+
+
