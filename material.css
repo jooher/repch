@@ -114,7 +114,7 @@ wall {
     position: relative;
     display: flex;
     flex-direction: column;
-    /* overflow: auto; */
+    overflow-y: auto;
     /* margin-top: 1rem; */
 }
 
@@ -477,7 +477,6 @@ wall>.entities {
 }
 
 .modal {
-	/* font: initial; */
 	position: fixed;
 	left: 0;
 	right: 0;

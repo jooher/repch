@@ -367,7 +367,7 @@
 					,'tag'
 					.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
 					.a("!? $tagged")
-					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")
+					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
 				)
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
@@ -386,12 +386,12 @@
 							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")//@items
 							.u("$?= $aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }; $!=")//$opinions=() //
 							
-						,'TEXTAREA'.d("? $edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
+						,'TEXTAREA'.d("? $edit; ! $aspects; autoindent").ui("( @custom`aspects $aspects=#:value@value )db; log `textarea")
 						
 						,'ICON'.d("!class ($edit:# @+`done @-`edit)case").ui("$edit=$edit:!")
 					)
 				)
-			)
+			).u("(@list-entity @list`recent .entity)db")
 		)
 	)
 
@@ -492,7 +492,25 @@
 						node.scrollIntoView({behavior:"smooth",inline:"end"});
 					},200);
 				},
-			textonly:(value,alias,node)=>node.addEventListener('paste', textOnly)
+				
+			textonly:(value,alias,node)=>node.addEventListener('paste', textOnly),
+			autoindent:(value,alias,node)=>{
+				node.addEventListener('keyup', function(v){
+					if(v.keyCode != 13 || v.shiftKey || v.ctrlKey || v.altKey || v.metaKey)return;
+					
+					const	val	= this.value,
+						pos	= this.selectionStart,
+						line	= val.slice(val.lastIndexOf('\n', pos - 2) + 1, pos - 1),
+						indent = /^\s*/.exec(line)[0],
+						st = this.scrollTop;
+						
+					if(!indent) return;
+					this.value = val.slice(0, pos) + indent + val.slice(this.selectionEnd);
+					this.selectionStart = this.selectionEnd = pos + indent.length;
+					this.scrollTop = st;
+				}, false);			
+			}
+			
 
 		},
 		flatten	:{
