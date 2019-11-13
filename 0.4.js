@@ -82,8 +82,8 @@ const	dap=(Env=>
 		"a!"	:(value,alias,node)=> 	{ Execute.a(value||node); },
 		"u!"	:(value,alias,node)=>	{ Execute.u(value||node); },
 		"d"	:(value,alias,node)=>	{ Execute.Rebuild(value||node) },
-		"a"	:(value,alias,node)=>	{ Env.delay(()=>Execute.a(alue||node,alias)) },
-		"u"	:(value,alias,node)=>	{ Env.delay(()=>Execute.u(value||node,alias)) }, //{ Execute.After.put(Execute.u,); },//{ Execute.u(value||node); }, //
+		"a"	:(value,alias,node)=>	{ Env.delay(_=>Execute.a(value||node,alias)) },
+		"u"	:(value,alias,node)=>	{ Env.delay(_=>Execute.u(value||node,alias)) }, //{ Execute.After.put(Execute.u,); },//{ Execute.u(value||node); }, //
 		
 		"*"	:(value,alias)=>	value && (alias?value.map(v=>Box(v,alias)):value), //!value ? false : !alias ? value : Dataset.mapGrid( alias.split(","), value ),
 		"?"	:(value,alias)=>	!!value,
@@ -743,7 +743,7 @@ const	dap=(Env=>
 						new Branch($,node,this.up).execBranch(step.branch); // node.$ ?
 						if(postpone){
 							postpone.branch=this;
-							postpone.todo=[postpone.todo,todo[1]];
+							postpone.todo=[{branch:postpone.todo},todo[1]];
 							return;
 						}
 					}else{										
@@ -754,7 +754,7 @@ const	dap=(Env=>
 							values	= step.values,
 							tags	= step.tags;
 
-						let	i	= tokens.length;
+						let	i	= tokens ? tokens.length : 0;
 							
 						while(i-- && !flow){
 							// null		- keep on
@@ -803,7 +803,7 @@ const	dap=(Env=>
 				let	converts= token.converts,
 					parts	= token.parts;
 			
-				let	value	= token.value || null, // might had been set as async target
+				let	value	= token.value, // || null, // might had been set as async target
 					p	= parts.length-1,
 					rvalue	= value==null && parts[p],
 					convert	= converts[p];
@@ -856,11 +856,6 @@ const	dap=(Env=>
 						
 						if(proto)
 							Print(proto,null,this.node,ctx(value,this.$,this.$[2],this.$[0]['']));
-		/*				{	
-							value['']=this.$[0][''];
-							Print(proto,null,this.node,[{'':value},this.$,this.$[2]]);
-						}
-*/						
 					}
 					
 				}
@@ -1037,7 +1032,7 @@ const	dap=(Env=>
 						After.hold();
 						Perf("work: "+this.info,Date.now(),
 							this.branch.up
-							?this.branch.checkUp(this.instead,this.todo)
+							?this.branch.checkUp(this.instead,this.todo) /// [0] hack
 							:this.branch.runDown(this.todo,this.place,this.instead)
 						);
 						After.run();

@@ -14,7 +14,11 @@
 	<link rel="manifest" href="manifest.json"/>
 	
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+
 		
+	<script src="0.4.js"></script>
+
 	<script src="barkodnik.js"></script>
 	<script src="untab-.js"></script>
 	
@@ -44,7 +48,7 @@
 		e.preventDefault();
 		e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
 	},
-	
+
 	Starbar	= function(proto,bars){
 
 		proto.appendChild(proto.cloneNode(false));
@@ -130,9 +134,78 @@
 				kill	: m => index[m].TIME=null,
 				killr	: r => index[r[key]||ixkey(r)]=null
 			}
-	};
+	},
+
+
+//
+	db	=(function(){ // dap wrapper for Persist object
 				
-		
+			const	P	= Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
+				tables= {},
+				T	= key=> tables[key]||(tables[key]=P(key)),
+				detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
+				
+				filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
+				join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
+				save	= (table,values)		=> { values.forEach(r=>table.save(detach(r)))||table.data()},
+				reset	= (values,tags)		=> { values.length ? values.forEach((v,i)=>T(tags[i]).anew(v)) : Object.keys(tables).forEach(t=>tables[t].anew()); };
+				
+			return	{ P,T,
+			
+				basic	:(values,tags)=>{
+						const	v=values.pop(),
+							c=values.length,
+							t=c&&tags[c-1],
+							a=tags[c];
+							
+						return	!a&&!v ? reset(values,tags) :			// ( @ ... ) anew... 
+								!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
+								!v&&!t ? save(T(a),values) :						// ( @key $row1@ $row2@ ... )
+								!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :		// ( $key `t1 `t2 ... )
+								values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... ) | (@key $x $y)
+					},
+					
+				multi	:(values,tags)=>{
+						const add=values.pop(),
+							key=tags[values.length],//actions[],
+							mul=values.pop();
+							
+						if(mul&&mul.length){
+							const	ite=tags[values.length],
+								tail=values.length&&dap.Util.hash(values,tags),
+								t = T(key);
+							mul.forEach(r=>{
+								const row={[ite]:r};
+								if(tail)
+									Object.assign(row,tail);
+								add
+									?t.save(row)
+									:t.killr(row);
+							});
+							t.flush();
+						}
+					}
+			}
+		})(),
+
+	Await	={
+		convert:{
+			wait	: $=>$.$post=new dap.Execute.Postpone()
+		},
+		operate:{
+			value:(value,name,node)=>{
+				const $0=node.$[0][""],
+					post=$0.$post;
+				if(post)post.resolve(value);
+				else $[0][name||"value"]=value;
+			},
+			kill:(value,name,node)=>{ (value||node).remove(); }
+		}
+	}
+;
+	
+
+					
 // prevent from exit by back button
 (stay =>{
 	window.addEventListener('load', stay);
@@ -185,72 +258,17 @@
 		<h3>Recent items</h3>
 		<p>Here, you will see items you recently interacted with.</p>
 	</article>
-
+	
 </div>
 
-<script src="0.4.js"></script>
-
 <script>
-	"use strict";
-
 	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui("? (.what .what=#:text)ne").FOR({what}), //!! dict.editable.what@title 
 		input	= what =>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
 		
 		grab	= src	=> [...src.children].reduce((a,n)=>{if(n.id)a[n.id]=src.removeChild(n); return a},{}),
 
-		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} ),
+		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
 		
-		db	=(function(){ // dap wrapper for Persist object
-					
-				const	P	= Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
-					tables= {},
-					T	= key=> tables[key]||(tables[key]=P(key)),
-					detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
-					
-					filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
-					join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
-					save	= (table,values)		=> { values.forEach(r=>table.save(detach(r)))||table.data()},
-					reset	= (values,tags)		=> { values.length ? values.forEach((v,i)=>T(tags[i]).anew(v)) : Object.keys(tables).forEach(t=>tables[t].anew()); };
-					
-					
-				return	{ P,T,
-				
-					basic	:(values,tags)=>{
-							const	v=values.pop(),
-								c=values.length,
-								t=c&&tags[c-1],
-								a=tags[c];
-								
-							return	!a&&!v ? reset(values,tags) :			// ( @ ... ) anew... 
-									!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
-									!v&&!t ? save(T(a),values) :						// ( @key $row1@ $row2@ ... )
-									!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :		// ( $key `t1 `t2 ... )
-									values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... ) | (@key $x $y)
-						},
-						
-					multi	:(values,tags)=>{
-							const add=values.pop(),
-								key=tags[values.length],//actions[],
-								mul=values.pop();
-								
-							if(mul&&mul.length){
-								const	ite=tags[values.length],
-									tail=values.length&&dap.Util.hash(values,tags),
-									t = T(key);
-								mul.forEach(r=>{
-									const row={[ite]:r};
-									if(tail)
-										Object.assign(row,tail);
-									add
-										?t.save(row)
-										:t.killr(row);
-								});
-								t.flush();
-							}
-						}
-				}
-			})()
-			
 	;
 
 	'client'.d("$Entity=; $aspects= $entities= $opinions= $lists!= $entities!="
@@ -277,17 +295,17 @@
 					,'UL.lists'.d("$lists!; * (`list)db"
 						,'LI'.d("! .title; a!")
 						.a("!? (.list $list)eq@selected")
-						.ui("$list=.; {? $:checked.set,??; ? (`addtolist)confirm; (:!@list-entity .entity:checked.set .list)dbmulti}")//
+						.ui("$list=.; ? $:checked.set,?! Ask(dict.addtolist@):wait,! (:!@list-entity .entity:checked.set .list)dbmulti ")//
 					)
 					
 					,'BAR'.d(""
-						,'ICON.add_circle'.ui("? .title=(dict.prompt.addlist)prompt; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
+						,'ICON.add_circle'.ui("? .title=Ask(dict.createlist@):wait; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
 						,'ICON.share'.ui()
 						,'multi'.d("? $checked"
-							,'ICON.remove_circle_outline'.ui("? (`removefromlist)confirm; (@list-entity .entity:checked.set $list)dbmulti")
-							,'ICON.delete'.ui("? (`delete)confirm; (@entity $:checked.set)dbmulti")
-							,'ICON.clear'.ui("$checked=$:checked.clear")
-						).u("$entities!=()")
+							,'ICON.remove_circle_outline'.ui("? Ask(dict.remove@):wait; (@list-entity .entity:checked.set $list)dbmulti")//
+							,'ICON.delete'.ui("? Ask(dict.delete@):wait; (@entity $:checked.set)dbmulti")
+							,'ICON.clear'.ui("")//ui("")
+						).u("$checked=$:checked.clear $entities!=()")
 					)
 				)
 				
@@ -327,7 +345,7 @@
 			.d("? $tab:!; ! html.welcome")
 			.d("?? $tab@help; ! html.help")
 			.d("?? $tab@data"
-				,'cleardb'.d("! `Clear").ui("? (dict.cleardb)confirm; storage.clear")//(@)db
+				,'cleardb'.d("! `Clear").ui("? Ask(dict.cleardb@):wait; storage.clear")//(@)db
 			)
 			
 		)
@@ -356,7 +374,7 @@
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
-				,'SECTION.opinions'.d("$?=  $aspects!="
+				,'SECTION.opinions'.d("$?= $aspects!="
 				
 					,'present'.d("$aspects!; * (`entity-aspect .entity)db"
 						,'opinion'.d("! Aspect").u("(@entity-aspect $)db")
@@ -380,7 +398,7 @@
 	.DICT({
 	
 		server	:"https://cookstat.dapmx.org/repch/query.php?",
-		
+
 		Aspect	: 'aspect'.d("$?="
 				,'summary'.d(""
 					,'name'.d("! .aspect").ui("$?=$?:!; ?")
@@ -405,22 +423,47 @@
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
-					
+
+
+/*					
+		Confirm	: 'modal'.d("top"
+					,'dialog'.d(""
+						,'title'.d("! (.title .message)?")
+						,'details'.d("! .details")
+						,'actions'.d(""
+							,'ACTION.cancel'.ui("value :?")
+							,'ACTION.ok'.d("! .action").ui("value .action@")
+						)
+					)
+				).ui("kill; ?"),
+*/
+
+		Ask	: 'modal'.d("top; $value="
+					,'scrim'.ui("$value=")
+					,'dialog'.d(""
+						,'title'.d("! (.title .message)?")
+						,'details'.d("! .details")
+						,'INPUT'.d("? .pattern; !! .pattern; focus #")
+							.e("input","$value=#:value; ?")
+							.ui("? $value")
+						,'actions'.d(""
+							,'ACTION.cancel'.ui("$value=")
+							,'ACTION.ok'.d("! .action")
+								.a("!? (.pattern $value:!)!@disabled")
+								.ui("value ($value .action)?")//
+						)
+					)
+				).u("value $value; kill; ?"),
+
+
+		
 		dict	:{
-			cleardb	:"Sure to clear all data?",
-/*			barcode	:"barcode",
-			editable:{
-				title	:"Entity title",
-				credit:"Credit",
-				note	:"Note",
-				aspects	:"Applicable aspects"
-			},
-			
-			tabs	: dataset(
-					["tab","title"],
-					[["lists","Списки"],["cats","Категории"],["settings","Настройки"]]
-				)
-			*/
+			createlist	:{title:"Create a new list",details:"What will be its name?",pattern:".*",action:"Create list"},
+			addtolist	:{title:"Add entities to the list?",details:"Marked entities can be now added to the list you selected.",action:"Add to list"},
+			remove	:{title:"Remove entities?",details:"Marked entities will be removed from this list only. They will remain in other list and in the history.",action:"Remove"},
+			"delete"	:{title:"Delete entities?",details:"Marked entities will be completely removed from all lists and deleted from the history",action:"Delete"},
+
+			cleardb	:{title:"Clear all data?",details:"All local data will be deleted",action:"Сlear"}
 		},
 		
 		html	:grab(document.getElementById("content"))
@@ -429,11 +472,19 @@
 	
 	.FUNC({
 		operate	:{
+			//top	:(value,alias,node)=>{document.body.appendChild(node)},
 			hint	:(value,alias,node)=>{node.setAttribute("placeholder",value)},
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			},
-			focus:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
+			top	:(value,alias,node)=>{
+					node.style.display="none";
+					window.setTimeout(()=>{
+						document.body.appendChild(node);
+						node.style.display="";
+					},0);
+				},
+			focus	:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
 			scroll:(value,alias,node)=>{
 					if(value);
 					window.setTimeout( _=>{
@@ -474,7 +525,7 @@
 		convert	:{
 		
 			untab,
-					
+			
 			starbar	: Starbar(document.createElement("stars"),10),
 			"?uid"	: bool	=> bool?uid():"-",
 			split		: str		=> str.split(/,/g),
@@ -542,6 +593,8 @@
 			scan	: _ =>dap.Async(Barkodnik.Execute())
 		}
 	})
+
+	.FUNC(Await)
 	
 //	.FUNC(Persist)
 
