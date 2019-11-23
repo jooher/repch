@@ -43,12 +43,6 @@
 			return n=>n||storage.setItem(uidkey,++last)||last;
 		})(localStorage,"uid"),
 		
-	textOnly	= e => {
-		e.stopPropagation();
-		e.preventDefault();
-		e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
-	},
-
 	Starbar	= function(proto,bars){
 
 		proto.appendChild(proto.cloneNode(false));
@@ -246,7 +240,7 @@
 	
 	<article id="about-lists">
 		<h3>Lists</h3>
-		<p>Lists help you organize your items. Any item can be added to any number of lists. Add new list with the + button.</p>
+		<p>Lists help you organize your items. Any item can be added to any number of lists. Add new list with the <icon class="add_circle"></icon> button.</p>
 	</article>
 	
 	<article id="about-listitems">
@@ -424,7 +418,6 @@
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
 
-
 /*					
 		Confirm	: 'modal'.d("top"
 					,'dialog'.d(""
@@ -472,7 +465,6 @@
 	
 	.FUNC({
 		operate	:{
-			//top	:(value,alias,node)=>{document.body.appendChild(node)},
 			hint	:(value,alias,node)=>{node.setAttribute("placeholder",value)},
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
@@ -493,24 +485,26 @@
 					},200);
 				},
 				
-			textonly:(value,alias,node)=>node.addEventListener('paste', textOnly),
-			autoindent:(value,alias,node)=>{
-				node.addEventListener('keyup', function(v){
-					if(v.keyCode != 13 || v.shiftKey || v.ctrlKey || v.altKey || v.metaKey)return;
+			textonly: (h=>(value,alias,node)=>node.addEventListener('paste', h))(e=>{
+					e.stopPropagation();
+					e.preventDefault();
+					e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
+				}),
+			autoindent:(h=>(value,alias,node)=>node.addEventListener('keyup',h))(e=>{
+					if(e.keyCode != 13 || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey)return;
 					
-					const	val	= this.value,
-						pos	= this.selectionStart,
+					const	tgt	= e.target,
+						val	= tgt.value,
+						pos	= tgt.selectionStart,
 						line	= val.slice(val.lastIndexOf('\n', pos - 2) + 1, pos - 1),
 						indent = /^\s*/.exec(line)[0],
-						st = this.scrollTop;
+						st = tgt.scrollTop;
 						
 					if(!indent) return;
-					this.value = val.slice(0, pos) + indent + val.slice(this.selectionEnd);
-					this.selectionStart = this.selectionEnd = pos + indent.length;
-					this.scrollTop = st;
-				}, false);			
-			}
-			
+					tgt.value = val.slice(0, pos) + indent + val.slice(tgt.selectionEnd);
+					tgt.selectionStart = tgt.selectionEnd = pos + indent.length;
+					tgt.scrollTop = st;
+				})			
 
 		},
 		flatten	:{
@@ -518,15 +512,7 @@
 			dbmulti:db.multi,
 			
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; ")),
-/*			
-			multi	:(values,names)=>{
-					const list	=values.pop()||{},
-						key	=values.pop(),
-						item	=values.pop();
-					list[key] = item;
-					return list;
-				},
-*/				
+
 			alter	:(values,names)=>{
 					const	src	=values.pop(),
 						tail	=dap.Util.hash(values,names);
