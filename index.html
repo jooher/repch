@@ -24,7 +24,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 
 		
-	<script src="0.5.js" _src="https://dap.js.org/0.5.js"></script>
+	<script src="0.5a78.js" _src="https://dap.js.org/0.5.js"></script>
 
 	<script src="barkodnik.js"></script>
 	<script src="untab-.js"></script>
@@ -582,6 +582,9 @@
 					return	{
 					
 						guess	: entry => {
+						
+							if(!entry)
+								return entry;
 						
 							if(entry.startsWith("https://")){
 								const	key=entry.substring(8);									

@@ -5,14 +5,7 @@
 
 	<title>repch</title>
 	
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" />
-	
-	
-	<style>
-		[data-dap=false]{display:none !important}
-		[ui]	{cursor:pointer;}
-	</style>
-	
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" /> 
 	<link rel="stylesheet" href="material.css"/>
 	<link rel="stylesheet" href="colors.css"/>
 	<link rel="stylesheet" href="lang-en.css"/>
@@ -24,7 +17,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 
 		
-	<script src="0.5a77.js" _src="https://dap.js.org/0.5.js"></script>
+	<script src="0.4.js"></script>
 
 	<script src="barkodnik.js"></script>
 	<script src="untab-.js"></script>
@@ -137,10 +130,11 @@
 			}
 	},
 
+
 //
 	db	=(function(){ // dap wrapper for Persist object
 				
-			const	P	= Persist(localStorage,JSON.stringify,JSON.parse,true),
+			const	P	= Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
 				tables= {},
 				T	= key=> tables[key]||(tables[key]=P(key)),
 				detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
@@ -190,16 +184,14 @@
 
 	Await	={
 		convert:{
-			wait: $ => new Promise((resolve,reject)=>{$.$post={resolve,reject};}) // "Wait, yes"//
+			wait	: $=>$.$post=new dap.Execute.Postpone()
 		},
 		operate:{
 			value:(value,name,node)=>{
-				const
-					data = node.$.getDataContext(),
-					post = data.$post;
-				if(post)
-					post.resolve(value);
-				else data[name||"value"]=value;
+				const $0=node.$[0][""],
+					post=$0.$post;
+				if(post)post.resolve(value);
+				else $[0][name||"value"]=value;
 			},
 			kill:(value,name,node)=>{ (value||node).remove(); }
 		}
@@ -264,11 +256,9 @@
 </div>
 
 <script>
-	const
-/*
-		edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui("? (.what .what=#:text)ne").FOR({what}), //!! dict.editable.what@title 
+	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui("? (.what .what=#:text)ne").FOR({what}), //!! dict.editable.what@title 
 		input	= what =>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
-*/	
+		
 		grab	= src	=> [...src.children].reduce((a,n)=>{if(n.id)a[n.id]=src.removeChild(n); return a},{}),
 
 		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
@@ -281,9 +271,7 @@
 		
 			,'ROOF'.d(""
 				,'TABSET'.d("*@tab :split`lists,categories"//
-					,'TAB'.d("!? .tab@; a!")
-					.ui("$tab=.tab")
-					.a("!? (..tab $tab)eq@selected")
+					,'TAB'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 				)				
 				,'ICON.settings'.ui("$Entity=")
 			)
@@ -295,21 +283,21 @@
 					,'UL.lists'.d(""
 						,'LI.recent'.d("a!").ui("$list=`recent").a("!? (`recent $list)eq@selected")
 						//,'LI.favorite'.ui()
-						//,'LI.offers'.ui()
+						,'LI.offers'.ui()
 					)
 				
 					,'UL.lists'.d("$lists!; * (`list)db"
 						,'LI'.d("! .title; a!")
-						.ui("$list=.; ? $:checked.set,?! Ask(dict.addtolist@.):wait,! (:!@list-entity .entity:checked.set .list)dbmulti ")//
-							.a("!? (..list $list)eq@selected")
+						.a("!? (.list $list)eq@selected")
+						.ui("$list=.; ? $:checked.set,?! Ask(dict.addtolist@):wait,! (:!@list-entity .entity:checked.set .list)dbmulti ")//
 					)
 					
 					,'BAR'.d(""
-						,'ICON.add_circle'.ui("? .title=Ask(dict.createlist@.):wait; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
-						,'ICON.share'.ui(":alert`share")
+						,'ICON.add_circle'.ui("? .title=Ask(dict.createlist@):wait; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
+						,'ICON.share'.ui()
 						,'multi'.d("? $checked"
-							,'ICON.remove_circle_outline'.ui("? Ask(dict.remove@.):wait; (@list-entity .entity:checked.set $list)dbmulti")//
-							,'ICON.delete'.ui("? Ask(dict.delete@.):wait; (@entity $:checked.set)dbmulti")
+							,'ICON.remove_circle_outline'.ui("? Ask(dict.remove@):wait; (@list-entity .entity:checked.set $list)dbmulti")//
+							,'ICON.delete'.ui("? Ask(dict.delete@):wait; (@entity $:checked.set)dbmulti")
 							,'ICON.clear'.ui("")//ui("")
 						).u("$checked=$:checked.clear $entities!=()")
 					)
@@ -343,9 +331,7 @@
 		
 			,'ROOF'.d(""
 				,'TABSET'.d("*@tab :split`help,data"//
-					,'TAB'.d("!? .tab; a!")
-					.ui("$tab=.tab")
-					.a("!? (..tab $tab)eq@selected")
+					,'TAB'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
 				)
 			)
 			
@@ -353,7 +339,7 @@
 			.d("? $tab:!; ! html.welcome")
 			.d("?? $tab@help; ! html.help")
 			.d("?? $tab@data"
-				,'cleardb'.d("! `Clear").ui("? Ask(dict.cleardb@.):wait; storage.clear")//(@)db
+				,'cleardb'.d("! `Clear").ui("? Ask(dict.cleardb@):wait; storage.clear")//(@)db
 			)
 			
 		)
@@ -361,14 +347,14 @@
 		,'PAGE.entity'.d("? $Entity; scroll #; * $Entity@"//; (`list-entity @list`recent .entity)db
 		
 			,'ATTIC'.d(""
-				,'ICON.share'.ui(":alert`share")
+				,'ICON.share'.ui("( `share )alert")
 			)
 			
 			,'WALL'.d(""
 			
 				,'editables'.d(""
-					,'title contenteditable tabindex=0'.d("textonly; ! .title; focus .title:!").ui(".title=#:value")
-					,'desc contenteditable tabindex=0'.d("textonly; ! .desc; focus (.title .desc:!)!").ui(".desc=#:value")
+					,edit("title").d("textonly; focus .title:!")
+					,edit("desc").d("textonly; focus (.title .desc:!)!")
 				).u("(@entity $)db $entities!=()")
 				
 				,'SECTION.tags'.d("$lists!; * (`list)db"
@@ -396,7 +382,7 @@
 							
 						,'TEXTAREA'.d("? $edit; ! $aspects; autoindent").ui("( @custom`aspects $aspects=#:value@value )db; log `textarea")
 						
-						,'ICON'.d("!? ($edit `done `edit)?!").ui("$edit=$edit:!")
+						,'ICON'.d("!class ($edit:# @+`done @-`edit)case").ui("$edit=$edit:!")
 					)
 				)
 			).u("(@list-entity @list`recent .entity)db")
@@ -407,8 +393,7 @@
 	
 		server	:"https://cookstat.dapmx.org/repch/query.php?",
 
-		Aspect:
-			'aspect'.d("$?="
+		Aspect	: 'aspect'.d("$?="
 				,'summary'.d(""
 					,'name'.d("! .aspect").ui("$?=$?:!; ?")
 					,'IMG.stats'.d()
@@ -424,11 +409,10 @@
 				).u("$?=")
 			),
 
-		AddAspect:
-			'LI.aspect'.d("$?="
+		AddAspect	: 'LI.aspect'.d("$?="
 				,'name'.d("? .0:!; ! .1").ui("$!=($! (.1@aspect ..1@category) )?")
 				,'category'.d("? .0; ! .1").ui("$?=$?:!; ?")
-				,'UL.aspects'.d("? $?; *@ .0; ! AddAspect")
+				,'UL.aspects'.d("? $?; * .0@; ! AddAspect")
 			),
 
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
@@ -453,15 +437,16 @@
 						,'title'.d("! (.title .message)?")
 						,'details'.d("! .details")
 						,'INPUT'.d("? .pattern; !! .pattern; focus #")
-							.e("blur","$value=#:value; ?") //change 
+							.e("input","$value=#:value; ?")
+							.ui("? $value")
 						,'actions'.d(""
 							,'ACTION.cancel'.ui("$value=")
 							,'ACTION.ok'.d("! .action")
+								.a("!? (.pattern $value:!)!@disabled")
 								.ui("value ($value .action)?")//
-								.a("!? (..pattern $value:!)!@disabled")
 						)
 					)
-				).u("kill; ?"),//value $value; 
+				).u("value $value; kill; ?"),
 
 
 		
@@ -491,7 +476,7 @@
 						node.style.display="";
 					},0);
 				},
-			focus	:(value,alias,node)=>{if(value)window.setTimeout(_=>node.focus(),1000)},
+			focus	:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
 			scroll:(value,alias,node)=>{
 					if(value);
 					window.setTimeout( _=>{
@@ -609,7 +594,7 @@
 					};
 				})(),
 				
-			scan	: (_,r) => r&& Barkodnik.Execute()
+			scan	: _ =>dap.Async(Barkodnik.Execute())
 		}
 	})
 
@@ -617,7 +602,6 @@
 	
 //	.FUNC(Persist)
 
-	.COMPILE()
 	.RENDER()
 
 	</script>
