@@ -3,10 +3,10 @@ const
 CACHE_NAME = 'v1',
 
 urlsToCache = [
-  '/index.html',
-  '/style.css',
-  '/scan.js',
-  '/0.4.js'
+//  '/index.html',
+//  '/style.css',
+//  '/scan.js',
+//  '/0.4.js'
 ],
 
 db = (function(){
@@ -49,7 +49,7 @@ events={
 
 	activate: event=>{
 			console.log('repch.io activate');
-			db.cleanup();
+//			db.cleanup();
 		},
 
 	//message:

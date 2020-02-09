@@ -1,13 +1,16 @@
 const
+
+$=(t,f)=>T(t).filter(f),
+
 client={
 	
 	cleanup	: json=>{
 			const
-			opinion	= $('opinion')	.filter(o=>o.note||o.credit),
-			entity	= $('entity')	.filter(e=>e.title||opinion[e.entity]),
-			entry		= $('entry')	.filter(e=>entity[e.entity]),
-			list		= $('list')		.filter(l=>l.title&&l.pos),
-			listentity	= $('listentity')	.filter(le=>le.pos&&list[le.list]&&entity[le.entity])
+			opinion	= $('entity-aspect',	o=>o.note||o.credit),
+			entity	= $('entity',		e=>e.title||opinion[e.entity]),
+			entry		= $('entry',		e=>entity[e.entity]),
+			list		= $('list',			l=>l.title&&l.pos),
+			listentity	= $('list-entity',	r=>r.pos&&list[r.list]&&entity[r.entity])
 		},
 	
 	pack		: _=>{},

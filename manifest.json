@@ -1,7 +1,7 @@
 {
   "name": "Repch.io",
   "short_name": "Repch",
-  // "start_url": "/repch/",
+  "start_url": "/index.html",
   // "scope":"/repch/",
   "display": "standalone",
 
