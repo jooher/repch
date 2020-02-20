@@ -56,7 +56,7 @@ events={
 
 	//sync:
 
-	fetch:event=>
+	fetch: event=>
 			event.respondWith( caches.match(event.request).then( response => response || fetch(event.request) ) ),
 
 	push:	event=>{  
@@ -74,4 +74,5 @@ events={
 		}
 };
 
-for(let i in events)self.addEventListener(i,events[i]);
+for(const i in events)
+	self.addEventListener(i,events[i]);

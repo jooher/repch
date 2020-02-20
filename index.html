@@ -24,7 +24,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 
 		
-	<script src="0.5a78.js" _src="https://dap.js.org/0.5.js"></script>
+	<script _src="0.5a78.js" src="https://dap.js.org/0.5.js"></script>
 
 	<script src="barkodnik.js"></script>
 	<script src="untab-.js"></script>
@@ -430,23 +430,10 @@
 				,'category'.d("? .0; ! .1").ui("$?=$?:!; ?")
 				,'UL.aspects'.d("? $?; *@ .0; ! AddAspect")
 			),
-
+/*
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
-
-/*					
-		Confirm	: 'modal'.d("top"
-					,'dialog'.d(""
-						,'title'.d("! (.title .message)?")
-						,'details'.d("! .details")
-						,'actions'.d(""
-							,'ACTION.cancel'.ui("value :?")
-							,'ACTION.ok'.d("! .action").ui("value .action@")
-						)
-					)
-				).ui("kill; ?"),
 */
-
 		Ask	: 'modal'.d("top; $value="
 					,'scrim'.ui("$value=")
 					,'dialog'.d(""
@@ -522,6 +509,7 @@
 				})			
 
 		},
+		
 		flatten	:{
 			db	:db.basic,
 			dbmulti:db.multi,
@@ -534,8 +522,8 @@
 					return src&&src.map(row=>Object.assign(row,tail));
 				},
 				
-			sort	:(ops=>
-					(values,names)=>values.reduce((a,v,i)=>v?ops[v](a,names[i]):a,values.pop())
+			sort	:(
+					ops=>(values,names)=>values.reduce((a,v,i)=>v?ops[v](a,names[i]):a,values.pop())
 				)({
 					asc	:(a,v)=>a.sort((x,y)=>x[v]-y[v]),
 					dsc	:(a,v)=>a.sort((x,y)=>y[v]-x[v])
