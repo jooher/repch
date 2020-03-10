@@ -5,7 +5,9 @@ const	Barkodnik = (_=>{
 		w,
 		h,
 		ofs=0,
-		dump=false;
+		dump=false,
+		nativeBarcodeDetector = window.BarcodeDetector && new BarcodeDetector()
+		;
 
 	const
 	
@@ -25,7 +27,8 @@ const	Barkodnik = (_=>{
 
 	Spans	= (D,thresh)=>{
 		
-		const	spans	= Array(200),
+		const
+			spans	= Array(200),
 			len	= D.length-1,
 			FLAT	= len*5/(14*7),
 			LEAST	= 40;
@@ -133,7 +136,8 @@ const	Barkodnik = (_=>{
 			
 			decode= quartets=>{
 				
-				let	parity=[],
+				let
+					parity=[],
 					miss	=false,
 					digits=quartets.map(q=>{
 							let d;
@@ -156,7 +160,8 @@ const	Barkodnik = (_=>{
 			
 				/// verify checksum	
 				if( score>60 ){
-					const	check	= digits.pop(),
+					const	
+						check	= digits.pop(),
 						sum	= digits.reduce((s,n,i)=>s+(i%2?3*n:1*n),0);
 				
 					digits.push(check);
@@ -245,7 +250,7 @@ const	Barkodnik = (_=>{
 		console.log(fromContext(context,10));
 	}
 	
-	fromContext	=(ctx,lines)=>{
+	fromContext	= (ctx,lines)=>{
 		
 		let	y0	= h/2,
  			besty = y0,
@@ -283,10 +288,12 @@ const	Barkodnik = (_=>{
 		return null;
 	},
 
-	timeout = ms => new Promise(resolve => setTimeout(resolve, ms)),
+	timeout = ms => new Promise(resolve=>setTimeout(resolve, ms)),
 
 	Execute	= async where=>{
-		const	scanner	= el("scanner"),
+		
+		const
+			scanner	= el("scanner"),
 			video		= scanner.appendChild(el("video")),
 			canvas	= scanner.appendChild(el("canvas")),
 			deck		= scanner.appendChild(el("div")),
@@ -297,10 +304,12 @@ const	Barkodnik = (_=>{
 		cancelbtn.className="cancel";
 		(where||document.body).appendChild(scanner);
 					
-		await	navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:640}})
+		await
+			navigator.mediaDevices.getUserMedia({video:{facingMode:"environment",width:640}})
 			.then(stream=>video.srcObject=stream);//.catch(reject);
 			
-		const	track	= video.srcObject.getVideoTracks()[0],
+		const
+			track	= video.srcObject.getVideoTracks()[0],
 			stop	= e => {track.stop(); scanner.parentNode&&scanner.parentNode.removeChild(scanner)};
 			
 		cancelbtn.onclick = stop;
@@ -317,13 +326,27 @@ const	Barkodnik = (_=>{
 				console.log("video size: "+w+" x "+h);
 				context = canvas.getContext('2d');
 			}
-			if(w){
+			if(w>0){
 				context.drawImage(video,0,0,w,h);
+				
 				if(dump){
 					window.location = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
 					dump=false;
-				}else
-					decoded=fromContext(context,10);
+				}
+				
+				if(nativeBarcodeDetector)
+					nativeBarcodeDetector.detect(context.getImageData(0,0,w,h))
+					.then( barcodes => {
+						//barcodes.forEach(barcode => console.log(barcodes.rawValue))
+						decoded=barcodes[0].rawValue;
+					})
+					.catch(e=>{
+						console.error("Native Barcode Detection failed: " + e);
+						nativeBarcodeDetector = null;
+					});
+					
+					if(!nativeBarcodeDetector)
+						decoded=fromContext(context,10);
 			}
 			await timeout(25); //paused?1e3:
 		};

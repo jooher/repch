@@ -1,16 +1,20 @@
 const untab	= source=>{
-	const	stack	=[],
-		tab		= /;\s+/g,
-		lines		= source.split(/[\r\n]+/g);
+	const
+		stack =[],
+		tab = /;\s+/g,
+		lines = source.split(/[\r\n]+/g);
 		
-	let	rows=[],
+	let
+		rows=[],
 		last=[];
 		
 	lines.forEach(line=>{
 		
-		if(!line)return;
+		if(!line)
+			return;
 			
-		const	prep	= /^(\s*)(.*)/.exec(line),
+		const
+			prep	= /^(\s*)(.*)/.exec(line),
 			pads	= prep[1].length,
 			tabs	= prep[2].split(tab);
 			

@@ -3,10 +3,10 @@ const
 CACHE_NAME = 'v1',
 
 urlsToCache = [
-  '/index.html',
-  '/style.css',
-  '/scan.js',
-  '/0.4.js'
+//  '/index.html',
+//  '/style.css',
+//  '/scan.js',
+//  '/0.4.js'
 ],
 
 db = (function(){
@@ -49,14 +49,14 @@ events={
 
 	activate: event=>{
 			console.log('repch.io activate');
-			db.cleanup();
+//			db.cleanup();
 		},
 
 	//message:
 
 	//sync:
 
-	fetch:event=>
+	fetch: event=>
 			event.respondWith( caches.match(event.request).then( response => response || fetch(event.request) ) ),
 
 	push:	event=>{  
@@ -74,4 +74,5 @@ events={
 		}
 };
 
-for(let i in events)self.addEventListener(i,events[i]);
+for(const i in events)
+	self.addEventListener(i,events[i]);

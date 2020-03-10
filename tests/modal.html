@@ -2,41 +2,78 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<script src="0.4.js"></script>
+	<title>modal test</title>
+	<script src="../0.4.js"></script>
 	<style>
-		button::before{
-			content:attr[class]
-		}
+button::before, action::before{content:attr(class)}
+
+modal {
+    display:block;
+    position: fixed;
+    background: rgba(0,0,0,.32);
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 1;
+}
+modal>.dialog {
+    padding: 2em;
+    background: white;
+    /* border: 1px solid lightgray; */
+    border-radius: 4px;
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.25);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    overflow: visible;
+}
+
+.actions{position:absolute; bottom:0; right:0; padding:.5rem}
+action{display: inline-block; margin:.5rem}
+
+
+
+
 	</style>
 </head>
 
-<script>
-	"use strict";
-	
-	'BUTTON.Confirm'.ui("log result=Ask( @confirm`Really?):modal")
+<body>
 
-	.DICT({
-		Ask	: 'ask'.d("! .confirm"
-				,'BUTTON.Yes'.ui("value :!")
-				,'BUTTON.No'.ui("value :?")
+<h1 hidden>Hiddden</h1>
+	<script>
+'confirm'.d("! `here").ui("{! Confirm(@title`Really?):wait}; ! `-")
+.DICT({
+
+	Confirm: 'MODAL'.d("top"
+			,'dialog'.d(""
+				,'title'.d("! .title")
+				,'details'.d("! .details")
+				,'actions'.d(""
+					,'ACTION.Yes'.ui("value `yes")
+					,'ACTION.No'.ui("value `no")
+				)
 			)
-	})
-	
-	.FUNC({
-	
-		convert:{
-			modal: $=>{
-				$.
-			}
+		).ui("kill; ?")
+})
+.FUNC({
+	convert:{
+		wait	: $=>$.$post=new dap.Execute.Postpone()
+	},
+	operate:{
+		top	:(value,alias,node)=>{document.body.appendChild(node)},
+		value:(value,name,node)=>{
+			const $0=node.$[0][""],
+				post=$0.$post;
+			if(post)post.resolve(value);
+			else $[0][name||"value"]=value;
 		},
-		
-		operate:{
-			value	:(name,value,node){
-				const $t=node.$[0][""].$target;
-				if($t)$.resolve(value)
-			}
-		}
-	
-	})
-	
-</script>
+		kill:(value,name,node)=>{ (value||node).remove(); }
+	}
+})
+.RENDER()
+
+	</script>
+</body>
+</html>

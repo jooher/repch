@@ -5,16 +5,27 @@
 
 	<title>repch</title>
 	
-	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" /> 
-	<link rel="stylesheet" href="material.css"/>
-	<link rel="stylesheet" href="colors.css"/>
-	<link rel="stylesheet" href="lang-en.css"/>
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0" />
+	
+	
+	<style>
+		[data-dap=false]{display:none !important}
+		[ui=click]{cursor:pointer;}
+	</style>
+	
+	<link rel="stylesheet" href="css/material.css"/>
+	<link rel="stylesheet" href="css/colors.css"/>
+	<link rel="stylesheet" href="css/locale/en.css"/>
 	
 	
 	<link rel="manifest" href="manifest.json"/>
 	
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+
 		
+	<script _src="0.5a78.js" src="https://dap.js.org/0.5.js"></script>
+
 	<script src="barkodnik.js"></script>
 	<script src="untab-.js"></script>
 	
@@ -39,12 +50,6 @@
 			return n=>n||storage.setItem(uidkey,++last)||last;
 		})(localStorage,"uid"),
 		
-	textOnly	= e => {
-		e.stopPropagation();
-		e.preventDefault();
-		e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
-	},
-	
 	Starbar	= function(proto,bars){
 
 		proto.appendChild(proto.cloneNode(false));
@@ -130,9 +135,79 @@
 				kill	: m => index[m].TIME=null,
 				killr	: r => index[r[key]||ixkey(r)]=null
 			}
-	};
+	},
+
+//
+	db	=(function(){ // dap wrapper for Persist object
 				
-		
+			const	P	= Persist(localStorage,JSON.stringify,JSON.parse,true),
+				tables= {},
+				T	= key=> tables[key]||(tables[key]=P(key)),
+				detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
+				
+				filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
+				join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
+				save	= (table,values)		=> { values.forEach(r=>table.save(detach(r)))||table.data()},
+				reset	= (values,tags)		=> { values.length ? values.forEach((v,i)=>T(tags[i]).anew(v)) : Object.keys(tables).forEach(t=>tables[t].anew()); };
+				
+			return	{ P,T,
+			
+				basic	:(values,tags)=>{
+						const	v=values.pop(),
+							c=values.length,
+							t=c&&tags[c-1],
+							a=tags[c];
+							
+						return	!a&&!v ? reset(values,tags) :			// ( @ ... ) anew... 
+								!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
+								!v&&!t ? save(T(a),values) :						// ( @key $row1@ $row2@ ... )
+								!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :		// ( $key `t1 `t2 ... )
+								values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... ) | (@key $x $y)
+					},
+					
+				multi	:(values,tags)=>{
+						const add=values.pop(),
+							key=tags[values.length],//actions[],
+							mul=values.pop();
+							
+						if(mul&&mul.length){
+							const	ite=tags[values.length],
+								tail=values.length&&dap.Util.hash(values,tags),
+								t = T(key);
+							mul.forEach(r=>{
+								const row={[ite]:r};
+								if(tail)
+									Object.assign(row,tail);
+								add
+									?t.save(row)
+									:t.killr(row);
+							});
+							t.flush();
+						}
+					}
+			}
+		})(),
+
+	Await	={
+		convert:{
+			wait: $ => new Promise((resolve,reject)=>{$.$post={resolve,reject};}) // "Wait, yes"//
+		},
+		operate:{
+			value:(value,name,node)=>{
+				const
+					data = node.$.getDataContext(),
+					post = data.$post;
+				if(post)
+					post.resolve(value);
+				else data[name||"value"]=value;
+			},
+			kill:(value,name,node)=>{ (value||node).remove(); }
+		}
+	}
+;
+	
+
+					
 // prevent from exit by back button
 (stay =>{
 	window.addEventListener('load', stay);
@@ -173,7 +248,7 @@
 	
 	<article id="about-lists">
 		<h3>Lists</h3>
-		<p>Lists help you organize your items. Any item can be added to any number of lists. Add new list with the + button.</p>
+		<p>Lists help you organize your items. Any item can be added to any number of lists. Add new list with the <icon class="add_circle"></icon> button.</p>
 	</article>
 	
 	<article id="about-listitems">
@@ -185,72 +260,19 @@
 		<h3>Recent items</h3>
 		<p>Here, you will see items you recently interacted with.</p>
 	</article>
-
+	
 </div>
 
-<script src="0.4.js"></script>
-
 <script>
-	"use strict";
-
-	const	edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui("? (.what .what=#:text)ne").FOR({what}), //!! dict.editable.what@title 
+	const
+/*
+		edit	= what =>'what contenteditable tabindex=0'.d("! .what@").ui("? (.what .what=#:text)ne").FOR({what}), //!! dict.editable.what@title 
 		input	= what =>'INPUT.what'.d("!! dict.editable.what@placeholder .what@value").ui(".what=#:value").FOR({what}),
-		
+*/	
 		grab	= src	=> [...src.children].reduce((a,n)=>{if(n.id)a[n.id]=src.removeChild(n); return a},{}),
 
-		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} ),
+		dataset	= (tags,raws)=>raws.map( raw=>{const row={};tags.forEach((t,i)=>row[t]=raw[i]); return row;} )
 		
-		db	=(function(){ // dap wrapper for Persist object
-					
-				const	P	= Persist(localStorage,dap.Env.Json.encode,dap.Env.Json.decode,true),
-					tables= {},
-					T	= key=> tables[key]||(tables[key]=P(key)),
-					detach= r=> {r=Object.assign({},r);if(r[""])delete r[""];return r},
-					
-					filter= (data,values,tags)	=> !values.length?data:values.reduce((a,v,i)=>a.length?a.filter(r=>r[tags[i]]==v):a,data),	// :[]
-					join	= (row,values,tags)	=> row&&Object.assign({}, row, ...values.map((v,i)=>T(tags[i]).take(v))),	// :{}
-					save	= (table,values)		=> { values.forEach(r=>table.save(detach(r)))||table.data()},
-					reset	= (values,tags)		=> { values.length ? values.forEach((v,i)=>T(tags[i]).anew(v)) : Object.keys(tables).forEach(t=>tables[t].anew()); };
-					
-					
-				return	{ P,T,
-				
-					basic	:(values,tags)=>{
-							const	v=values.pop(),
-								c=values.length,
-								t=c&&tags[c-1],
-								a=tags[c];
-								
-							return	!a&&!v ? reset(values,tags) :			// ( @ ... ) anew... 
-									!a ? filter(T(v).data(),values,tags) :				// ( `key $x $y ... )
-									!v&&!t ? save(T(a),values) :						// ( @key $row1@ $row2@ ... )
-									!t ? c?T(a).take(v):join(T(a).take(v),values,tags) :		// ( $key `t1 `t2 ... )
-									values.push(v) && T(a).save(dap.Util.hash(values,tags));	// ( $key $x $y ... ) | (@key $x $y)
-						},
-						
-					multi	:(values,tags)=>{
-							const add=values.pop(),
-								key=tags[values.length],//actions[],
-								mul=values.pop();
-								
-							if(mul&&mul.length){
-								const	ite=tags[values.length],
-									tail=values.length&&dap.Util.hash(values,tags),
-									t = T(key);
-								mul.forEach(r=>{
-									const row={[ite]:r};
-									if(tail)
-										Object.assign(row,tail);
-									add
-										?t.save(row)
-										:t.killr(row);
-								});
-								t.flush();
-							}
-						}
-				}
-			})()
-			
 	;
 
 	'client'.d("$Entity=; $aspects= $entities= $opinions= $lists!= $entities!="
@@ -259,7 +281,9 @@
 		
 			,'ROOF'.d(""
 				,'TABSET'.d("*@tab :split`lists,categories"//
-					,'TAB'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+					,'TAB'.d("!? .tab@; a!")
+					.ui("$tab=.tab")
+					.a("!? (..tab $tab)eq@selected")
 				)				
 				,'ICON.settings'.ui("$Entity=")
 			)
@@ -271,23 +295,23 @@
 					,'UL.lists'.d(""
 						,'LI.recent'.d("a!").ui("$list=`recent").a("!? (`recent $list)eq@selected")
 						//,'LI.favorite'.ui()
-						,'LI.offers'.ui()
+						//,'LI.offers'.ui()
 					)
 				
 					,'UL.lists'.d("$lists!; * (`list)db"
 						,'LI'.d("! .title; a!")
-						.a("!? (.list $list)eq@selected")
-						.ui("$list=.; {? $:checked.set,??; ? (`addtolist)confirm; (:!@list-entity .entity:checked.set .list)dbmulti}")//
+						.ui("$list=.; ? $:checked.set,?! Ask(dict.addtolist@.):wait,! (:!@list-entity .entity:checked.set .list)dbmulti ")//
+							.a("!? (..list $list)eq@selected")
 					)
 					
 					,'BAR'.d(""
-						,'ICON.add_circle'.ui("? .title=(dict.prompt.addlist)prompt; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
-						,'ICON.share'.ui()
+						,'ICON.add_circle'.ui("? .title=Ask(dict.createlist@.):wait; (@list (.title))db $lists!=()")//.List=(@list (.title))db $list=List.list (:!@list-entity .entity:checked.set $list )dbmulti
+						,'ICON.share'.ui(":alert`share")
 						,'multi'.d("? $checked"
-							,'ICON.remove_circle_outline'.ui("? (`removefromlist)confirm; (@list-entity .entity:checked.set $list)dbmulti")
-							,'ICON.delete'.ui("? (`delete)confirm; (@entity $:checked.set)dbmulti")
-							,'ICON.clear'.ui("$checked=$:checked.clear")
-						).u("$entities!=()")
+							,'ICON.remove_circle_outline'.ui("? Ask(dict.remove@.):wait; (@list-entity .entity:checked.set $list)dbmulti")//
+							,'ICON.delete'.ui("? Ask(dict.delete@.):wait; (@entity $:checked.set)dbmulti")
+							,'ICON.clear'.ui("")//ui("")
+						).u("$checked=$:checked.clear $entities!=()")
 					)
 				)
 				
@@ -319,7 +343,9 @@
 		
 			,'ROOF'.d(""
 				,'TABSET'.d("*@tab :split`help,data"//
-					,'TAB'.d("!class .tab; a!").a("!? (.tab $tab)eq@selected").ui("$tab=.tab")
+					,'TAB'.d("!? .tab; a!")
+					.ui("$tab=.tab")
+					.a("!? (..tab $tab)eq@selected")
 				)
 			)
 			
@@ -327,7 +353,7 @@
 			.d("? $tab:!; ! html.welcome")
 			.d("?? $tab@help; ! html.help")
 			.d("?? $tab@data"
-				,'cleardb'.d("! `Clear").ui("? (dict.cleardb)confirm; storage.clear")//(@)db
+				,'cleardb'.d("! `Clear").ui("? Ask(dict.cleardb@.):wait; storage.clear")//(@)db
 			)
 			
 		)
@@ -335,28 +361,28 @@
 		,'PAGE.entity'.d("? $Entity; scroll #; * $Entity@"//; (`list-entity @list`recent .entity)db
 		
 			,'ATTIC'.d(""
-				,'ICON.share'.ui("( `share )alert")
+				,'ICON.share'.ui(":alert`share")
 			)
 			
 			,'WALL'.d(""
 			
 				,'editables'.d(""
-					,edit("title").d("textonly; focus .title:!")
-					,edit("desc").d("textonly; focus (.title .desc:!)!")
+					,'title contenteditable tabindex=0'.d("textonly; ! .title; focus .title:!").ui(".title=#:value")
+					,'desc contenteditable tabindex=0'.d("textonly; ! .desc; focus (.title .desc:!)!").ui(".desc=#:value")
 				).u("(@entity $)db $entities!=()")
 				
 				,'SECTION.tags'.d("$lists!; * (`list)db"
 					,'tag'
 					.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
 					.a("!? $tagged")
-					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")
+					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
 				)
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
-				,'SECTION.opinions'.d("$?=  $aspects!="
+				,'SECTION.opinions'.d("$?= $aspects!="
 				
 					,'present'.d("$aspects!; * (`entity-aspect .entity)db"
 						,'opinion'.d("! Aspect").u("(@entity-aspect $)db")
@@ -368,20 +394,21 @@
 							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")//@items
 							.u("$?= $aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }; $!=")//$opinions=() //
 							
-						,'TEXTAREA'.d("? $edit; ! $aspects").ui("( @custom`aspects $aspects=#:value@value )db")
+						,'TEXTAREA'.d("? $edit; ! $aspects; autoindent").ui("( @custom`aspects $aspects=#:value@value )db; log `textarea")
 						
-						,'ICON'.d("!class ($edit:# @+`done @-`edit)case").ui("$edit=$edit:!")
+						,'ICON'.d("!? ($edit `done `edit)?!").ui("$edit=$edit:!")
 					)
 				)
-			)
+			).u("(@list-entity @list`recent .entity)db")
 		)
 	)
 
 	.DICT({
 	
 		server	:"https://cookstat.dapmx.org/repch/query.php?",
-		
-		Aspect	: 'aspect'.d("$?="
+
+		Aspect:
+			'aspect'.d("$?="
 				,'summary'.d(""
 					,'name'.d("! .aspect").ui("$?=$?:!; ?")
 					,'IMG.stats'.d()
@@ -397,30 +424,41 @@
 				).u("$?=")
 			),
 
-		AddAspect	: 'LI.aspect'.d("$?="
+		AddAspect:
+			'LI.aspect'.d("$?="
 				,'name'.d("? .0:!; ! .1").ui("$!=($! (.1@aspect ..1@category) )?")
 				,'category'.d("? .0; ! .1").ui("$?=$?:!; ?")
-				,'UL.aspects'.d("? $?; * .0@; ! AddAspect")
+				,'UL.aspects'.d("? $?; *@ .0; ! AddAspect")
 			),
-
+/*
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
 		Option	: 'OPTION'.d("!! (.label .value)? .value (.value .selected)eq@selected"),
-					
+*/
+		Ask	: 'modal'.d("top; $value="
+					,'scrim'.ui("$value=")
+					,'dialog'.d(""
+						,'title'.d("! (.title .message)?")
+						,'details'.d("! .details")
+						,'INPUT'.d("? .pattern; !! .pattern; focus #")
+							.e("blur","$value=#:value; ?") //change 
+						,'actions'.d(""
+							,'ACTION.cancel'.ui("$value=")
+							,'ACTION.ok'.d("! .action")
+								.ui("value ($value .action)?")//
+								.a("!? (..pattern $value:!)!@disabled")
+						)
+					)
+				).u("kill; ?"),//value $value; 
+
+
+		
 		dict	:{
-			cleardb	:"Sure to clear all data?",
-/*			barcode	:"barcode",
-			editable:{
-				title	:"Entity title",
-				credit:"Credit",
-				note	:"Note",
-				aspects	:"Applicable aspects"
-			},
-			
-			tabs	: dataset(
-					["tab","title"],
-					[["lists","Списки"],["cats","Категории"],["settings","Настройки"]]
-				)
-			*/
+			createlist	:{title:"Create a new list",details:"What will be its name?",pattern:".*",action:"Create list"},
+			addtolist	:{title:"Add entities to the list?",details:"Marked entities can be now added to the list you selected.",action:"Add to list"},
+			remove	:{title:"Remove entities?",details:"Marked entities will be removed from this list only. They will remain in other list and in the history.",action:"Remove"},
+			"delete"	:{title:"Delete entities?",details:"Marked entities will be completely removed from all lists and deleted from the history",action:"Delete"},
+
+			cleardb	:{title:"Clear all data?",details:"All local data will be deleted",action:"Сlear"}
 		},
 		
 		html	:grab(document.getElementById("content"))
@@ -433,7 +471,14 @@
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			},
-			focus:(value,alias,node)=>{if(value)window.setTimeout(()=>{node.focus()},1000)},
+			top	:(value,alias,node)=>{
+					node.style.display="none";
+					window.setTimeout(()=>{
+						document.body.appendChild(node);
+						node.style.display="";
+					},0);
+				},
+			focus	:(value,alias,node)=>{if(value)window.setTimeout(_=>node.focus(),1000)},
 			scroll:(value,alias,node)=>{
 					if(value);
 					window.setTimeout( _=>{
@@ -441,31 +486,44 @@
 						node.scrollIntoView({behavior:"smooth",inline:"end"});
 					},200);
 				},
-			textonly:(value,alias,node)=>node.addEventListener('paste', textOnly)
+				
+			textonly: (h=>(value,alias,node)=>node.addEventListener('paste', h))(e=>{
+					e.stopPropagation();
+					e.preventDefault();
+					e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
+				}),
+			autoindent:(h=>(value,alias,node)=>node.addEventListener('keyup',h))(e=>{
+					if(e.keyCode != 13 || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey)return;
+					
+					const	tgt	= e.target,
+						val	= tgt.value,
+						pos	= tgt.selectionStart,
+						line	= val.slice(val.lastIndexOf('\n', pos - 2) + 1, pos - 1),
+						indent = /^\s*/.exec(line)[0],
+						st = tgt.scrollTop;
+						
+					if(!indent) return;
+					tgt.value = val.slice(0, pos) + indent + val.slice(tgt.selectionEnd);
+					tgt.selectionStart = tgt.selectionEnd = pos + indent.length;
+					tgt.scrollTop = st;
+				})			
 
 		},
+		
 		flatten	:{
 			db	:db.basic,
 			dbmulti:db.multi,
 			
 			trace	:(values,names)=>console.log(values.map((v,i)=>names[i]+": "+v).join("; ")),
-/*			
-			multi	:(values,names)=>{
-					const list	=values.pop()||{},
-						key	=values.pop(),
-						item	=values.pop();
-					list[key] = item;
-					return list;
-				},
-*/				
+
 			alter	:(values,names)=>{
 					const	src	=values.pop(),
 						tail	=dap.Util.hash(values,names);
 					return src&&src.map(row=>Object.assign(row,tail));
 				},
 				
-			sort	:(ops=>
-					(values,names)=>values.reduce((a,v,i)=>v?ops[v](a,names[i]):a,values.pop())
+			sort	:(
+					ops=>(values,names)=>values.reduce((a,v,i)=>v?ops[v](a,names[i]):a,values.pop())
 				)({
 					asc	:(a,v)=>a.sort((x,y)=>x[v]-y[v]),
 					dsc	:(a,v)=>a.sort((x,y)=>y[v]-x[v])
@@ -474,7 +532,7 @@
 		convert	:{
 		
 			untab,
-					
+			
 			starbar	: Starbar(document.createElement("stars"),10),
 			"?uid"	: bool	=> bool?uid():"-",
 			split		: str		=> str.split(/,/g),
@@ -513,6 +571,9 @@
 					
 						guess	: entry => {
 						
+							if(!entry)
+								return entry;
+						
 							if(entry.startsWith("https://")){
 								const	key=entry.substring(8);									
 								for(let i=web.length; i--;){
@@ -539,12 +600,15 @@
 					};
 				})(),
 				
-			scan	: _ =>dap.Async(Barkodnik.Execute())
+			scan	: (_,r) => r&& Barkodnik.Execute()
 		}
 	})
+
+	.FUNC(Await)
 	
 //	.FUNC(Persist)
 
+	.COMPILE()
 	.RENDER()
 
 	</script>
