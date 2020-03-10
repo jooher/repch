@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="0.4.js"></script>
+	<style>
+		button::before{
+			content:attr[class]
+		}
+	</style>
+</head>
+
+<script>
+	"use strict";
+	
+	'BUTTON.Confirm'.ui("log result=Ask( @confirm`Really?):modal")
+
+	.DICT({
+		Ask	: 'ask'.d("! .confirm"
+				,'BUTTON.Yes'.ui("value :!")
+				,'BUTTON.No'.ui("value :?")
+			)
+	})
+	
+	.FUNC({
+	
+		convert:{
+			modal: $=>{
+				$.
+			}
+		},
+		
+		operate:{
+			value	:(name,value,node){
+				const $t=node.$[0][""].$target;
+				if($t)$.resolve(value)
+			}
+		}
+	
+	})
+	
+</script>
