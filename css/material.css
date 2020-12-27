@@ -31,7 +31,7 @@ icon, button, .checked::before
   text-rendering: optimizeLegibility;	/* Support for Safari and Chrome. */
   -moz-osx-font-smoothing: grayscale; 	/* Support for Firefox. */
   font-feature-settings: 'liga';		/* Support for IE. */
-  /* color: inherit; */
+  color: inherit;
 }
 
 .checked::before {content: "check";position: absolute;right:0;top:0;}
@@ -156,7 +156,7 @@ tab.selected {
 
 
 section{
-    margin: 2rem 1rem;
+    margin: 1rem;
     position: relative;
 }
 
@@ -230,7 +230,7 @@ input.credit {
 }
 
 .tag {
-    display: inline-block;
+    display: inline;
     white-space: nowrap;
     margin: .2em;
     padding: .25em .5em;
@@ -286,7 +286,7 @@ section.entries {
 
 .aspect>.summary {
     display: flex;
-    font-size: 1.5em;
+    font-size: 1.25em;
 }
 
 .summary>.name{
@@ -363,8 +363,9 @@ attic {
 
 
 .opinion {
-    margin: 1em 0;
+    margin: 1.5em 0;
     position: relative;
+    /* border-top: 1px dotted lightgray; */
 }
 
 .addaspect {
@@ -570,4 +571,12 @@ p>icon {
     display: inline;
     vertical-align: middle;
     /* margin: 0; */
+}
+
+.short>.tag {
+  display: none;
+}
+
+.short>.tag.tagged {
+  display: inline;
 }

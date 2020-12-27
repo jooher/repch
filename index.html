@@ -370,13 +370,29 @@
 					,'title contenteditable tabindex=0'.d("textonly; ! .title; focus .title:!").ui(".title=#:value")
 					,'desc contenteditable tabindex=0'.d("textonly; ! .desc; focus (.title .desc:!)!").ui(".desc=#:value")
 				).u("(@entity $)db $entities!=()")
-				
+/*
 				,'SECTION.tags'.d("$lists!; * (`list)db"
 					,'tag'
 					.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
 					.a("!? $tagged")
 					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
 				)
+*/
+
+				,'SECTION'.d("$lists! $short=:!"
+				
+					,'tags'.d("* (`list)db"
+						,'tag'
+							.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
+							.a("!? $tagged")
+							.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
+					).a("!? $short")
+					
+					,'ICON.add_circle'.ui("$short=$short:!")
+					
+				)
+
+
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
@@ -392,7 +408,7 @@
 					
 						,'UL.addaspects'
 							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")
-							.u("$aspects!=( @entity-aspect .entity $!.aspect)db; $!=; { ? .desc:!; .desc=$!.category (@entity $)db }; $?= ")
+							.u("$aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }; $?= ")
 							
 						,'TEXTAREA'
 							.d("? $edit; ! $aspects; autoindent")
@@ -430,7 +446,7 @@
 			'LI'.d("$?=" //[sub-items,name]
 				,'aspect'
 					.d("? .0:!; ! .1") // if no sub-items - this is an aspect
-					.ui("$!:check=($! (.1@aspect ..1@category) )?") // on click return the aspect name and nearest category
+					.ui("$!=(.1@aspect ..1@category)") // on click return the aspect name and nearest category
 				,'category'.d("? .0" // if sub-items present - this is a category
 					,'name'.d("! .1").ui("$?=$?:!; ?") // on click toggle open-close
 					,'UL.aspects'.d("? $?; *@ .0; ! AddAspect") // show sub-items
@@ -456,15 +472,33 @@
 					)
 				).u("kill; ?"),//value $value; 
 
-
-		
 		dict	:{
-			createlist	:{title:"Create a new list",details:"What will be its name?",pattern:".*",action:"Create list"},
-			addtolist	:{title:"Add entities to the list?",details:"Marked entities can be now added to the list you selected.",action:"Add to list"},
-			remove	:{title:"Remove entities?",details:"Marked entities will be removed from this list only. They will remain in other list and in the history.",action:"Remove"},
-			"delete"	:{title:"Delete entities?",details:"Marked entities will be completely removed from all lists and deleted from the history",action:"Delete"},
-
-			cleardb	:{title:"Clear all data?",details:"All local data will be deleted",action:"Сlear"}
+			createlist	:{
+				title:"Create a new list",
+				details:"What will be its name?",
+				pattern:".*",
+				action:"Create list"
+			},
+			addtolist	:{
+				title:"Add entities to the list?",
+				details:"Marked entities can be now added to the list you selected.",
+				action:"Add to list"
+			},
+			remove	:{
+				title:"Remove entities?",
+				details:"Marked entities will be removed from this list only. They will remain in other list and in the history.",
+				action:"Remove"
+			},
+			"delete"	:{
+				title:"Delete entities?",
+				details:"Marked entities will be completely removed from all lists and deleted from the history",
+				action:"Delete"
+			},
+			cleardb	:{
+				title:"Clear all data?",
+				details:"All local data will be deleted",
+				action:"Сlear"
+			}
 		},
 		
 		html	:grab(document.getElementById("content"))
