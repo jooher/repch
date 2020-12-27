@@ -25,6 +25,7 @@ stars{-webkit-text-stroke: 1px black/* #52f; */;color:transparent;}
 .note {
     font-style: italic;
     color: #aaa;
+    /* display: inline; */
 }
 
 stars>stars {color:black}

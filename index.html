@@ -24,7 +24,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
 
 		
-	<script _src="0.5a78.js" src="https://dap.js.org/0.5.js"></script>
+	<script src="https://dap.js.org/0.5.js"></script>
 
 	<script src="barkodnik.js"></script>
 	<script src="untab-.js"></script>
@@ -118,7 +118,7 @@
 					order.push(r);
 					stamp++;
 				}
-				if(stamp>saved){ //save /// TODO: delay this stuff to page leave/enter
+				if(stamp>saved){ /// TODO: delay the save to page leave/enter
 					flush();
 				}
 			};
@@ -130,7 +130,7 @@
 				
 				data	: _ => sync()	||order,
 				take	: m => sync()	||index[m],
-				save	: r => sync(r)	||r,
+				save	: r => sync(r)||r,
 				
 				kill	: m => index[m].TIME=null,
 				killr	: r => index[r[key]||ixkey(r)]=null
@@ -167,7 +167,7 @@
 					
 				multi	:(values,tags)=>{
 						const add=values.pop(),
-							key=tags[values.length],//actions[],
+							key=tags[values.length],
 							mul=values.pop();
 							
 						if(mul&&mul.length){
@@ -197,9 +197,9 @@
 				const
 					data = node.$.getDataContext(),
 					post = data.$post;
+				data[name||"value"]=value;
 				if(post)
 					post.resolve(value);
-				else data[name||"value"]=value;
 			},
 			kill:(value,name,node)=>{ (value||node).remove(); }
 		}
@@ -288,7 +288,7 @@
 				,'ICON.settings'.ui("$Entity=")
 			)
 			
-			,'WALL'.d("?? $tab@lists; $list= $checked=$:checked.set,??"
+			,'ETAGE'.d("?? $tab@lists; $list= $checked=$:checked.set,??"
 			
 				,'ATTIC'.d(""
 				
@@ -301,7 +301,7 @@
 					,'UL.lists'.d("$lists!; * (`list)db"
 						,'LI'.d("! .title; a!")
 						.ui("$list=.; ? $:checked.set,?! Ask(dict.addtolist@.):wait,! (:!@list-entity .entity:checked.set .list)dbmulti ")//
-							.a("!? (..list $list)eq@selected")
+							.a("!? (.list $list)eq@selected")
 					)
 					
 					,'BAR'.d(""
@@ -336,7 +336,7 @@
 				,'INPUT.key'.d("!! $entry@value").ui("log $entry=#:value,scope.guess")//.d("textonly")
 				,'BUTTON.camera'.ui("log $entry=#:scan,scope.guess")
 		
-			).u("? $entry; ? $Entity= .Entry=($entry)db ($Entity=(@entity $entry@fallback)db .Entry=(@entry $entry $Entity.entity)db)!; ? $Entity $Entity=(.Entry.entity)db; (@list-entity @list`recent $Entity.entity)db; log $entry=") /// $Entity=(server@ $entry)uri:query 
+			).u("? $entry; ? $Entity= .Entry=($entry)db ($Entity=(@entity $entry@fallback)db .Entry=(@entry $entry $Entity.entity)db)!; ? $Entity $Entity=(.Entry.entity)db; (@list-entity @list`recent $Entity.entity)db $entry=") /// $Entity=(server@ $entry)uri:query 
 		)
 		
 		,'PAGE.other'.d("? $Entity:!; scroll #; $tab="
@@ -345,11 +345,11 @@
 				,'TABSET'.d("*@tab :split`help,data"//
 					,'TAB'.d("!? .tab; a!")
 					.ui("$tab=.tab")
-					.a("!? (..tab $tab)eq@selected")
+					.a("!? (.tab $tab)eq@selected")
 				)
 			)
 			
-			,'WALL'
+			,'ETAGE'
 			.d("? $tab:!; ! html.welcome")
 			.d("?? $tab@help; ! html.help")
 			.d("?? $tab@data"
@@ -364,7 +364,7 @@
 				,'ICON.share'.ui(":alert`share")
 			)
 			
-			,'WALL'.d(""
+			,'ETAGE'.d(""
 			
 				,'editables'.d(""
 					,'title contenteditable tabindex=0'.d("textonly; ! .title; focus .title:!").ui(".title=#:value")
@@ -391,10 +391,12 @@
 					,'append'.d("? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
 					
 						,'UL.addaspects'
-							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")//@items
-							.u("$?= $aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }; $!=")//$opinions=() //
+							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")
+							.u("$aspects!=( @entity-aspect .entity $!.aspect)db; $!=; { ? .desc:!; .desc=$!.category (@entity $)db }; $?= ")
 							
-						,'TEXTAREA'.d("? $edit; ! $aspects; autoindent").ui("( @custom`aspects $aspects=#:value@value )db; log `textarea")
+						,'TEXTAREA'
+							.d("? $edit; ! $aspects; autoindent")
+							.ui("( @custom`aspects $aspects=#:value@value )db")
 						
 						,'ICON'.d("!? ($edit `done `edit)?!").ui("$edit=$edit:!")
 					)
@@ -410,9 +412,9 @@
 		Aspect:
 			'aspect'.d("$?="
 				,'summary'.d(""
-					,'name'.d("! .aspect").ui("$?=$?:!; ?")
 					,'IMG.stats'.d()
 					,'credit'.d("! $!=.credit:starbar.enabled").ui("$?=.credit=$!.value")
+					,'name'.d("! .aspect").ui("$?=$?:!; ?")
 				)
 				,'notes'.d(""
 					,'public'.d("? $?; ? .ref; * (`notes .ref)db"
@@ -425,10 +427,14 @@
 			),
 
 		AddAspect:
-			'LI.aspect'.d("$?="
-				,'name'.d("? .0:!; ! .1").ui("$!=($! (.1@aspect ..1@category) )?")
-				,'category'.d("? .0; ! .1").ui("$?=$?:!; ?")
-				,'UL.aspects'.d("? $?; *@ .0; ! AddAspect")
+			'LI'.d("$?=" //[sub-items,name]
+				,'aspect'
+					.d("? .0:!; ! .1") // if no sub-items - this is an aspect
+					.ui("$!:check=($! (.1@aspect ..1@category) )?") // on click return the aspect name and nearest category
+				,'category'.d("? .0" // if sub-items present - this is a category
+					,'name'.d("! .1").ui("$?=$?:!; ?") // on click toggle open-close
+					,'UL.aspects'.d("? $?; *@ .0; ! AddAspect") // show sub-items
+				)
 			),
 /*
 		Options	: 'OPTGROUP'.d("! (.selected:! Hint)!; * .options@value; Option( .value ..selected )"), 
@@ -445,7 +451,7 @@
 							,'ACTION.cancel'.ui("$value=")
 							,'ACTION.ok'.d("! .action")
 								.ui("value ($value .action)?")//
-								.a("!? (..pattern $value:!)!@disabled")
+								.a("!? (.pattern $value:!)!@disabled")
 						)
 					)
 				).u("kill; ?"),//value $value; 
@@ -468,9 +474,11 @@
 	.FUNC({
 		operate	:{
 			hint	:(value,alias,node)=>{node.setAttribute("placeholder",value)},
+			
 			storage	:{
 				clear	:()=>confirm("Clear all local data?")&&localStorage.clear()
 			},
+			
 			top	:(value,alias,node)=>{
 					node.style.display="none";
 					window.setTimeout(()=>{
@@ -478,7 +486,9 @@
 						node.style.display="";
 					},0);
 				},
+				
 			focus	:(value,alias,node)=>{if(value)window.setTimeout(_=>node.focus(),1000)},
+			
 			scroll:(value,alias,node)=>{
 					if(value);
 					window.setTimeout( _=>{
@@ -492,6 +502,7 @@
 					e.preventDefault();
 					e.target.textContent=(e.clipboardData||window.clipboardData).getData('Text');
 				}),
+				
 			autoindent:(h=>(value,alias,node)=>node.addEventListener('keyup',h))(e=>{
 					if(e.keyCode != 13 || e.shiftKey || e.ctrlKey || e.altKey || e.metaKey)return;
 					

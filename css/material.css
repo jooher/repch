@@ -99,7 +99,7 @@ roof{
     text-align: right;
 }
 
-wall {
+etage {
     flex: 1;
     position: relative;
     display: flex;
@@ -267,7 +267,7 @@ section.entry {
 }
 
 section.opinions {
-    text-align: left;
+    /* text-align: left; */
 }
 
 section.entries {
@@ -286,10 +286,18 @@ section.entries {
 
 .aspect>.summary {
     display: flex;
+    font-size: 1.5em;
 }
 
 .summary>.name{
     flex: 1;
+    text-align: left;
+    margin: 0 .5em;
+}
+
+.summary>.credit{
+	flex:1;
+	text-align:right;
 }
 
 
@@ -376,7 +384,6 @@ attic {
 }
 
 .name {
-    display: inline;
 }
 
 ul.aspects {
@@ -384,10 +391,19 @@ ul.aspects {
     list-style: none;
 }
 
-.aspect>.name::before {
+li>.aspect::before {
     content: "★ ";
 }
+li>.aspect{
+	font-style:normal;
+}
 
+li>.category::before {
+	/* content: "- " */
+}
+li>.category{
+	font-style:italic;
+}
 
 ul.addaspects {
     padding: 0;
@@ -408,6 +424,7 @@ a.entry {
     margin-top: 4rem;
     position: relative;
     line-height: 2em;
+    text-align: left;
 }
 
 .append>textarea {
@@ -435,7 +452,7 @@ article {
     margin: 1rem;
 }
 
-.entity>wall {
+.entity>etage {
     text-align: center;
 }
 
@@ -462,7 +479,7 @@ bar>.multi {
     flex: 1;
 }
 
-wall>.entities {
+etage>.entities {
     /* display: flex; */
     /* flex-direction: column; */
 }
