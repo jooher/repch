@@ -370,45 +370,36 @@
 					,'title contenteditable tabindex=0'.d("textonly; ! .title; focus .title:!").ui(".title=#:value")
 					,'desc contenteditable tabindex=0'.d("textonly; ! .desc; focus (.title .desc:!)!").ui(".desc=#:value")
 				).u("(@entity $)db $entities!=()")
-/*
-				,'SECTION.tags'.d("$lists!; * (`list)db"
-					,'tag'
-					.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
-					.a("!? $tagged")
-					.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
-				)
-*/
-
-				,'SECTION'.d("$lists! $short=:!"
-				
-					,'tags'.d("* (`list)db"
-						,'tag'
-							.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
-							.a("!? $tagged")
-							.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
-					).a("!? $short")
-					
-					,'ICON.add_circle'.ui("$short=$short:!")
-					
-				)
-
-
 				
 				,'SECTION.entries'.d("* (`entry .entity)db"
 					,'A.entry target=_blank'.d(".href=.entry:scope.href; !! .entry@ .href .href@title")
 				)
 				
+				,'SECTION.tags'.d("$lists! $?=:!"
+				
+					,'tagslist.short'.d("* (`list)db"
+						,'tag'
+							.d("! .title; $tagged=(`list-entity .list .entity=$Entity.entity)db:??; a!")
+							.a("!? $tagged $tagged:!@unset")
+							.ui("(@list-entity .list .entity $tagged:?uid=$tagged:!)db")//
+					).a("!? $?@short")
+					
+					,'BUTTON'.d("!? ($? `add `check)?!").ui("$?=$?:!")
+					
+				)
+
+
 				,'SECTION.opinions'.d("$?= $aspects!="
 				
 					,'present'.d("$aspects!; * (`entity-aspect .entity)db"
 						,'opinion'.d("! Aspect").u("(@entity-aspect $)db")
 					)
 					
-					,'append'.d("? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
+					,'append'.d("? $?; ? $aspects=((@custom`aspects)db).0.value $aspects=(`static/aspects.txt? .entity)uri:query; $edit="
 					
 						,'UL.addaspects'
 							.d("? $edit:!; $!=; *@ $aspects:untab; ! AddAspect")
-							.u("$aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }; $?= ")
+							.u("$aspects!=( @entity-aspect .entity $!.aspect)db; { ? .desc:!; .desc=$!.category (@entity $)db }")
 							
 						,'TEXTAREA'
 							.d("? $edit; ! $aspects; autoindent")
@@ -416,6 +407,8 @@
 						
 						,'ICON'.d("!? ($edit `done `edit)?!").ui("$edit=$edit:!")
 					)
+					
+					,'BUTTON'.d("!? ($?:! `add `check)?!").ui("$?=$?:!")
 				)
 			).u("(@list-entity @list`recent .entity)db")
 		)
@@ -507,6 +500,7 @@
 	
 	.FUNC({
 		operate	:{
+		
 			hint	:(value,alias,node)=>{node.setAttribute("placeholder",value)},
 			
 			storage	:{

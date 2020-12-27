@@ -4,7 +4,9 @@ input::placeholder, [contenteditable]:empty::before, .fallback, .aspect>.name::b
 [contenteditable]:focus, [contenteditable]:empty
 {background-color: white}
 
-roof, button, .lists>li.selected
+button{border:none; background:none}
+
+roof, button::before, .lists>li.selected
 {background: #52f;border-color: #52f;color: white;}
 
 tab	{color: rgba(255,255,255,.75)}

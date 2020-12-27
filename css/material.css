@@ -13,7 +13,7 @@
 */
 
 
-icon, button, .checked::before
+icon, button::before, .checked::before
 {
   font-family: 'Material Icons';
   font-weight: normal;
@@ -40,10 +40,13 @@ icon::before, button::before, action:empty::before{
 	content:attr(class);
 }
 
-button{
+button::before{
+	/* display: block; */
+	vertical-align: middle;
+	margin: 0 .25em;
 	box-shadow:0 4px 4px rgba(0,0,0,.25);
-	height: 2em;
-	width: 2em;
+	/* height: 1em; */
+	/* width: 1em; */
 	border:none;
 	border-radius:50%;
 	z-index: 1;
@@ -184,7 +187,7 @@ section{
 
 input.key {
     flex: 1;
-    margin-right: .5rem;
+    /* margin-right: .5rem; */
     text-align: center;
     border: 2px solid;
     border-radius: 1.5rem;
@@ -225,16 +228,13 @@ input.credit {
 }
 
 
-.tag.tagged {
-    border-radius: 1em;
-}
-
 .tag {
-    display: inline;
-    white-space: nowrap;
+    display: inline-block;
+    /* white-space: nowrap; */
     margin: .2em;
     padding: .25em .5em;
     border: 1px solid transparent;
+    border-radius: 1em;
 }
 
 
@@ -570,13 +570,12 @@ p>icon {
     padding: 0;
     display: inline;
     vertical-align: middle;
-    /* margin: 0; */
 }
 
-.short>.tag {
+.short>.tag.unset {
   display: none;
 }
 
-.short>.tag.tagged {
-  display: inline;
+.tagslist {
+  margin: 1rem 0;
 }
